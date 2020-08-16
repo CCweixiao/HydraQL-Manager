@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseUserTableMapper">
+    
+    <resultMap type="SysHbaseUserTable" id="SysHbaseUserTableResult">
+        <result property="userId"    column="user_id"    />
+        <result property="tableId"    column="table_id"    />
+    </resultMap>
+
+    <sql id="selectSysHbaseUserTableVo">
+        select user_id, table_id from sys_hbase_user_table
+    </sql>
+
+    <select id="selectSysHbaseUserTableList" parameterType="SysHbaseUserTable" resultMap="SysHbaseUserTableResult">
+        <include refid="selectSysHbaseUserTableVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectSysHbaseUserTableById" parameterType="Long" resultMap="SysHbaseUserTableResult">
+        <include refid="selectSysHbaseUserTableVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertSysHbaseUserTable" parameterType="SysHbaseUserTable">
+        insert into sys_hbase_user_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="tableId != null">table_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="tableId != null">#{tableId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysHbaseUserTable" parameterType="SysHbaseUserTable">
+        update sys_hbase_user_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableId != null">table_id = #{tableId},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteSysHbaseUserTableById" parameterType="Long">
+        delete from sys_hbase_user_table where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteSysHbaseUserTableByIds" parameterType="String">
+        delete from sys_hbase_user_table where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+</mapper>

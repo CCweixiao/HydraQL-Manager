@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseNamespaceMapper">
+    
+    <resultMap type="SysHbaseNamespace" id="SysHbaseNamespaceResult">
+        <result property="namespaceId"    column="namespace_id"    />
+        <result property="namespaceName"    column="namespace_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysHbaseNamespaceVo">
+        select namespace_id, namespace_name, create_by, create_time, update_by, update_time from sys_hbase_namespace
+    </sql>
+
+    <select id="selectSysHbaseNamespaceList" parameterType="SysHbaseNamespace" resultMap="SysHbaseNamespaceResult">
+        <include refid="selectSysHbaseNamespaceVo"/>
+        <where>  
+            <if test="namespaceName != null  and namespaceName != ''"> and namespace_name like concat('%', #{namespaceName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysHbaseNamespaceById" parameterType="Long" resultMap="SysHbaseNamespaceResult">
+        <include refid="selectSysHbaseNamespaceVo"/>
+        where namespace_id = #{namespaceId}
+    </select>
+        
+    <insert id="insertSysHbaseNamespace" parameterType="SysHbaseNamespace" useGeneratedKeys="true" keyProperty="namespaceId">
+        insert into sys_hbase_namespace
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="namespaceName != null and namespaceName != ''">namespace_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="namespaceName != null and namespaceName != ''">#{namespaceName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysHbaseNamespace" parameterType="SysHbaseNamespace">
+        update sys_hbase_namespace
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="namespaceName != null and namespaceName != ''">namespace_name = #{namespaceName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where namespace_id = #{namespaceId}
+    </update>
+
+    <delete id="deleteSysHbaseNamespaceById" parameterType="Long">
+        delete from sys_hbase_namespace where namespace_id = #{namespaceId}
+    </delete>
+
+    <delete id="deleteSysHbaseNamespaceByIds" parameterType="String">
+        delete from sys_hbase_namespace where namespace_id in 
+        <foreach item="namespaceId" collection="array" open="(" separator="," close=")">
+            #{namespaceId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBase列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>HBase表namespace编号：</label>
+                                <input type="text" name="namespaceId"/>
+                            </li>
+                            <li>
+                                <label>HBase表名称：</label>
+                                <input type="text" name="tableName"/>
+                            </li>
+                            <li>
+                                <label>在线region数：</label>
+                                <input type="text" name="onlineRegions"/>
+                            </li>
+                            <li>
+                                <label>下线region数：</label>
+                                <input type="text" name="offlineRegions"/>
+                            </li>
+                            <li>
+                                <label>失败的region数：</label>
+                                <input type="text" name="failedRegions"/>
+                            </li>
+                            <li>
+                                <label>在分裂的region数：</label>
+                                <input type="text" name="splitRegions"/>
+                            </li>
+                            <li>
+                                <label>其他状态的region数：</label>
+                                <input type="text" name="otherRegions"/>
+                            </li>
+                            <li>
+                                <label>禁用标志：</label>
+                                <input type="text" name="disableFlag"/>
+                            </li>
+                            <li>
+                                <label>状态：</label>
+                                <select name="status">
+                                    <option value="">所有</option>
+                                    <option value="-1">代码生成请选择字典属性</option>
+                                </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:table:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:table:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:table:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:table:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:table:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:table:remove')}]];
+        var prefix = ctx + "system/table";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "HBase",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'tableId',
+                    title: 'HBase表编号',
+                    visible: false
+                },
+                {
+                    field: 'namespaceId',
+                    title: 'HBase表namespace编号'
+                },
+                {
+                    field: 'tableName',
+                    title: 'HBase表名称'
+                },
+                {
+                    field: 'onlineRegions',
+                    title: '在线region数'
+                },
+                {
+                    field: 'offlineRegions',
+                    title: '下线region数'
+                },
+                {
+                    field: 'failedRegions',
+                    title: '失败的region数'
+                },
+                {
+                    field: 'splitRegions',
+                    title: '在分裂的region数'
+                },
+                {
+                    field: 'otherRegions',
+                    title: '其他状态的region数'
+                },
+                {
+                    field: 'tableDesc',
+                    title: '表描述信息'
+                },
+                {
+                    field: 'disableFlag',
+                    title: '禁用标志'
+                },
+                {
+                    field: 'status',
+                    title: '状态'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

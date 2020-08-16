@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableMapper">
+    
+    <resultMap type="SysHbaseTable" id="SysHbaseTableResult">
+        <result property="tableId"    column="table_id"    />
+        <result property="namespaceId"    column="namespace_id"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="onlineRegions"    column="online_regions"    />
+        <result property="offlineRegions"    column="offline_regions"    />
+        <result property="failedRegions"    column="failed_regions"    />
+        <result property="splitRegions"    column="split_regions"    />
+        <result property="otherRegions"    column="other_regions"    />
+        <result property="tableDesc"    column="table_desc"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="disableFlag"    column="disable_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysHbaseTableVo">
+        select table_id, namespace_id, table_name, online_regions, offline_regions, failed_regions, split_regions, other_regions, table_desc, del_flag, disable_flag, create_by, create_time, update_by, update_time, status, remark from sys_hbase_table
+    </sql>
+
+    <select id="selectSysHbaseTableList" parameterType="SysHbaseTable" resultMap="SysHbaseTableResult">
+        <include refid="selectSysHbaseTableVo"/>
+        <where>  
+            <if test="namespaceId != null "> and namespace_id = #{namespaceId}</if>
+            <if test="tableName != null  and tableName != ''"> and table_name like concat('%', #{tableName}, '%')</if>
+            <if test="onlineRegions != null "> and online_regions = #{onlineRegions}</if>
+            <if test="offlineRegions != null "> and offline_regions = #{offlineRegions}</if>
+            <if test="failedRegions != null "> and failed_regions = #{failedRegions}</if>
+            <if test="splitRegions != null "> and split_regions = #{splitRegions}</if>
+            <if test="otherRegions != null "> and other_regions = #{otherRegions}</if>
+            <if test="tableDesc != null  and tableDesc != ''"> and table_desc = #{tableDesc}</if>
+            <if test="disableFlag != null  and disableFlag != ''"> and disable_flag = #{disableFlag}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
+        <include refid="selectSysHbaseTableVo"/>
+        where table_id = #{tableId}
+    </select>
+        
+    <insert id="insertSysHbaseTable" parameterType="SysHbaseTable" useGeneratedKeys="true" keyProperty="tableId">
+        insert into sys_hbase_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="namespaceId != null">namespace_id,</if>
+            <if test="tableName != null and tableName != ''">table_name,</if>
+            <if test="onlineRegions != null">online_regions,</if>
+            <if test="offlineRegions != null">offline_regions,</if>
+            <if test="failedRegions != null">failed_regions,</if>
+            <if test="splitRegions != null">split_regions,</if>
+            <if test="otherRegions != null">other_regions,</if>
+            <if test="tableDesc != null">table_desc,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="disableFlag != null">disable_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="namespaceId != null">#{namespaceId},</if>
+            <if test="tableName != null and tableName != ''">#{tableName},</if>
+            <if test="onlineRegions != null">#{onlineRegions},</if>
+            <if test="offlineRegions != null">#{offlineRegions},</if>
+            <if test="failedRegions != null">#{failedRegions},</if>
+            <if test="splitRegions != null">#{splitRegions},</if>
+            <if test="otherRegions != null">#{otherRegions},</if>
+            <if test="tableDesc != null">#{tableDesc},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="disableFlag != null">#{disableFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysHbaseTable" parameterType="SysHbaseTable">
+        update sys_hbase_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="namespaceId != null">namespace_id = #{namespaceId},</if>
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="onlineRegions != null">online_regions = #{onlineRegions},</if>
+            <if test="offlineRegions != null">offline_regions = #{offlineRegions},</if>
+            <if test="failedRegions != null">failed_regions = #{failedRegions},</if>
+            <if test="splitRegions != null">split_regions = #{splitRegions},</if>
+            <if test="otherRegions != null">other_regions = #{otherRegions},</if>
+            <if test="tableDesc != null">table_desc = #{tableDesc},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="disableFlag != null">disable_flag = #{disableFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where table_id = #{tableId}
+    </update>
+
+    <delete id="deleteSysHbaseTableById" parameterType="Long">
+        delete from sys_hbase_table where table_id = #{tableId}
+    </delete>
+
+    <delete id="deleteSysHbaseTableByIds" parameterType="String">
+        delete from sys_hbase_table where table_id in 
+        <foreach item="tableId" collection="array" open="(" separator="," close=")">
+            #{tableId}
+        </foreach>
+    </delete>
+
+</mapper>
