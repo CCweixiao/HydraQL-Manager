@@ -33,12 +33,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="namespaceId != null "> and namespace_id = #{namespaceId}</if>
             <if test="tableName != null  and tableName != ''"> and table_name like concat('%', #{tableName}, '%')</if>
-            <if test="onlineRegions != null "> and online_regions = #{onlineRegions}</if>
-            <if test="offlineRegions != null "> and offline_regions = #{offlineRegions}</if>
-            <if test="failedRegions != null "> and failed_regions = #{failedRegions}</if>
-            <if test="splitRegions != null "> and split_regions = #{splitRegions}</if>
-            <if test="otherRegions != null "> and other_regions = #{otherRegions}</if>
-            <if test="tableDesc != null  and tableDesc != ''"> and table_desc = #{tableDesc}</if>
             <if test="disableFlag != null  and disableFlag != ''"> and disable_flag = #{disableFlag}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
         </where>

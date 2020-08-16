@@ -43,6 +43,11 @@ public class SysHbaseNamespaceServiceImpl implements ISysHbaseNamespaceService {
         return sysHbaseNamespaceMapper.selectSysHbaseNamespaceList(sysHbaseNamespace);
     }
 
+    @Override
+    public List<SysHbaseNamespace> selectAllSysHbaseNamespaceList() {
+        return sysHbaseNamespaceMapper.selectAllSysHbaseNamespaceList();
+    }
+
     /**
      * 新增HBaseNamespace
      *

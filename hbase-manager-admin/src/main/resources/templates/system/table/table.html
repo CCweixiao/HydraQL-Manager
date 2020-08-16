@@ -11,42 +11,23 @@
                     <div class="select-list">
                         <ul>
                             <li>
-                                <label>HBase表namespace编号：</label>
-                                <input type="text" name="namespaceId"/>
+                                namespace：<input type="text" name="namespaceId"/>
                             </li>
                             <li>
-                                <label>HBase表名称：</label>
-                                <input type="text" name="tableName"/>
+                                table name：<input type="text" name="tableName"/>
                             </li>
                             <li>
-                                <label>在线region数：</label>
-                                <input type="text" name="onlineRegions"/>
-                            </li>
-                            <li>
-                                <label>下线region数：</label>
-                                <input type="text" name="offlineRegions"/>
-                            </li>
-                            <li>
-                                <label>失败的region数：</label>
-                                <input type="text" name="failedRegions"/>
-                            </li>
-                            <li>
-                                <label>在分裂的region数：</label>
-                                <input type="text" name="splitRegions"/>
-                            </li>
-                            <li>
-                                <label>其他状态的region数：</label>
-                                <input type="text" name="otherRegions"/>
-                            </li>
-                            <li>
-                                <label>禁用标志：</label>
-                                <input type="text" name="disableFlag"/>
-                            </li>
-                            <li>
-                                <label>状态：</label>
-                                <select name="status">
+                                是否禁用：
+                                <select name="status" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
                                     <option value="">所有</option>
-                                    <option value="-1">代码生成请选择字典属性</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                                </select>
+                            </li>
+                            <li>
+                                状态：
+                                <select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
                                 </select>
                             </li>
                             <li>
@@ -81,6 +62,8 @@
     <script th:inline="javascript">
         var editFlag = [[${@permission.hasPermi('system:table:edit')}]];
         var removeFlag = [[${@permission.hasPermi('system:table:remove')}]];
+        var datas = [[${@dict.getType('sys_hbase_table_status')}]];
+        var datas2 = [[${@dict.getType('sys_hbase_table_disable')}]];
         var prefix = ctx + "system/table";
 
         $(function() {
@@ -101,31 +84,31 @@
                 },
                 {
                     field: 'namespaceId',
-                    title: 'HBase表namespace编号'
+                    title: 'namespace'
                 },
                 {
                     field: 'tableName',
-                    title: 'HBase表名称'
+                    title: 'table name'
                 },
                 {
                     field: 'onlineRegions',
-                    title: '在线region数'
+                    title: 'online_regions'
                 },
                 {
                     field: 'offlineRegions',
-                    title: '下线region数'
+                    title: 'offline_regions'
                 },
                 {
                     field: 'failedRegions',
-                    title: '失败的region数'
+                    title: 'failed_regions'
                 },
                 {
                     field: 'splitRegions',
-                    title: '在分裂的region数'
+                    title: 'split_regions'
                 },
                 {
                     field: 'otherRegions',
-                    title: '其他状态的region数'
+                    title: 'other_regions'
                 },
                 {
                     field: 'tableDesc',
@@ -133,11 +116,19 @@
                 },
                 {
                     field: 'disableFlag',
-                    title: '禁用标志'
+                    title: '是否禁用',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas2, value);
+                    }
                 },
                 {
                     field: 'status',
-                    title: '状态'
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
                 },
                 {
                     field: 'remark',

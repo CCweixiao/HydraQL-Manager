@@ -23,6 +23,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="namespaceName != null  and namespaceName != ''"> and namespace_name like concat('%', #{namespaceName}, '%')</if>
         </where>
     </select>
+
+    <select id="selectAllSysHbaseNamespaceList" resultMap="SysHbaseNamespaceResult">
+        <include refid="selectSysHbaseNamespaceVo"/>
+    </select>
+
     
     <select id="selectSysHbaseNamespaceById" parameterType="Long" resultMap="SysHbaseNamespaceResult">
         <include refid="selectSysHbaseNamespaceVo"/>

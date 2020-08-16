@@ -28,6 +28,13 @@ public interface ISysHbaseNamespaceService {
     public List<SysHbaseNamespace> selectSysHbaseNamespaceList(SysHbaseNamespace sysHbaseNamespace);
 
     /**
+     * 查询所有HBaseNamespace列表
+     *
+     * @return HBaseNamespace集合
+     */
+    public List<SysHbaseNamespace> selectAllSysHbaseNamespaceList();
+
+    /**
      * 新增HBaseNamespace
      *
      * @param sysHbaseNamespace HBaseNamespace

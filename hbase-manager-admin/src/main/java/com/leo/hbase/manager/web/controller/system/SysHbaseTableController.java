@@ -1,6 +1,8 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
+
+import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,23 +23,23 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 
 /**
  * HBaseController
- * 
+ *
  * @author leojie
  * @date 2020-08-16
  */
 @Controller
 @RequestMapping("/system/table")
-public class SysHbaseTableController extends BaseController
-{
+public class SysHbaseTableController extends BaseController {
     private String prefix = "system/table";
 
     @Autowired
     private ISysHbaseTableService sysHbaseTableService;
+    @Autowired
+    private ISysHbaseNamespaceService sysHbaseNamespaceService;
 
     @RequiresPermissions("system:table:view")
     @GetMapping()
-    public String table()
-    {
+    public String table() {
         return prefix + "/table";
     }
 
@@ -47,8 +49,7 @@ public class SysHbaseTableController extends BaseController
     @RequiresPermissions("system:table:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseTable sysHbaseTable)
-    {
+    public TableDataInfo list(SysHbaseTable sysHbaseTable) {
         startPage();
         List<SysHbaseTable> list = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
         return getDataTable(list);
@@ -61,8 +62,7 @@ public class SysHbaseTableController extends BaseController
     @Log(title = "HBase", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseTable sysHbaseTable)
-    {
+    public AjaxResult export(SysHbaseTable sysHbaseTable) {
         List<SysHbaseTable> list = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
         ExcelUtil<SysHbaseTable> util = new ExcelUtil<SysHbaseTable>(SysHbaseTable.class);
         return util.exportExcel(list, "table");
@@ -72,8 +72,8 @@ public class SysHbaseTableController extends BaseController
      * 新增HBase
      */
     @GetMapping("/add")
-    public String add()
-    {
+    public String add(ModelMap mmap) {
+        mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
         return prefix + "/add";
     }
 
@@ -84,8 +84,7 @@ public class SysHbaseTableController extends BaseController
     @Log(title = "HBase", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SysHbaseTable sysHbaseTable)
-    {
+    public AjaxResult addSave(SysHbaseTable sysHbaseTable) {
         return toAjax(sysHbaseTableService.insertSysHbaseTable(sysHbaseTable));
     }
 
@@ -93,10 +92,10 @@ public class SysHbaseTableController extends BaseController
      * 修改HBase
      */
     @GetMapping("/edit/{tableId}")
-    public String edit(@PathVariable("tableId") Long tableId, ModelMap mmap)
-    {
+    public String edit(@PathVariable("tableId") Long tableId, ModelMap mmap) {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
         mmap.put("sysHbaseTable", sysHbaseTable);
+        mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
         return prefix + "/edit";
     }
 
@@ -107,8 +106,7 @@ public class SysHbaseTableController extends BaseController
     @Log(title = "HBase", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SysHbaseTable sysHbaseTable)
-    {
+    public AjaxResult editSave(SysHbaseTable sysHbaseTable) {
         return toAjax(sysHbaseTableService.updateSysHbaseTable(sysHbaseTable));
     }
 
@@ -117,10 +115,9 @@ public class SysHbaseTableController extends BaseController
      */
     @RequiresPermissions("system:table:remove")
     @Log(title = "HBase", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids)
-    {
+    public AjaxResult remove(String ids) {
         return toAjax(sysHbaseTableService.deleteSysHbaseTableByIds(ids));
     }
 }
