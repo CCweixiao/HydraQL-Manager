@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,14 +22,13 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 
 /**
  * HBaseTagController
- * 
+ *
  * @author leojie
  * @date 2020-08-16
  */
 @Controller
 @RequestMapping("/system/tag")
-public class SysHbaseTagController extends BaseController
-{
+public class SysHbaseTagController extends BaseController {
     private String prefix = "system/tag";
 
     @Autowired
@@ -36,8 +36,7 @@ public class SysHbaseTagController extends BaseController
 
     @RequiresPermissions("system:tag:view")
     @GetMapping()
-    public String tag()
-    {
+    public String tag() {
         return prefix + "/tag";
     }
 
@@ -47,8 +46,7 @@ public class SysHbaseTagController extends BaseController
     @RequiresPermissions("system:tag:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseTag sysHbaseTag)
-    {
+    public TableDataInfo list(SysHbaseTag sysHbaseTag) {
         startPage();
         List<SysHbaseTag> list = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
         return getDataTable(list);
@@ -61,8 +59,7 @@ public class SysHbaseTagController extends BaseController
     @Log(title = "HBaseTag", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseTag sysHbaseTag)
-    {
+    public AjaxResult export(SysHbaseTag sysHbaseTag) {
         List<SysHbaseTag> list = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
         ExcelUtil<SysHbaseTag> util = new ExcelUtil<SysHbaseTag>(SysHbaseTag.class);
         return util.exportExcel(list, "tag");
@@ -72,8 +69,7 @@ public class SysHbaseTagController extends BaseController
      * 新增HBaseTag
      */
     @GetMapping("/add")
-    public String add()
-    {
+    public String add() {
         return prefix + "/add";
     }
 
@@ -84,8 +80,13 @@ public class SysHbaseTagController extends BaseController
     @Log(title = "HBaseTag", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SysHbaseTag sysHbaseTag)
-    {
+    public AjaxResult addSave(SysHbaseTag sysHbaseTag) {
+        final String tagName = sysHbaseTag.getTagName();
+        List<SysHbaseTag> existsTags = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
+        String msg = "tag [" + tagName + "]已经存在!";
+        if (existsTags != null && !existsTags.isEmpty()) {
+            return error(msg);
+        }
         return toAjax(sysHbaseTagService.insertSysHbaseTag(sysHbaseTag));
     }
 
@@ -93,8 +94,7 @@ public class SysHbaseTagController extends BaseController
      * 修改HBaseTag
      */
     @GetMapping("/edit/{tagId}")
-    public String edit(@PathVariable("tagId") Long tagId, ModelMap mmap)
-    {
+    public String edit(@PathVariable("tagId") Long tagId, ModelMap mmap) {
         SysHbaseTag sysHbaseTag = sysHbaseTagService.selectSysHbaseTagById(tagId);
         mmap.put("sysHbaseTag", sysHbaseTag);
         return prefix + "/edit";
@@ -107,8 +107,20 @@ public class SysHbaseTagController extends BaseController
     @Log(title = "HBaseTag", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SysHbaseTag sysHbaseTag)
-    {
+    public AjaxResult editSave(SysHbaseTag sysHbaseTag) {
+        final String tagName = sysHbaseTag.getTagName();
+        List<SysHbaseTag> existsTags = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
+        String msg = "tag [" + tagName + "]已经存在!";
+
+        if (existsTags != null && !existsTags.isEmpty()) {
+            if (existsTags.size() > 1) {
+                return error(msg);
+            } else {
+                if (!existsTags.get(0).getTagId().equals(sysHbaseTag.getTagId())) {
+                    return error(msg);
+                }
+            }
+        }
         return toAjax(sysHbaseTagService.updateSysHbaseTag(sysHbaseTag));
     }
 
@@ -117,10 +129,9 @@ public class SysHbaseTagController extends BaseController
      */
     @RequiresPermissions("system:tag:remove")
     @Log(title = "HBaseTag", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids)
-    {
+    public AjaxResult remove(String ids) {
         return toAjax(sysHbaseTagService.deleteSysHbaseTagByIds(ids));
     }
 }
