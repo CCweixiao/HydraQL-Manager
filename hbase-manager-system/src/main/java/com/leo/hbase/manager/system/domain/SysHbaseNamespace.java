@@ -22,7 +22,7 @@ public class SysHbaseNamespace extends BaseEntity {
     /**
      * HBase所属namespace的名称
      */
-    @Excel(name = "HBase所属namespace的名称")
+    @Excel(name = "namespace")
     private String namespaceName;
 
     public void setNamespaceId(Long namespaceId) {

@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,14 +22,13 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 
 /**
  * HBaseNamespaceController
- * 
+ *
  * @author leojie
  * @date 2020-08-16
  */
 @Controller
 @RequestMapping("/system/namespace")
-public class SysHbaseNamespaceController extends BaseController
-{
+public class SysHbaseNamespaceController extends BaseController {
     private String prefix = "system/namespace";
 
     @Autowired
@@ -36,8 +36,7 @@ public class SysHbaseNamespaceController extends BaseController
 
     @RequiresPermissions("system:namespace:view")
     @GetMapping()
-    public String namespace()
-    {
+    public String namespace() {
         return prefix + "/namespace";
     }
 
@@ -47,8 +46,7 @@ public class SysHbaseNamespaceController extends BaseController
     @RequiresPermissions("system:namespace:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseNamespace sysHbaseNamespace)
-    {
+    public TableDataInfo list(SysHbaseNamespace sysHbaseNamespace) {
         startPage();
         List<SysHbaseNamespace> list = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
         return getDataTable(list);
@@ -61,8 +59,7 @@ public class SysHbaseNamespaceController extends BaseController
     @Log(title = "HBaseNamespace", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseNamespace sysHbaseNamespace)
-    {
+    public AjaxResult export(SysHbaseNamespace sysHbaseNamespace) {
         List<SysHbaseNamespace> list = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
         ExcelUtil<SysHbaseNamespace> util = new ExcelUtil<SysHbaseNamespace>(SysHbaseNamespace.class);
         return util.exportExcel(list, "namespace");
@@ -72,8 +69,7 @@ public class SysHbaseNamespaceController extends BaseController
      * 新增HBaseNamespace
      */
     @GetMapping("/add")
-    public String add()
-    {
+    public String add() {
         return prefix + "/add";
     }
 
@@ -84,8 +80,14 @@ public class SysHbaseNamespaceController extends BaseController
     @Log(title = "HBaseNamespace", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SysHbaseNamespace sysHbaseNamespace)
-    {
+    public AjaxResult addSave(SysHbaseNamespace sysHbaseNamespace) {
+        final String name = sysHbaseNamespace.getNamespaceName();
+        List<SysHbaseNamespace> existsNamespaceList = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
+        String msg = "namespace[" + name + "]已经存在!";
+        if (existsNamespaceList != null && !existsNamespaceList.isEmpty()) {
+            return error(msg);
+        }
+
         return toAjax(sysHbaseNamespaceService.insertSysHbaseNamespace(sysHbaseNamespace));
     }
 
@@ -93,8 +95,7 @@ public class SysHbaseNamespaceController extends BaseController
      * 修改HBaseNamespace
      */
     @GetMapping("/edit/{namespaceId}")
-    public String edit(@PathVariable("namespaceId") Long namespaceId, ModelMap mmap)
-    {
+    public String edit(@PathVariable("namespaceId") Long namespaceId, ModelMap mmap) {
         SysHbaseNamespace sysHbaseNamespace = sysHbaseNamespaceService.selectSysHbaseNamespaceById(namespaceId);
         mmap.put("sysHbaseNamespace", sysHbaseNamespace);
         return prefix + "/edit";
@@ -107,8 +108,7 @@ public class SysHbaseNamespaceController extends BaseController
     @Log(title = "HBaseNamespace", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SysHbaseNamespace sysHbaseNamespace)
-    {
+    public AjaxResult editSave(SysHbaseNamespace sysHbaseNamespace) {
         return toAjax(sysHbaseNamespaceService.updateSysHbaseNamespace(sysHbaseNamespace));
     }
 
@@ -117,10 +117,9 @@ public class SysHbaseNamespaceController extends BaseController
      */
     @RequiresPermissions("system:namespace:remove")
     @Log(title = "HBaseNamespace", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids)
-    {
+    public AjaxResult remove(String ids) {
         return toAjax(sysHbaseNamespaceService.deleteSysHbaseNamespaceByIds(ids));
     }
 }
