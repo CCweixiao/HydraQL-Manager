@@ -1,13 +1,20 @@
 package com.leo.hbase.manager.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.leo.hbase.manager.common.utils.DateUtils;
+import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.system.domain.SysHbaseTableTag;
+import com.leo.hbase.manager.system.domain.SysHbaseTag;
+import com.leo.hbase.manager.system.domain.SysUserPost;
+import com.leo.hbase.manager.system.mapper.SysHbaseTableTagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.leo.hbase.manager.system.mapper.SysHbaseTableMapper;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import com.leo.hbase.manager.common.core.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * HBaseService业务层处理
@@ -20,6 +27,9 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService
 {
     @Autowired
     private SysHbaseTableMapper sysHbaseTableMapper;
+
+    @Autowired
+    private SysHbaseTableTagMapper sysHbaseTableTagMapper;
 
     /**
      * 查询HBase
@@ -46,7 +56,7 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService
     }
 
     /**
-     * 新增HBase
+     * 新增HBase表
      * 
      * @param sysHbaseTable HBase
      * @return 结果
@@ -55,7 +65,34 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService
     public int insertSysHbaseTable(SysHbaseTable sysHbaseTable)
     {
         sysHbaseTable.setCreateTime(DateUtils.getNowDate());
-        return sysHbaseTableMapper.insertSysHbaseTable(sysHbaseTable);
+        int rows =  sysHbaseTableMapper.insertSysHbaseTable(sysHbaseTable);
+        //新增HBase表和tag对应关系
+        insertTableTag(sysHbaseTable);
+        return rows;
+    }
+
+    /**
+     * 新增表的标签信息
+     * @param sysHbaseTable HBase
+     */
+    public void insertTableTag(SysHbaseTable sysHbaseTable){
+        Long[] tagIds = sysHbaseTable.getTagIds();
+        if(StringUtils.isNotNull(tagIds)){
+            List<SysHbaseTableTag> list = new ArrayList<>(tagIds.length);
+
+            for (Long tagId : tagIds)
+            {
+                SysHbaseTableTag ht = new SysHbaseTableTag();
+                ht.setTableId(sysHbaseTable.getTableId());
+                ht.setTagId(tagId);
+                list.add(ht);
+            }
+            if (list.size() > 0)
+            {
+                sysHbaseTableTagMapper.batchInsertSysHbaseTableTag(list);
+            }
+        }
+
     }
 
     /**
@@ -65,9 +102,15 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateSysHbaseTable(SysHbaseTable sysHbaseTable)
     {
+        Long updateTableId = sysHbaseTable.getTableId();
+
+        sysHbaseTableTagMapper.deleteSysHbaseTableTagById(updateTableId);
+        insertTableTag(sysHbaseTable);
         sysHbaseTable.setUpdateTime(DateUtils.getNowDate());
+
         return sysHbaseTableMapper.updateSysHbaseTable(sysHbaseTable);
     }
 

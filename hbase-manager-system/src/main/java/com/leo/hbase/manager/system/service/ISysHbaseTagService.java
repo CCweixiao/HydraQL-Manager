@@ -28,6 +28,20 @@ public interface ISysHbaseTagService
     public List<SysHbaseTag> selectSysHbaseTagList(SysHbaseTag sysHbaseTag);
 
     /**
+     * 查询所有HBaseTag列表
+     *
+     * @return HBaseTag集合
+     */
+    public List<SysHbaseTag> selectAllSysHbaseTagList();
+
+    /**
+     * 根据table id 查询所有HBaseTag列表
+     * @param tableId 表ID
+     * @return HBaseTag集合
+     */
+    public List<SysHbaseTag> selectSysHbaseTagsByTableId(Long tableId);
+
+    /**
      * 新增HBaseTag
      * 
      * @param sysHbaseTag HBaseTag

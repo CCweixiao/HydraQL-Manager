@@ -56,6 +56,11 @@ public class SysHbaseTableTagServiceImpl implements ISysHbaseTableTagService
         return sysHbaseTableTagMapper.insertSysHbaseTableTag(sysHbaseTableTag);
     }
 
+    @Override
+    public int batchInsertSysHbaseTableTag(List<SysHbaseTableTag> sysHbaseTableTagList) {
+        return sysHbaseTableTagMapper.batchInsertSysHbaseTableTag(sysHbaseTableTagList);
+    }
+
     /**
      * 修改HBase所属Tag
      * 

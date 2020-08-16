@@ -36,6 +36,13 @@ public interface ISysHbaseTableTagService
     public int insertSysHbaseTableTag(SysHbaseTableTag sysHbaseTableTag);
 
     /**
+     * 批量添加HBase所属标签
+     * @param sysHbaseTableTagList HBase所属Tag
+     * @return 结果
+     */
+    public int batchInsertSysHbaseTableTag(List<SysHbaseTableTag> sysHbaseTableTagList);
+
+    /**
      * 修改HBase所属Tag
      * 
      * @param sysHbaseTableTag HBase所属Tag
@@ -58,4 +65,5 @@ public interface ISysHbaseTableTagService
      * @return 结果
      */
     public int deleteSysHbaseTableTagById(Long tableId);
+
 }

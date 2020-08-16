@@ -23,6 +23,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tagName != null  and tagName != ''"> and tag_name like concat('%', #{tagName}, '%')</if>
         </where>
     </select>
+
+    <select id="selectAllSysHbaseTagList" resultMap="SysHbaseTagResult">
+        <include refid="selectSysHbaseTagVo"/>
+    </select>
+
+    <select id="selectSysHbaseTagsByTableId" parameterType="Long" resultMap="SysHbaseTagResult">
+        SELECT tag.tag_id, tag.tag_name
+        FROM sys_hbase_tag tag
+                 LEFT JOIN sys_hbase_table_tag h_tag ON tag.tag_id = h_tag.tag_id
+        WHERE h_tag.table_id = #{tableId}
+    </select>
     
     <select id="selectSysHbaseTagById" parameterType="Long" resultMap="SysHbaseTagResult">
         <include refid="selectSysHbaseTagVo"/>

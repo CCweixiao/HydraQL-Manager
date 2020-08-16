@@ -3,6 +3,7 @@ package com.leo.hbase.manager.web.controller.system;
 import java.util.List;
 
 import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
+import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,8 @@ public class SysHbaseTableController extends BaseController {
     private ISysHbaseTableService sysHbaseTableService;
     @Autowired
     private ISysHbaseNamespaceService sysHbaseNamespaceService;
+    @Autowired
+    private ISysHbaseTagService sysHbaseTagService;
 
     @RequiresPermissions("system:table:view")
     @GetMapping()
@@ -75,6 +78,7 @@ public class SysHbaseTableController extends BaseController {
     @GetMapping("/add")
     public String add(ModelMap mmap) {
         mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
+        mmap.put("tags", sysHbaseTagService.selectAllSysHbaseTagList());
         return prefix + "/add";
     }
 
@@ -86,6 +90,7 @@ public class SysHbaseTableController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SysHbaseTable sysHbaseTable) {
+        //TODO 保存表信息时，同名表进行判断
         return toAjax(sysHbaseTableService.insertSysHbaseTable(sysHbaseTable));
     }
 
@@ -97,6 +102,7 @@ public class SysHbaseTableController extends BaseController {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
         mmap.put("sysHbaseTable", sysHbaseTable);
         mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
+        mmap.put("tags", sysHbaseTagService.selectSysHbaseTagsByTableId(tableId));
         return prefix + "/edit";
     }
 

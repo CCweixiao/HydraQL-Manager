@@ -2,7 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('新增HBase表')"/>
-    <th:block th:include="include :: bootstrap-select-css"/>
+    <th:block th:include="include :: select2-css" />
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -22,6 +22,16 @@
                 <input name="tableName" class="form-control" type="text" required>
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">HBase表标签：</label>
+            <div class="col-sm-8">
+                <select id="hbaseTag" class="form-control select2-multiple" multiple>
+                    <option th:each="tag:${tags}" th:value="${tag.tagId}" th:text="${tag.tagName}"></option>
+                </select>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-sm-3 control-label">是否禁用：</label>
             <div class="col-sm-8">
@@ -45,7 +55,7 @@
     </form>
 </div>
 <th:block th:include="include :: footer"/>
-<th:block th:include="include :: bootstrap-select-js"/>
+<th:block th:include="include :: select2-js" />
 
 <script th:inline="javascript">
     var prefix = ctx + "system/table"
@@ -55,10 +65,20 @@
 
     function submitHandler() {
         if ($.validate.form()) {
-            $.operate.save(prefix + "/add", $('#form-table-add').serialize());
+            var data = $("#form-table-add").serializeArray();
+            var tagIds = $.form.selectSelects("hbaseTag");
+            data.push({"name": "tagIds", "value": tagIds});
+
+            $.operate.save(prefix + "/add", data);
         }
     }
 
+    $(function() {
+        $('#hbaseTag').select2({
+            placeholder: "请选择表标签",
+            allowClear: true
+        });
+    })
 </script>
 </body>
 </html>

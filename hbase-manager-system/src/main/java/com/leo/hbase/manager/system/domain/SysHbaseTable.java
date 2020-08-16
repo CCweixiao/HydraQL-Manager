@@ -86,6 +86,8 @@ public class SysHbaseTable extends BaseEntity {
     @Excel(name = "状态", readConverterExp = "0=线上表,1=测试表,2=启用表")
     private String status;
 
+    private Long[] tagIds;
+
     public void setTableId(Long tableId) {
         this.tableId = tableId;
     }
@@ -188,6 +190,14 @@ public class SysHbaseTable extends BaseEntity {
 
     public String getStatus() {
         return status;
+    }
+
+    public Long[] getTagIds() {
+        return tagIds;
+    }
+
+    public void setTagIds(Long[] tagIds) {
+        this.tagIds = tagIds;
     }
 
     @Override

@@ -25,6 +25,9 @@ public class SysHbaseTag extends BaseEntity {
     @Excel(name = "HBase表Tag名称")
     private String tagName;
 
+    /**HBase是否存在标签，默认不存在**/
+    private boolean flag = false;
+
     public void setTagId(Long tagId) {
         this.tagId = tagId;
     }
@@ -39,6 +42,14 @@ public class SysHbaseTag extends BaseEntity {
 
     public String getTagName() {
         return tagName;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
     }
 
     @Override
