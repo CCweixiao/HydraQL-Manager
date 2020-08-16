@@ -2,10 +2,10 @@
 -- 20、HBase表name space
 -- ----------------------------
 
-drop table if exists hbase_namespace;
-create table hbase_namespace
+drop table if exists sys_hbase_namespace;
+create table sys_hbase_namespace
 (
-    namespace_id   bigint(20)  not null auto_increment comment 'HBase所属namespace的编号',
+    namespace_id   bigint(20)  not null auto_increment comment '编号',
     namespace_name varchar(50) not null comment 'HBase所属namespace的名称',
     create_by      varchar(64) default '' comment '创建者',
     create_time    datetime comment '创建时间',
@@ -13,15 +13,15 @@ create table hbase_namespace
     update_time    datetime comment '更新时间',
     primary key (namespace_id)
 ) engine = innodb
-  auto_increment = 1 comment = 'HBase所属namespace的表';
+  auto_increment = 1 comment = 'HBaseNamespace';
 
 
 -- ----------------------------
 -- 21、HBase表tag信息表
 -- ----------------------------
 
-drop table if exists hbase_tag;
-create table hbase_tag
+drop table if exists sys_hbase_tag;
+create table sys_hbase_tag
 (
     tag_id      bigint(20)  not null auto_increment comment 'tag的编号',
     tag_name    varchar(50) not null comment 'HBase表Tag名称',
@@ -32,14 +32,14 @@ create table hbase_tag
     primary key (tag_id)
 
 ) engine = innodb
-  auto_increment = 1 comment = 'HBase表所属tag表';
+  auto_increment = 1 comment = 'HBaseTag';
 
 
 -- ----------------------------
 -- 22、HBase表信息保存表
 -- ----------------------------
-drop table if exists hbase_table;
-create table hbase_table
+drop table if exists sys_hbase_table;
+create table sys_hbase_table
 (
     table_id        bigint(20)   not null auto_increment comment 'HBase表编号',
     namespace_id    bigint(20)   not null comment 'HBase表namespace编号',
@@ -61,31 +61,31 @@ create table hbase_table
     primary key (table_id)
 
 ) engine = innodb
-  auto_increment = 1 comment = 'HBase表信息表';
+  auto_increment = 1 comment = 'HBase表';
 
 -- ----------------------------
 -- 23、HBase表信息与tag信息对应关系表
 -- ----------------------------
 
-drop table if exists hbase_table_tag;
-create table hbase_table_tag
+drop table if exists sys_hbase_table_tag;
+create table sys_hbase_table_tag
 (
     table_id bigint(20) not null comment 'HBase 表编号',
     tag_id   bigint(20) not null comment 'HBase tag 编号',
     primary key (table_id, tag_id)
 ) engine = innodb
-  auto_increment = 1 comment = 'HBase表tag保存表';
+  auto_increment = 1 comment = 'HBase表所属Tag';
 
 
 -- ----------------------------
 -- 24、HBase表信息与用户信息对应关系表
 -- ----------------------------
 
-drop table if exists hbase_user_table;
-create table hbase_user_table
+drop table if exists sys_hbase_user_table;
+create table sys_hbase_user_table
 (
     user_id  bigint(20) not null comment '用户ID',
     table_id bigint(20) not null comment 'HBase 表编号',
     primary key (user_id, table_id)
 ) engine = innodb
-  auto_increment = 1 comment = 'HBase表与用户信息对应关系表';
+  auto_increment = 1 comment = 'HBase表所属用户';
