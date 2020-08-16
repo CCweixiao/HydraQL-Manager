@@ -39,7 +39,8 @@ public class SysHbaseTableController extends BaseController {
 
     @RequiresPermissions("system:table:view")
     @GetMapping()
-    public String table() {
+    public String table(ModelMap mmap) {
+        mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
         return prefix + "/table";
     }
 

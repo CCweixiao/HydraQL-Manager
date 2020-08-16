@@ -7,189 +7,210 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * HBase对象 sys_hbase_table
- * 
+ *
  * @author leojie
  * @date 2020-08-16
  */
-public class SysHbaseTable extends BaseEntity
-{
+public class SysHbaseTable extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /** HBase表编号 */
+    /**
+     * HBase表编号
+     */
     private Long tableId;
 
-    /** HBase表namespace编号 */
+    /**
+     * HBase表namespace编号
+     */
     @Excel(name = "HBase表namespace编号")
     private Long namespaceId;
 
-    /** HBase表名称 */
+    private SysHbaseNamespace sysHbaseNamespace;
+
+    /**
+     * HBase表名称
+     */
     @Excel(name = "HBase表名称")
     private String tableName;
 
-    /** 在线region数 */
+    /**
+     * 在线region数
+     */
     @Excel(name = "在线region数")
     private Long onlineRegions;
 
-    /** 下线region数 */
+    /**
+     * 下线region数
+     */
     @Excel(name = "下线region数")
     private Long offlineRegions;
 
-    /** 失败的region数 */
+    /**
+     * 失败的region数
+     */
     @Excel(name = "失败的region数")
     private Long failedRegions;
 
-    /** 在分裂的region数 */
+    /**
+     * 在分裂的region数
+     */
     @Excel(name = "在分裂的region数")
     private Long splitRegions;
 
-    /** 其他状态的region数 */
+    /**
+     * 其他状态的region数
+     */
     @Excel(name = "其他状态的region数")
     private Long otherRegions;
 
-    /** 表描述信息 */
+    /**
+     * 表描述信息
+     */
     @Excel(name = "表描述信息")
     private String tableDesc;
 
-    /** 删除标志（0代表存在 2代表删除） */
+    /**
+     * 删除标志（0代表存在 2代表删除）
+     */
     private String delFlag;
 
-    /** 禁用标志（0代表启用表 2代表禁用表） */
+    /**
+     * 禁用标志（0代表启用表 2代表禁用表）
+     */
     @Excel(name = "禁用标志", readConverterExp = "0=代表启用表,2=代表禁用表")
     private String disableFlag;
 
-    /** 状态（0线上表 1测试表 2启用表） */
+    /**
+     * 状态（0线上表 1测试表 2启用表）
+     */
     @Excel(name = "状态", readConverterExp = "0=线上表,1=测试表,2=启用表")
     private String status;
 
-    public void setTableId(Long tableId) 
-    {
+    public void setTableId(Long tableId) {
         this.tableId = tableId;
     }
 
-    public Long getTableId() 
-    {
+    public Long getTableId() {
         return tableId;
     }
-    public void setNamespaceId(Long namespaceId) 
-    {
+
+    public void setNamespaceId(Long namespaceId) {
         this.namespaceId = namespaceId;
     }
 
-    public Long getNamespaceId() 
-    {
+    public Long getNamespaceId() {
         return namespaceId;
     }
-    public void setTableName(String tableName) 
-    {
+
+    public SysHbaseNamespace getSysHbaseNamespace() {
+        return sysHbaseNamespace;
+    }
+
+    public void setSysHbaseNamespace(SysHbaseNamespace sysHbaseNamespace) {
+        this.sysHbaseNamespace = sysHbaseNamespace;
+    }
+
+    public void setTableName(String tableName) {
         this.tableName = tableName;
     }
 
-    public String getTableName() 
-    {
+    public String getTableName() {
         return tableName;
     }
-    public void setOnlineRegions(Long onlineRegions) 
-    {
+
+    public void setOnlineRegions(Long onlineRegions) {
         this.onlineRegions = onlineRegions;
     }
 
-    public Long getOnlineRegions() 
-    {
+    public Long getOnlineRegions() {
         return onlineRegions;
     }
-    public void setOfflineRegions(Long offlineRegions) 
-    {
+
+    public void setOfflineRegions(Long offlineRegions) {
         this.offlineRegions = offlineRegions;
     }
 
-    public Long getOfflineRegions() 
-    {
+    public Long getOfflineRegions() {
         return offlineRegions;
     }
-    public void setFailedRegions(Long failedRegions) 
-    {
+
+    public void setFailedRegions(Long failedRegions) {
         this.failedRegions = failedRegions;
     }
 
-    public Long getFailedRegions() 
-    {
+    public Long getFailedRegions() {
         return failedRegions;
     }
-    public void setSplitRegions(Long splitRegions) 
-    {
+
+    public void setSplitRegions(Long splitRegions) {
         this.splitRegions = splitRegions;
     }
 
-    public Long getSplitRegions() 
-    {
+    public Long getSplitRegions() {
         return splitRegions;
     }
-    public void setOtherRegions(Long otherRegions) 
-    {
+
+    public void setOtherRegions(Long otherRegions) {
         this.otherRegions = otherRegions;
     }
 
-    public Long getOtherRegions() 
-    {
+    public Long getOtherRegions() {
         return otherRegions;
     }
-    public void setTableDesc(String tableDesc) 
-    {
+
+    public void setTableDesc(String tableDesc) {
         this.tableDesc = tableDesc;
     }
 
-    public String getTableDesc() 
-    {
+    public String getTableDesc() {
         return tableDesc;
     }
-    public void setDelFlag(String delFlag) 
-    {
+
+    public void setDelFlag(String delFlag) {
         this.delFlag = delFlag;
     }
 
-    public String getDelFlag() 
-    {
+    public String getDelFlag() {
         return delFlag;
     }
-    public void setDisableFlag(String disableFlag) 
-    {
+
+    public void setDisableFlag(String disableFlag) {
         this.disableFlag = disableFlag;
     }
 
-    public String getDisableFlag() 
-    {
+    public String getDisableFlag() {
         return disableFlag;
     }
-    public void setStatus(String status) 
-    {
+
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public String getStatus() 
-    {
+    public String getStatus() {
         return status;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
-            .append("tableId", getTableId())
-            .append("namespaceId", getNamespaceId())
-            .append("tableName", getTableName())
-            .append("onlineRegions", getOnlineRegions())
-            .append("offlineRegions", getOfflineRegions())
-            .append("failedRegions", getFailedRegions())
-            .append("splitRegions", getSplitRegions())
-            .append("otherRegions", getOtherRegions())
-            .append("tableDesc", getTableDesc())
-            .append("delFlag", getDelFlag())
-            .append("disableFlag", getDisableFlag())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("status", getStatus())
-            .append("remark", getRemark())
-            .toString();
+                .append("tableId", getTableId())
+                .append("namespaceId", getNamespaceId())
+                .append("namespace", getSysHbaseNamespace().getNamespaceName())
+                .append("tableName", getTableName())
+                .append("onlineRegions", getOnlineRegions())
+                .append("offlineRegions", getOfflineRegions())
+                .append("failedRegions", getFailedRegions())
+                .append("splitRegions", getSplitRegions())
+                .append("otherRegions", getOtherRegions())
+                .append("tableDesc", getTableDesc())
+                .append("delFlag", getDelFlag())
+                .append("disableFlag", getDisableFlag())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .append("status", getStatus())
+                .append("remark", getRemark())
+                .toString();
     }
 }

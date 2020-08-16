@@ -1,48 +1,71 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableMapper">
-    
+
     <resultMap type="SysHbaseTable" id="SysHbaseTableResult">
-        <result property="tableId"    column="table_id"    />
-        <result property="namespaceId"    column="namespace_id"    />
-        <result property="tableName"    column="table_name"    />
-        <result property="onlineRegions"    column="online_regions"    />
-        <result property="offlineRegions"    column="offline_regions"    />
-        <result property="failedRegions"    column="failed_regions"    />
-        <result property="splitRegions"    column="split_regions"    />
-        <result property="otherRegions"    column="other_regions"    />
-        <result property="tableDesc"    column="table_desc"    />
-        <result property="delFlag"    column="del_flag"    />
-        <result property="disableFlag"    column="disable_flag"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="status"    column="status"    />
-        <result property="remark"    column="remark"    />
+        <result property="tableId" column="table_id"/>
+        <result property="namespaceId" column="namespace_id"/>
+        <result property="tableName" column="table_name"/>
+        <result property="onlineRegions" column="online_regions"/>
+        <result property="offlineRegions" column="offline_regions"/>
+        <result property="failedRegions" column="failed_regions"/>
+        <result property="splitRegions" column="split_regions"/>
+        <result property="otherRegions" column="other_regions"/>
+        <result property="tableDesc" column="table_desc"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="disableFlag" column="disable_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <association property="sysHbaseNamespace" javaType="SysHbaseNamespace">
+            <id property="namespaceId" column="namespace_id"/>
+            <result property="namespaceName" column="namespace_name"/>
+        </association>
     </resultMap>
 
     <sql id="selectSysHbaseTableVo">
-        select table_id, namespace_id, table_name, online_regions, offline_regions, failed_regions, split_regions, other_regions, table_desc, del_flag, disable_flag, create_by, create_time, update_by, update_time, status, remark from sys_hbase_table
+        select table_id,
+               sht.namespace_id,
+               shn.namespace_name,
+               table_name,
+               online_regions,
+               offline_regions,
+               failed_regions,
+               split_regions,
+               other_regions,
+               table_desc,
+               del_flag,
+               disable_flag,
+               sht.create_by,
+               sht.create_time,
+               sht.update_by,
+               sht.update_time,
+               sht.status,
+               sht.remark
+        from sys_hbase_table sht,sys_hbase_namespace shn
     </sql>
 
     <select id="selectSysHbaseTableList" parameterType="SysHbaseTable" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
-        <where>  
-            <if test="namespaceId != null "> and namespace_id = #{namespaceId}</if>
-            <if test="tableName != null  and tableName != ''"> and table_name like concat('%', #{tableName}, '%')</if>
-            <if test="disableFlag != null  and disableFlag != ''"> and disable_flag = #{disableFlag}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
+        <where>
+            <if test="1 == 1">and sht.namespace_id = shn.namespace_id</if>
+            <if test="namespaceId != null ">and sht.namespace_id = #{namespaceId}</if>
+            <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
+            <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
         </where>
     </select>
-    
+
     <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
         where table_id = #{tableId}
     </select>
-        
+
     <insert id="insertSysHbaseTable" parameterType="SysHbaseTable" useGeneratedKeys="true" keyProperty="tableId">
         insert into sys_hbase_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -62,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
             <if test="status != null">status,</if>
             <if test="remark != null">remark,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="namespaceId != null">#{namespaceId},</if>
             <if test="tableName != null and tableName != ''">#{tableName},</if>
@@ -80,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
             <if test="status != null">#{status},</if>
             <if test="remark != null">#{remark},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateSysHbaseTable" parameterType="SysHbaseTable">
@@ -107,11 +130,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteSysHbaseTableById" parameterType="Long">
-        delete from sys_hbase_table where table_id = #{tableId}
+        delete
+        from sys_hbase_table
+        where table_id = #{tableId}
     </delete>
 
     <delete id="deleteSysHbaseTableByIds" parameterType="String">
-        delete from sys_hbase_table where table_id in 
+        delete from sys_hbase_table where table_id in
         <foreach item="tableId" collection="array" open="(" separator="," close=")">
             #{tableId}
         </foreach>

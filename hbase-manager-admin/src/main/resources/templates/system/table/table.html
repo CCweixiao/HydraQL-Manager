@@ -11,20 +11,26 @@
                     <div class="select-list">
                         <ul>
                             <li>
-                                namespace：<input type="text" name="namespaceId"/>
+                                <label>namespace：</label>
+                                <select name="namespaceId" class="form-control">
+                                    <option value="">所有</option>
+                                    <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
+                                            th:text="${namespace.namespaceName}"></option>
+                                </select>
                             </li>
                             <li>
-                                table name：<input type="text" name="tableName"/>
+                                <label>table name：</label>
+                                <input type="text" name="tableName"/>
                             </li>
                             <li>
-                                是否禁用：
+                                <label>是否禁用：</label>
                                 <select name="status" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
                                 </select>
                             </li>
                             <li>
-                                状态：
+                                <label>状态：</label>
                                 <select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
@@ -83,7 +89,7 @@
                     visible: false
                 },
                 {
-                    field: 'namespaceId',
+                    field: 'sysHbaseNamespace.namespaceName',
                     title: 'namespace'
                 },
                 {
