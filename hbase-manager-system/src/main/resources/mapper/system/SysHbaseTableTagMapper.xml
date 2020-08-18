@@ -15,7 +15,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSysHbaseTableTagList" parameterType="SysHbaseTableTag" resultMap="SysHbaseTableTagResult">
         <include refid="selectSysHbaseTableTagVo"/>
-        <where>  
+        <where>
+            <if test="tableId != null"> and table_id = #{tableId}</if>
+            <if test="tagId != null"> and tag_id = #{tagId}</if>
         </where>
     </select>
     

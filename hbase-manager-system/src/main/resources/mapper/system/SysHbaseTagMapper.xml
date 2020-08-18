@@ -39,6 +39,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSysHbaseTagVo"/>
         where tag_id = #{tagId}
     </select>
+
+
+    <select id="selectSysHbaseTagByName" parameterType="String" resultMap="SysHbaseTagResult">
+        <include refid="selectSysHbaseTagVo"/>
+        where tag_name = #{tagName}
+    </select>
         
     <insert id="insertSysHbaseTag" parameterType="SysHbaseTag" useGeneratedKeys="true" keyProperty="tagId">
         insert into sys_hbase_tag

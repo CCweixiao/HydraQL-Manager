@@ -1,24 +1,22 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import java.util.List;
-
+import com.leo.hbase.manager.common.annotation.Log;
+import com.leo.hbase.manager.common.core.controller.BaseController;
+import com.leo.hbase.manager.common.core.domain.AjaxResult;
+import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
+import com.leo.hbase.manager.system.domain.SysHbaseTableTag;
+import com.leo.hbase.manager.system.domain.SysHbaseTag;
+import com.leo.hbase.manager.system.service.ISysHbaseTableTagService;
+import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.system.domain.SysHbaseTag;
-import com.leo.hbase.manager.system.service.ISysHbaseTagService;
-import com.leo.hbase.manager.common.core.controller.BaseController;
-import com.leo.hbase.manager.common.core.domain.AjaxResult;
-import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * HBaseTagController
@@ -33,6 +31,9 @@ public class SysHbaseTagController extends BaseController {
 
     @Autowired
     private ISysHbaseTagService sysHbaseTagService;
+
+    @Autowired
+    private ISysHbaseTableTagService sysHbaseTableTagService;
 
     @RequiresPermissions("system:tag:view")
     @GetMapping()
@@ -82,9 +83,11 @@ public class SysHbaseTagController extends BaseController {
     @ResponseBody
     public AjaxResult addSave(SysHbaseTag sysHbaseTag) {
         final String tagName = sysHbaseTag.getTagName();
-        List<SysHbaseTag> existsTags = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
+
+        SysHbaseTag existsTag = sysHbaseTagService.selectSysHbaseTagByName(tagName);
         String msg = "tag [" + tagName + "]已经存在!";
-        if (existsTags != null && !existsTags.isEmpty()) {
+
+        if (existsTag != null && existsTag.getTagId() > 0) {
             return error(msg);
         }
         return toAjax(sysHbaseTagService.insertSysHbaseTag(sysHbaseTag));
@@ -108,17 +111,18 @@ public class SysHbaseTagController extends BaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SysHbaseTag sysHbaseTag) {
+        if (sysHbaseTag.getTagId() == null || sysHbaseTag.getTagId() < 1) {
+            return error("待修改HBase表标签id不能为空!");
+        }
         final String tagName = sysHbaseTag.getTagName();
-        List<SysHbaseTag> existsTags = sysHbaseTagService.selectSysHbaseTagList(sysHbaseTag);
+
+        SysHbaseTag existsTag = sysHbaseTagService.selectSysHbaseTagByName(tagName);
+
         String msg = "tag [" + tagName + "]已经存在!";
 
-        if (existsTags != null && !existsTags.isEmpty()) {
-            if (existsTags.size() > 1) {
+        if (existsTag != null && existsTag.getTagId() > 0) {
+            if (!existsTag.getTagId().equals(sysHbaseTag.getTagId())) {
                 return error(msg);
-            } else {
-                if (!existsTags.get(0).getTagId().equals(sysHbaseTag.getTagId())) {
-                    return error(msg);
-                }
             }
         }
         return toAjax(sysHbaseTagService.updateSysHbaseTag(sysHbaseTag));
@@ -131,7 +135,14 @@ public class SysHbaseTagController extends BaseController {
     @Log(title = "HBaseTag", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids) {
-        return toAjax(sysHbaseTagService.deleteSysHbaseTagByIds(ids));
+    public AjaxResult remove(Long ids) {
+        //删除标签前先判断，标签下没有表
+        SysHbaseTableTag sysHbaseTableTag = new SysHbaseTableTag();
+        sysHbaseTableTag.setTagId(ids);
+        List<SysHbaseTableTag> hbaseTableTags = sysHbaseTableTagService.selectSysHbaseTableTagList(sysHbaseTableTag);
+        if (hbaseTableTags != null && !hbaseTableTags.isEmpty()) {
+            return error("待删除标签下绑定有表，不能被删除");
+        }
+        return toAjax(sysHbaseTagService.deleteSysHbaseTagById(ids));
     }
 }

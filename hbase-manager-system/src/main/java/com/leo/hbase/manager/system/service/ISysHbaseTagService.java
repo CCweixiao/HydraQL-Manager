@@ -20,6 +20,14 @@ public interface ISysHbaseTagService
     public SysHbaseTag selectSysHbaseTagById(Long tagId);
 
     /**
+     * 根据名称查询HBaseTag
+     *
+     * @param tagName tag name
+     * @return HBaseTag
+     */
+    public SysHbaseTag selectSysHbaseTagByName(String tagName);
+
+    /**
      * 查询HBaseTag列表
      * 
      * @param sysHbaseTag HBaseTag

@@ -116,7 +116,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(@Validated SysHbaseNamespace sysHbaseNamespace) {
-        if (sysHbaseNamespace.getNamespaceId() == null) {
+        if (sysHbaseNamespace.getNamespaceId() == null || sysHbaseNamespace.getNamespaceId() < 1) {
             return error("待修改namespace的id不能为空");
         }
         final String editNamespaceName = sysHbaseNamespace.getNamespaceName();

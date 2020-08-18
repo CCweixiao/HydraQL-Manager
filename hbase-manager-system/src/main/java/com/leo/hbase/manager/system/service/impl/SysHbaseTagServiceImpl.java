@@ -1,16 +1,14 @@
 package com.leo.hbase.manager.system.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.utils.DateUtils;
-import com.leo.hbase.manager.system.domain.SysHbaseTableTag;
+import com.leo.hbase.manager.system.domain.SysHbaseTag;
+import com.leo.hbase.manager.system.mapper.SysHbaseTagMapper;
+import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.leo.hbase.manager.system.mapper.SysHbaseTagMapper;
-import com.leo.hbase.manager.system.domain.SysHbaseTag;
-import com.leo.hbase.manager.system.service.ISysHbaseTagService;
-import com.leo.hbase.manager.common.core.text.Convert;
+
+import java.util.List;
 
 /**
  * HBaseTagService业务层处理
@@ -32,6 +30,11 @@ public class SysHbaseTagServiceImpl implements ISysHbaseTagService {
     @Override
     public SysHbaseTag selectSysHbaseTagById(Long tagId) {
         return sysHbaseTagMapper.selectSysHbaseTagById(tagId);
+    }
+
+    @Override
+    public SysHbaseTag selectSysHbaseTagByName(String tagName) {
+        return sysHbaseTagMapper.selectSysHbaseTagByName(tagName);
     }
 
     /**
