@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author leojie 2020/8/17 9:46 下午
  */
-@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, SysHbaseTableDto.class})
+@GroupSequence(value = {First.class, Second.class, Third.class, SysHbaseTableDto.class})
 public class SysHbaseTableDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -37,8 +37,8 @@ public class SysHbaseTableDto implements Serializable {
     /**
      * HBase表名称
      */
-    @NotBlank(message = "HBase表名称不能为空", groups = {Second.class})
-    @Size(min = 1, max = 200, message = "HBase表名称长度不能超过200个字符", groups = {Third.class})
+    //@NotBlank(message = "HBase表名称不能为空", groups = {Second.class})
+    @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Second.class})
     private String tableName;
 
     /**
@@ -88,7 +88,7 @@ public class SysHbaseTableDto implements Serializable {
 
     private Long[] tagIds;
 
-    @NotEmpty(message = "请为表至少指定一个列簇",groups = {Fourth.class})
+    @NotEmpty(message = "请为表至少指定一个列簇",groups = {Third.class})
     private List<@NotNull @Valid SysHbaseFamilyModel> families;
 
     public SysHbaseTable convertTo() {

@@ -1,9 +1,6 @@
 package com.leo.hbase.manager.system.dto;
 
-import com.leo.hbase.manager.system.valid.First;
-import com.leo.hbase.manager.system.valid.Fourth;
-import com.leo.hbase.manager.system.valid.Second;
-import com.leo.hbase.manager.system.valid.Third;
+import com.leo.hbase.manager.system.valid.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Max;
@@ -15,19 +12,20 @@ import java.io.Serializable;
 /**
  * @author leojie 2020/8/17 10:11 下午
  */
-@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, SysHbaseFamilyModel.class})
+@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, Five.class, SysHbaseFamilyModel.class})
 public class SysHbaseFamilyModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "列簇名称不能为空", groups = {First.class})
-    @Size(min = 1, max = 200, message = "列簇名称长度不能超过200个字符")
+    //@NotBlank(message = "列簇名称不能为空", groups = {First.class})
+    @Size(min = 1, max = 200, message = "列簇名称必须在1~200个字符之间", groups ={First.class})
     private String name;
 
     @Min(value = 1, message = "最大版本数不能小于1", groups = {Second.class})
+    @Max(value = 999999, message = "最大版本数不能大于999999", groups = {Third.class})
     private Integer maxVersions = 1;
 
-    @Min(value = 1, message = "TTL不能小于1", groups = {Third.class})
-    @Max(value = 2147483647, message = "TTL不能超过2147483647", groups = {Fourth.class})
+    @Min(value = 1, message = "TTL不能小于1", groups = {Fourth.class})
+    @Max(value = 2147483647, message = "TTL不能超过2147483647", groups = {Five.class})
     private Integer timeToLive = 2147483647;
 
     private String compressionType;
