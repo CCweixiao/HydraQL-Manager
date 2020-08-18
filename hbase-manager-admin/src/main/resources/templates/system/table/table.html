@@ -11,27 +11,23 @@
                     <div class="select-list">
                         <ul>
                             <li>
-                                <label>namespace：</label>
-                                <select name="namespaceId" class="form-control">
+                                命名空间：<select name="namespaceId">
                                     <option value="">所有</option>
                                     <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
                                             th:text="${namespace.namespaceName}"></option>
                                 </select>
                             </li>
                             <li>
-                                <label>table name：</label>
-                                <input type="text" name="tableName"/>
+                                表名称：<input type="text" name="tableName"/>
                             </li>
                             <li>
-                                <label>是否禁用：</label>
-                                <select name="status" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
+                                是否禁用：<select name="disableFlag" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
                                 </select>
                             </li>
                             <li>
-                                <label>状态：</label>
-                                <select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
+                                当前状态：<select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
                                 </select>
@@ -59,6 +55,7 @@
                     <i class="fa fa-download"></i> 导出
                 </a>
             </div>
+
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
             </div>

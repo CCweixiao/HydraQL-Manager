@@ -2,12 +2,14 @@ package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
 
+import com.leo.hbase.manager.system.dto.SysHbaseTableDto;
 import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,7 +75,7 @@ public class SysHbaseTableController extends BaseController {
     }
 
     /**
-     * 新增HBase
+     * 新增HBase表
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
@@ -89,8 +91,9 @@ public class SysHbaseTableController extends BaseController {
     @Log(title = "HBase", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SysHbaseTable sysHbaseTable) {
+    public AjaxResult addSave(@Validated SysHbaseTableDto sysHbaseTableDto) {
         //TODO 保存表信息时，同名表进行判断
+        SysHbaseTable sysHbaseTable = sysHbaseTableDto.convertTo();
         return toAjax(sysHbaseTableService.insertSysHbaseTable(sysHbaseTable));
     }
 
