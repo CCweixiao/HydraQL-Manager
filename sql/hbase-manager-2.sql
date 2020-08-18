@@ -6,7 +6,7 @@ drop table if exists sys_hbase_namespace;
 create table sys_hbase_namespace
 (
     namespace_id   bigint(20)  not null auto_increment comment '编号',
-    namespace_name varchar(50) not null comment 'HBase所属namespace的名称',
+    namespace_name varchar(128) not null comment 'HBase所属namespace的名称',
     create_by      varchar(64) default '' comment '创建者',
     create_time    datetime comment '创建时间',
     update_by      varchar(64) default '' comment '更新者',
@@ -24,7 +24,7 @@ drop table if exists sys_hbase_tag;
 create table sys_hbase_tag
 (
     tag_id      bigint(20)  not null auto_increment comment 'tag的编号',
-    tag_name    varchar(50) not null comment 'HBase表Tag名称',
+    tag_name    varchar(128) not null comment 'HBase表Tag名称',
     create_by   varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
     update_by   varchar(64) default '' comment '更新者',
@@ -56,7 +56,7 @@ create table sys_hbase_table
     create_time     datetime comment '创建时间',
     update_by       varchar(64)  default '' comment '更新者',
     update_time     datetime comment '更新时间',
-    status          char(1)      default '0' comment '状态（0线上表 1测试表 2启用表）',
+    status          char(1)      default '0' comment '状态（0线上表 1测试表 2弃用表）',
     remark          varchar(255) default null comment '备注',
     primary key (table_id)
 

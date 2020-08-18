@@ -28,6 +28,14 @@ public interface ISysHbaseNamespaceService {
     public List<SysHbaseNamespace> selectSysHbaseNamespaceList(SysHbaseNamespace sysHbaseNamespace);
 
     /**
+     * 根据名称查询HBase的namespace
+     *
+     * @param namespaceName namespace name
+     * @return HBaseNamespace
+     */
+    public SysHbaseNamespace selectSysHbaseNamespaceByName(String namespaceName);
+
+    /**
      * 查询所有HBaseNamespace列表
      *
      * @return HBaseNamespace集合

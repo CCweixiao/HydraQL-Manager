@@ -61,6 +61,13 @@
         </where>
     </select>
 
+
+    <select id="selectSysHbaseTableListByNamespaceId" parameterType="Long" resultMap="SysHbaseTableResult">
+        <include refid="selectSysHbaseTableVo"/>
+        where sht.namespace_id = shn.namespace_id and sht.namespace_id = #{namespaceId} and disable_flag = '0'
+    </select>
+
+
     <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
         where table_id = #{tableId}

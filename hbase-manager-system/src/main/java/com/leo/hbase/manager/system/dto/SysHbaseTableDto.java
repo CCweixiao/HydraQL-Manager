@@ -1,14 +1,16 @@
 package com.leo.hbase.manager.system.dto;
 
-import com.leo.hbase.manager.common.core.domain.BaseEntity;
 import com.google.common.base.Converter;
-import com.leo.hbase.manager.common.utils.DateUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
+import com.leo.hbase.manager.system.valid.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.BeanUtils;
 
+import javax.validation.GroupSequence;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,8 +18,8 @@ import java.util.List;
  *
  * @author leojie 2020/8/17 9:46 下午
  */
-
-public class SysHbaseTableDto extends BaseEntity {
+@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, SysHbaseTableDto.class})
+public class SysHbaseTableDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,14 +31,14 @@ public class SysHbaseTableDto extends BaseEntity {
      * HBase表namespace编号
      */
     @NotNull
-    @Min(value = 1, message = "HBase表所属的namespace不能我空")
+    @Min(value = 1, message = "HBase表所属的namespace不能我空", groups = {First.class})
     private Long namespaceId;
 
     /**
      * HBase表名称
      */
-    @NotBlank(message = "HBase表名称不能为空")
-    @Size(min = 1, max = 200, message = "HBase表名称长度不能超过200个字符")
+    @NotBlank(message = "HBase表名称不能为空", groups = {Second.class})
+    @Size(min = 1, max = 200, message = "HBase表名称长度不能超过200个字符", groups = {Third.class})
     private String tableName;
 
     /**
@@ -80,15 +82,14 @@ public class SysHbaseTableDto extends BaseEntity {
     private String disableFlag;
 
     /**
-     * 状态（0线上表 1测试表 2启用表）
+     * 状态（0线上表 1测试表 2弃用表）
      */
     private String status;
 
     private Long[] tagIds;
 
-    @NotNull(message = "请为表至少指定一个列簇")
-    @NotEmpty(message = "请为表至少指定一个列簇")
-    private List<SysHbaseFamilyModel> families;
+    @NotEmpty(message = "请为表至少指定一个列簇",groups = {Fourth.class})
+    private List<@NotNull @Valid SysHbaseFamilyModel> families;
 
     public SysHbaseTable convertTo() {
         SysHbaseTableConvert convert = new SysHbaseTableConvert();
@@ -99,7 +100,7 @@ public class SysHbaseTableDto extends BaseEntity {
 
         @Override
         protected SysHbaseTable doForward(SysHbaseTableDto sysHbaseTableDto) {
-            sysHbaseTableDto.setCreateTime(DateUtils.getNowDate());
+            //sysHbaseTableDto.setCreateTime(DateUtils.getNowDate());
             SysHbaseTable sysHbaseTable = new SysHbaseTable();
             BeanUtils.copyProperties(sysHbaseTableDto, sysHbaseTable);
             return sysHbaseTable;
@@ -237,12 +238,12 @@ public class SysHbaseTableDto extends BaseEntity {
                 .append("tableDesc", getTableDesc())
                 .append("delFlag", getDelFlag())
                 .append("disableFlag", getDisableFlag())
-                .append("createBy", getCreateBy())
-                .append("createTime", getCreateTime())
-                .append("updateBy", getUpdateBy())
-                .append("updateTime", getUpdateTime())
+                //.append("createBy", getCreateBy())
+                //.append("createTime", getCreateTime())
+                //.append("updateBy", getUpdateBy())
+                //.append("updateTime", getUpdateTime())
                 .append("status", getStatus())
-                .append("remark", getRemark())
+                // .append("remark", getRemark())
                 .toString();
     }
 }

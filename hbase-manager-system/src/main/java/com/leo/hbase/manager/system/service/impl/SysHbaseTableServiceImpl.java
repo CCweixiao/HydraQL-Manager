@@ -55,6 +55,11 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService
         return sysHbaseTableMapper.selectSysHbaseTableList(sysHbaseTable);
     }
 
+    @Override
+    public List<SysHbaseTable> selectSysHbaseTableListByNamespaceId(Long namespaceId) {
+        return sysHbaseTableMapper.selectSysHbaseTableListByNamespaceId(namespaceId);
+    }
+
     /**
      * 新增HBase表
      * 

@@ -121,6 +121,18 @@ public class SysHbaseTableController extends BaseController {
     }
 
     /**
+     * 修改保存HBase表禁用状态
+     */
+    @RequiresPermissions("system:table:edit")
+    @Log(title = "HBase", businessType = BusinessType.UPDATE)
+    @PostMapping("/changeDisableStatus")
+    @ResponseBody
+    public AjaxResult changeDisableStatus(SysHbaseTable sysHbaseTable) {
+        return toAjax(sysHbaseTableService.updateSysHbaseTable(sysHbaseTable));
+    }
+
+
+    /**
      * 删除HBase
      */
     @RequiresPermissions("system:table:remove")

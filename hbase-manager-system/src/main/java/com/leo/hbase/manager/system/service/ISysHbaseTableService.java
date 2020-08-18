@@ -28,6 +28,14 @@ public interface ISysHbaseTableService
     public List<SysHbaseTable> selectSysHbaseTableList(SysHbaseTable sysHbaseTable);
 
     /**
+     * 根据namespace id 查询HBase列表
+     *
+     * @param namespaceId namespace id
+     * @return HBase集合
+     */
+    public List<SysHbaseTable> selectSysHbaseTableListByNamespaceId(Long namespaceId);
+
+    /**
      * 新增HBase
      * 
      * @param sysHbaseTable HBase

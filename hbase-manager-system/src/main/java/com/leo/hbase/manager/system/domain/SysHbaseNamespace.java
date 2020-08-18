@@ -5,6 +5,9 @@ import com.leo.hbase.manager.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 /**
  * HBaseNamespace对象 sys_hbase_namespace
  *
@@ -37,6 +40,8 @@ public class SysHbaseNamespace extends BaseEntity {
         this.namespaceName = namespaceName;
     }
 
+    @NotBlank(message = "HBase命名空间不能为空")
+    @Size(min = 1, max = 128, message = "HBase命名空间长度不能超过128个字符")
     public String getNamespaceName() {
         return namespaceName;
     }

@@ -44,6 +44,11 @@ public class SysHbaseNamespaceServiceImpl implements ISysHbaseNamespaceService {
     }
 
     @Override
+    public SysHbaseNamespace selectSysHbaseNamespaceByName(String namespaceName) {
+        return sysHbaseNamespaceMapper.selectSysHbaseNamespaceByName(namespaceName);
+    }
+
+    @Override
     public List<SysHbaseNamespace> selectAllSysHbaseNamespaceList() {
         return sysHbaseNamespaceMapper.selectAllSysHbaseNamespaceList();
     }

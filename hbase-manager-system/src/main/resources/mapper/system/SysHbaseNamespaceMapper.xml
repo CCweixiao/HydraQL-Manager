@@ -24,6 +24,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+    <select id="selectSysHbaseNamespaceByName" parameterType="String" resultMap="SysHbaseNamespaceResult">
+        <include refid="selectSysHbaseNamespaceVo"/>
+        where namespace_name = #{namespaceName}
+    </select>
+
     <select id="selectAllSysHbaseNamespaceList" resultMap="SysHbaseNamespaceResult">
         <include refid="selectSysHbaseNamespaceVo"/>
     </select>

@@ -1,85 +1,90 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('HBase列表')" />
+    <th:block th:include="include :: header('HBase表信息列表')"/>
 </head>
 <body class="gray-bg">
-     <div class="container-div">
-        <div class="row">
-            <div class="col-sm-12 search-collapse">
-                <form id="formId">
-                    <div class="select-list">
-                        <ul>
-                            <li>
-                                命名空间：<select name="namespaceId">
-                                    <option value="">所有</option>
-                                    <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
-                                            th:text="${namespace.namespaceName}"></option>
-                                </select>
-                            </li>
-                            <li>
-                                表名称：<input type="text" name="tableName"/>
-                            </li>
-                            <li>
-                                是否禁用：<select name="disableFlag" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
-                                    <option value="">所有</option>
-                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
-                                </select>
-                            </li>
-                            <li>
-                                当前状态：<select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
-                                    <option value="">所有</option>
-                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
-                                </select>
-                            </li>
-                            <li>
-                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                            </li>
-                        </ul>
-                    </div>
-                </form>
-            </div>
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            命名空间：<select name="namespaceId">
+                            <option value="">所有</option>
+                            <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
+                                    th:text="${namespace.namespaceName}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            表名称：<input type="text" name="tableName"/>
+                        </li>
+                        <li>
+                            是否禁用：<select name="disableFlag" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                        </select>
+                        </li>
+                        <li>
+                            当前状态：<select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                        </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
 
-            <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:table:add">
-                    <i class="fa fa-plus"></i> 添加
-                </a>
-                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:table:edit">
-                    <i class="fa fa-edit"></i> 修改
-                </a>
-                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:table:remove">
-                    <i class="fa fa-remove"></i> 删除
-                </a>
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:table:export">
-                    <i class="fa fa-download"></i> 导出
-                </a>
-            </div>
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:table:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="system:table:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <!--<a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="system:table:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>-->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:table:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
 
-            <div class="col-sm-12 select-table table-striped">
-                <table id="bootstrap-table"></table>
-            </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
         </div>
     </div>
-    <th:block th:include="include :: footer" />
-    <script th:inline="javascript">
-        var editFlag = [[${@permission.hasPermi('system:table:edit')}]];
-        var removeFlag = [[${@permission.hasPermi('system:table:remove')}]];
-        var datas = [[${@dict.getType('sys_hbase_table_status')}]];
-        var datas2 = [[${@dict.getType('sys_hbase_table_disable')}]];
-        var prefix = ctx + "system/table";
+</div>
+<th:block th:include="include :: footer"/>
 
-        $(function() {
-            var options = {
-                url: prefix + "/list",
-                createUrl: prefix + "/add",
-                updateUrl: prefix + "/edit/{id}",
-                removeUrl: prefix + "/remove",
-                exportUrl: prefix + "/export",
-                modalName: "HBase",
-                columns: [{
-                    checkbox: true
-                },
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:table:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:table:remove')}]];
+    var datas = [[${@dict.getType('sys_hbase_table_status')}]];
+    var datas2 = [[${@dict.getType('sys_hbase_table_disable')}]];
+    var prefix = ctx + "system/table";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "HBase表信息",
+            columns: [{
+                checkbox: true
+            },
                 {
                     field: 'tableId',
                     title: 'HBase表编号',
@@ -118,18 +123,22 @@
                     title: '表描述信息'
                 },
                 {
-                    field: 'disableFlag',
+                    visible: editFlag === 'hidden' ? false : true,
+                    //field: 'disableFlag',
                     title: '是否禁用',
                     align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas2, value);
+                    formatter: function (value, row, index) {
+                        return disableOrEnableTools(row);
                     }
+                    /*formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas2, value);
+                    }*/
                 },
                 {
                     field: 'status',
                     title: '状态',
                     align: 'center',
-                    formatter: function(value, row, index) {
+                    formatter: function (value, row, index) {
                         return $.table.selectDictLabel(datas, value);
                     }
                 },
@@ -140,16 +149,39 @@
                 {
                     title: '操作',
                     align: 'center',
-                    formatter: function(value, row, index) {
+                    formatter: function (value, row, index) {
                         var actions = [];
                         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a>');
                         return actions.join('');
                     }
                 }]
-            };
-            $.table.init(options);
-        });
-    </script>
+        };
+        $.table.init(options);
+    });
+
+    /*表禁用状态显示*/
+    function disableOrEnableTools(row) {
+        if (row.disableFlag == 2) {
+            return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enableTable(\'' + row.tableId + '\')"></i> ';
+        } else {
+            return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disableTable(\'' + row.tableId + '\')"></i> ';
+        }
+    }
+
+    /* 表禁用状态管理-停用 */
+    function disableTable(tableId) {
+        $.modal.confirm("确认要禁用表吗？", function() {
+            $.operate.post(prefix + "/changeDisableStatus", { "tableId": tableId, "disableFlag": 2 });
+        })
+    }
+
+    /* 表禁用状态管理-启用 */
+    function enableTable(tableId) {
+        $.modal.confirm("确认要启用表吗？", function() {
+            $.operate.post(prefix + "/changeDisableStatus", { "tableId": tableId, "disableFlag": 0 });
+        })
+    }
+</script>
 </body>
 </html>

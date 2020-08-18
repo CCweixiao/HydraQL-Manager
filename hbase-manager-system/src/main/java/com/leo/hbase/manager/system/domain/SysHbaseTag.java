@@ -5,6 +5,9 @@ import com.leo.hbase.manager.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 /**
  * HBaseTag对象 sys_hbase_tag
  *
@@ -40,6 +43,8 @@ public class SysHbaseTag extends BaseEntity {
         this.tagName = tagName;
     }
 
+    @NotBlank(message = "HBase表标签名称不能为空")
+    @Size(min = 1, max = 128, message = "HBase表标签名称长度不能超过128个字符")
     public String getTagName() {
         return tagName;
     }
