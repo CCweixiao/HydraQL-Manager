@@ -139,7 +139,9 @@ public class SysHbaseTableController extends BaseController {
     @Log(title = "HBase", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids) {
-        return toAjax(sysHbaseTableService.deleteSysHbaseTableByIds(ids));
+    public AjaxResult remove(Long ids) {
+        SysHbaseTable hbaseTable = sysHbaseTableService.selectSysHbaseTableById(ids);
+
+        return toAjax(sysHbaseTableService.deleteSysHbaseTableById(ids));
     }
 }

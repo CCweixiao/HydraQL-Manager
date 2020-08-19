@@ -2,6 +2,7 @@ package com.leo.hbase.manager.system.mapper;
 
 import java.util.List;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * HBaseMapper接口
@@ -18,6 +19,16 @@ public interface SysHbaseTableMapper
      * @return HBase
      */
     public SysHbaseTable selectSysHbaseTableById(Long tableId);
+
+    /**
+     * 根据namespace和table name查询HBase表
+     *
+     * @param namespaceId 命名空间 id
+     * @param tableName 表名
+     * @return HBase
+     */
+    public SysHbaseTable selectSysHbaseTableByNamespaceAndTableName(@Param(value = "namespaceId") Long namespaceId,
+                                                                    @Param(value = "tableName") String tableName);
 
     /**
      * 查询HBase列表

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.leo</groupId>
@@ -10,7 +10,7 @@
     <name>hbase-manager</name>
     <url>https://www.jielongping.com</url>
     <description>若依管理系统</description>
-    
+
     <properties>
         <hbase-manager.version>1.0.0</hbase-manager.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,7 +35,7 @@
     <!-- 依赖声明 -->
     <dependencyManagement>
         <dependencies>
-        
+
             <!-- SpringBoot的依赖配置-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -44,14 +44,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
+
             <!--阿里数据库连接池 -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.version}</version>
             </dependency>
-            
+
             <!--验证码 -->
             <dependency>
                 <groupId>com.github.penggle</groupId>
@@ -79,7 +79,7 @@
                 <artifactId>shiro-ehcache</artifactId>
                 <version>${shiro.version}</version>
             </dependency>
-    
+
             <!-- thymeleaf模板引擎和shiro框架的整合 -->
             <dependency>
                 <groupId>com.github.theborakompanioni</groupId>
@@ -131,7 +131,7 @@
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
-            
+
             <!--io常用工具类 -->
             <dependency>
                 <groupId>commons-io</groupId>
@@ -166,7 +166,7 @@
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
             </dependency>
-            
+
             <!-- 定时任务-->
             <dependency>
                 <groupId>com.leo</groupId>
@@ -200,6 +200,27 @@
                 <groupId>com.leo</groupId>
                 <artifactId>hbase-manager-common</artifactId>
                 <version>${hbase-manager.version}</version>
+            </dependency>
+            <!-- HBase相关依赖-->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>slf4j-api</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.github.CCweixiao</groupId>
+                <artifactId>spring-boot-starter-hbase</artifactId>
+                <version>${spring.boot.starter.hbase.version}</version>
             </dependency>
 
         </dependencies>
@@ -272,6 +293,32 @@
             <timezone>+8</timezone>
         </developer>
     </developers>
+
+    <profiles>
+        <profile>
+            <id>hbase1.x</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <hbase.version>1.4.3</hbase.version>
+                <spring.boot.starter.hbase.version>1.0.1</spring.boot.starter.hbase.version>
+            </properties>
+            <modules>
+                <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>hbase2.x</id>
+            <properties>
+                <hbase.version>1.4.3</hbase.version>
+                <spring.boot.starter.hbase.version>1.0.1</spring.boot.starter.hbase.version>
+            </properties>
+            <modules>
+                <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
+            </modules>
+        </profile>
+    </profiles>
 
 
 </project>

@@ -2,6 +2,7 @@ package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
 
+import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -39,6 +40,9 @@ public class SysHbaseNamespaceController extends BaseController {
 
     @Autowired
     private ISysHbaseTableService sysHbaseTableService;
+
+    @Autowired
+    private IHBaseAdminService hBaseAdminService;
 
     @RequiresPermissions("system:namespace:view")
     @GetMapping()
@@ -93,6 +97,11 @@ public class SysHbaseNamespaceController extends BaseController {
 
         if (namespace != null && namespace.getNamespaceId() > 0) {
             return error(msg);
+        }
+
+        boolean createSuccess = hBaseAdminService.createNamespace(name);
+        if (!createSuccess) {
+            return error("namespace[" + name + "]创建失败!");
         }
 
         return toAjax(sysHbaseNamespaceService.insertSysHbaseNamespace(sysHbaseNamespace));

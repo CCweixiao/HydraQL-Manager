@@ -69,6 +69,10 @@ spring:
     restart:
       # 热部署开关
       enabled: true
+  # HBase相关
+  data:
+    hbase:
+      quorum: node1
 
 # MyBatis
 mybatis:
