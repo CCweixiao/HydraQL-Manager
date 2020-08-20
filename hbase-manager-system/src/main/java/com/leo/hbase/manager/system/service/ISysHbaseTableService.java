@@ -62,6 +62,22 @@ public interface ISysHbaseTableService {
     public int updateSysHbaseTable(SysHbaseTable sysHbaseTable);
 
     /**
+     * 修改HBase表的状态
+     *
+     * @param sysHbaseTable HBase表
+     * @return 结果
+     */
+    public int updateSysHbaseTableStatus(SysHbaseTable sysHbaseTable);
+
+    /**
+     * 修改HBase表的禁用状态
+     *
+     * @param sysHbaseTable HBase表
+     * @return 结果
+     */
+    public int updateSysHbaseTableDisabledStatus(SysHbaseTable sysHbaseTable);
+
+    /**
      * 批量删除HBase
      *
      * @param ids 需要删除的数据ID

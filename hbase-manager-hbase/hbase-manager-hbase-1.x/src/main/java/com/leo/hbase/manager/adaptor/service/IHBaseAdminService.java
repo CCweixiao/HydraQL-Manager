@@ -37,10 +37,34 @@ public interface IHBaseAdminService {
     List<String> listAllTableName();
 
     /**
+     * 启用表
+     *
+     * @param tableName 表名
+     * @return 是否启用用成功
+     */
+    boolean enableTable(String tableName);
+
+    /**
+     * 禁用表
+     *
+     * @param tableName 表名
+     * @return 是否禁用成功
+     */
+    boolean disableTable(String tableName);
+
+    /**
      * 判断表是否被禁用
      *
      * @param tableName 表名
      * @return 是否禁用
      */
     boolean tableIsDisabled(String tableName);
+
+    /**
+     * 删除表
+     *
+     * @param tableName 表名
+     * @return 删除结果
+     */
+    boolean deleteTable(String tableName);
 }

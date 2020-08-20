@@ -38,7 +38,22 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     }
 
     @Override
+    public boolean enableTable(String tableName) {
+        return hBaseAdminTemplate.enableTableAsync(tableName);
+    }
+
+    @Override
+    public boolean disableTable(String tableName) {
+        return hBaseAdminTemplate.disableTableAsync(tableName);
+    }
+
+    @Override
     public boolean tableIsDisabled(String tableName) {
         return hBaseAdminTemplate.tableIsDisabled(tableName);
+    }
+
+    @Override
+    public boolean deleteTable(String tableName) {
+        return hBaseAdminTemplate.deleteTable(tableName);
     }
 }
