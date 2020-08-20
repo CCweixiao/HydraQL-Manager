@@ -149,9 +149,17 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public AjaxResult remove(Long ids) {
         //判断namespace id是否有使用
+        SysHbaseNamespace namespace = sysHbaseNamespaceService.selectSysHbaseNamespaceById(ids);
+        if (namespace == null || namespace.getNamespaceId() < 1) {
+            return error("namespace[" + ids + "]不存在！");
+        }
         List<SysHbaseTable> tableList = sysHbaseTableService.selectSysHbaseTableListByNamespaceId(ids);
         if (tableList != null && !tableList.isEmpty()) {
             return error("该namespace中存在表，不能被删除!");
+        }
+        boolean deleteRes = hBaseAdminService.deleteNamespace(namespace.getNamespaceName());
+        if (!deleteRes) {
+            return error("系统错误，namespace删除失败！");
         }
         return toAjax(sysHbaseNamespaceService.deleteSysHbaseNamespaceById(ids));
     }

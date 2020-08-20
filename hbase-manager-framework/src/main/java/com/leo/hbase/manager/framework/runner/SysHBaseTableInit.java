@@ -1,13 +1,13 @@
 package com.leo.hbase.manager.framework.runner;
 
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
+import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.utils.DateUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseNamespace;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
-import com.leo.hbase.sdk.core.util.StrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,13 +57,13 @@ public class SysHBaseTableInit implements CommandLineRunner {
                     hbaseTable = new SysHbaseTable();
                     hbaseTable.setNamespaceId(namespaceId);
                     hbaseTable.setTableName(shortTableName);
-                    hbaseTable.setDelFlag("0");
                     if (ihBaseAdminService.tableIsDisabled(tableName)) {
-                        hbaseTable.setDisableFlag("2");
+                        hbaseTable.setDisableFlag(HBaseDisabledFlag.DISABLED.getCode());
                     } else {
-                        hbaseTable.setDisableFlag("0");
+                        hbaseTable.setDisableFlag(HBaseDisabledFlag.ENABLED.getCode());
                     }
                     hbaseTable.setCreateTime(DateUtils.getNowDate());
+                    hbaseTable.setRemark("由系统初始化时迁移而来");
                     sysHbaseTableService.insertSysHbaseTable(hbaseTable);
                 }
 

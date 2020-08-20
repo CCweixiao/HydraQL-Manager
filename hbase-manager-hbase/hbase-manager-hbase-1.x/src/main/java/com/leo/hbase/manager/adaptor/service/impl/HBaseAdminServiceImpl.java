@@ -2,6 +2,7 @@ package com.leo.hbase.manager.adaptor.service.impl;
 
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.sdk.core.HBaseAdminTemplate;
+import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,12 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public boolean createNamespace(String namespace) {
         return hBaseAdminTemplate.createNamespace(namespace);
+    }
+
+    @Override
+    public boolean deleteNamespace(String namespace) {
+        //TODO 删除命名空间
+        throw new HBaseOperationsException("暂未支持删除命名空间！");
     }
 
     @Override
