@@ -28,10 +28,20 @@
         <result property="updateTime" column="update_time"/>
         <result property="status" column="status"/>
         <result property="remark" column="remark"/>
-        <association property="sysHbaseNamespace" javaType="SysHbaseNamespace">
-            <id property="namespaceId" column="namespace_id"/>
-            <result property="namespaceName" column="namespace_name"/>
-        </association>
+
+        <association property="sysHbaseNamespace" column="namespace_id" javaType="SysHbaseNamespace"
+                     resultMap="sysHbaseNamespaceResult"/>
+        <collection property="sysHbaseTagList" javaType="java.util.List" resultMap="sysHbaseTagResult"/>
+    </resultMap>
+
+    <resultMap id="sysHbaseNamespaceResult" type="SysHbaseNamespace">
+        <id property="namespaceId" column="namespace_id"/>
+        <result property="namespaceName" column="namespace_name"/>
+    </resultMap>
+
+    <resultMap id="sysHbaseTagResult" type="SysHbaseTag">
+        <id property="tagId" column="tag_id"/>
+        <result property="tagName" column="tag_name"/>
     </resultMap>
 
     <sql id="selectSysHbaseTableBaseVo">
@@ -49,26 +59,29 @@
     </sql>
 
     <sql id="selectSysHbaseTableVo">
-        select table_id,
-               sht.namespace_id,
-               shn.namespace_name,
+        SELECT ht.table_id,
+               hns.namespace_id,
+               hns.namespace_name,
                table_name,
+               tag.tag_id,
+               tag.tag_name,
                disable_flag,
-               sht.create_by,
-               sht.create_time,
-               sht.update_by,
-               sht.update_time,
-               sht.status,
-               sht.remark
-        from sys_hbase_table sht,
-             sys_hbase_namespace shn
+               ht.create_by,
+               ht.create_time,
+               ht.update_by,
+               ht.update_time,
+               ht.`status`,
+               ht.remark
+        FROM sys_hbase_table ht
+                 left join sys_hbase_namespace hns on ht.namespace_id = hns.namespace_id
+                 left join sys_hbase_table_tag htt on ht.table_id = htt.table_id
+                 left join sys_hbase_tag tag on htt.tag_id = tag.tag_id
     </sql>
 
     <select id="selectSysHbaseTableList" parameterType="SysHbaseTable" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
         <where>
-            <if test="1 == 1">and sht.namespace_id = shn.namespace_id</if>
-            <if test="namespaceId != null ">and sht.namespace_id = #{namespaceId}</if>
+            <if test="namespaceId != null ">and hns.namespace_id = #{namespaceId}</if>
             <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
             <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
             <if test="status != null  and status != ''">and status = #{status}</if>
@@ -89,7 +102,7 @@
 
     <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
-        where sht.namespace_id = shn.namespace_id and table_id = #{tableId}
+        where ht.table_id = #{tableId}
     </select>
 
     <insert id="insertSysHbaseTable" parameterType="SysHbaseTable" useGeneratedKeys="true" keyProperty="tableId">
@@ -145,7 +158,6 @@
     </update>
 
 
-
     <update id="updateSysHbaseTableDisabledStatus" parameterType="SysHbaseTable">
         update sys_hbase_table
         <trim prefix="SET" suffixOverrides=",">
@@ -167,7 +179,7 @@
     <delete id="deleteSysHbaseTableByIds" parameterType="String">
         delete from sys_hbase_table where table_id in
         <foreach item="tableId" collection="array" open="(" separator="," close=")">
-            #{tableIds}
+            #{tableId}
         </foreach>
     </delete>
 

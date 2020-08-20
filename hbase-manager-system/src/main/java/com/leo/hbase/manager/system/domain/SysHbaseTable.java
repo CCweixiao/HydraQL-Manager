@@ -5,6 +5,8 @@ import com.leo.hbase.manager.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
+
 /**
  * HBase对象 sys_hbase_table
  *
@@ -46,6 +48,8 @@ public class SysHbaseTable extends BaseEntity {
     private String status;
 
     private Long[] tagIds;
+
+    private List<SysHbaseTag> sysHbaseTagList;
 
     public void setTableId(Long tableId) {
         this.tableId = tableId;
@@ -102,6 +106,15 @@ public class SysHbaseTable extends BaseEntity {
 
     public void setTagIds(Long[] tagIds) {
         this.tagIds = tagIds;
+    }
+
+
+    public List<SysHbaseTag> getSysHbaseTagVoList() {
+        return sysHbaseTagList;
+    }
+
+    public void setSysHbaseTagVoList(List<SysHbaseTag> sysHbaseTagList) {
+        this.sysHbaseTagList = sysHbaseTagList;
     }
 
     @Override
