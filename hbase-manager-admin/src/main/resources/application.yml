@@ -1,14 +1,14 @@
 # 项目相关配置
-ruoyi:
+app:
   # 名称
   name: HBaseManager
   # 版本
-  version: 1.0.0
+  version: 1.0.1
   # 版权年份
   copyrightYear: 2020
   # 实例演示开关
-  demoEnabled: true
-  # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
+  demoEnabled: false
+  # 文件路径 示例（ Windows配置D:/hbase-manager/uploadPath，Linux配置 /home/hbase-manager/uploadPath）
   profile: /Users/mac/other_project/hbase-manager/upload_path
   # 获取ip地址开关
   addressEnabled: true
