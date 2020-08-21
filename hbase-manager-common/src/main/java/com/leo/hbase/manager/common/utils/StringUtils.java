@@ -388,12 +388,26 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         String separator = ":";
         if (!isEmpty(fullTableName)) {
             int pos = fullTableName.indexOf(separator);
-            return pos == -1 ? fullTableName : fullTableName.substring(pos+1);
+            return pos == -1 ? fullTableName : fullTableName.substring(pos + 1);
         } else {
             return fullTableName;
         }
     }
 
+    public static String getStringByEnter(int length, String string) {
+        try {
+            for (int i = 1; i <= string.length(); i++) {
+                if (string.substring(0, i).getBytes("GBK").length > length) {
+                    return string.substring(0, i - 1) + "\n" +
+                            getStringByEnter(length, string.substring(i - 1));
+                }
+            }
+        } catch (Exception e) {
+            return string;
+        }
+
+        return string;
+    }
 
 
     public static void main(String[] args) {
@@ -403,9 +417,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         System.out.println(table1);
         System.out.println("-------------");
         String db2 = substringNamespace("leo_user");
-        String table2 =  substringTableName("leo_user");
+        String table2 = substringTableName("leo_user");
         System.out.println(db2);
         System.out.println(table2);
+        String desc = "'TEST:leo_test3', {NAME => 'INFO', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}";
+        System.out.println(getStringByEnter(110, desc));
     }
 
 }

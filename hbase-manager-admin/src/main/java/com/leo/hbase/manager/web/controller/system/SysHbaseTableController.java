@@ -1,5 +1,6 @@
 package com.leo.hbase.manager.web.controller.system;
 
+import com.leo.hbase.manager.adaptor.model.HBaseTableDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.controller.BaseController;
@@ -7,6 +8,7 @@ import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
@@ -48,6 +50,30 @@ public class SysHbaseTableController extends BaseController {
     public String table(ModelMap mmap) {
         mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
         return prefix + "/table";
+    }
+
+    @RequiresPermissions("system:table:detail")
+    @GetMapping("/detail/{tableId}")
+    public String detail(@PathVariable("tableId") Long tableId, ModelMap mmap) {
+        SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
+        HBaseTableDesc hBaseTableDesc = new HBaseTableDesc();
+        String namespace = sysHbaseTable.getSysHbaseNamespace().getNamespaceName();
+        String tableName = sysHbaseTable.getTableName();
+        String fullTableName = namespace + ":" + tableName;
+        if ("default".equals(namespace)) {
+            fullTableName = tableName;
+        }
+        hBaseTableDesc.setTableName(fullTableName);
+        boolean tableIsDisabled = ihBaseAdminService.tableIsDisabled(fullTableName);
+        if(tableIsDisabled){
+            hBaseTableDesc.setDisabledStatus(HBaseDisabledFlag.DISABLED.getCode());
+        }else{
+            hBaseTableDesc.setDisabledStatus(HBaseDisabledFlag.ENABLED.getCode());
+        }
+        String desc = StringUtils.getStringByEnter(110, ihBaseAdminService.getTableDesc(fullTableName));
+        hBaseTableDesc.setTableDesc(desc);
+        mmap.put("hbaseTable", hBaseTableDesc);
+        return prefix + "/detail";
     }
 
     /**

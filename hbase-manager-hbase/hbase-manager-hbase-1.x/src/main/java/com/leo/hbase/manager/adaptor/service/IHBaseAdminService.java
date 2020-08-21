@@ -67,4 +67,12 @@ public interface IHBaseAdminService {
      * @return 删除结果
      */
     boolean deleteTable(String tableName);
+
+    /**
+     * 获取表的描述信息
+     *
+     * @param tableName 表名
+     * @return 表的描述信息
+     */
+    String getTableDesc(String tableName);
 }

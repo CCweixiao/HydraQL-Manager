@@ -56,4 +56,9 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     public boolean deleteTable(String tableName) {
         return hBaseAdminTemplate.deleteTable(tableName);
     }
+
+    @Override
+    public String getTableDesc(String tableName) {
+        return hBaseAdminTemplate.getTableDescriptor(tableName);
+    }
 }
