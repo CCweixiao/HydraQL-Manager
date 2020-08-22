@@ -1,6 +1,5 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import com.leo.hbase.manager.adaptor.model.HBaseTableDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.controller.BaseController;
@@ -11,11 +10,17 @@ import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
+import com.leo.hbase.manager.system.domain.SysHbaseNamespace;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
+import com.leo.hbase.manager.system.dto.SysHbaseFamilyModel;
 import com.leo.hbase.manager.system.dto.SysHbaseTableDto;
 import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
+import com.leo.hbase.manager.system.vo.HBaseTableDetailVo;
+import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
+import com.leo.hbase.sdk.core.model.HFamilyBuilder;
+import com.leo.hbase.sdk.core.model.HTableModel;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,7 +28,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HBaseController
@@ -56,23 +63,26 @@ public class SysHbaseTableController extends BaseController {
     @GetMapping("/detail/{tableId}")
     public String detail(@PathVariable("tableId") Long tableId, ModelMap mmap) {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
-        HBaseTableDesc hBaseTableDesc = new HBaseTableDesc();
+
+        HBaseTableDetailVo hBaseTableDetailVo = new HBaseTableDetailVo();
+
         String namespace = sysHbaseTable.getSysHbaseNamespace().getNamespaceName();
         String tableName = sysHbaseTable.getTableName();
         String fullTableName = namespace + ":" + tableName;
         if ("default".equals(namespace)) {
             fullTableName = tableName;
         }
-        hBaseTableDesc.setTableName(fullTableName);
+        hBaseTableDetailVo.setTableName(fullTableName);
         boolean tableIsDisabled = ihBaseAdminService.tableIsDisabled(fullTableName);
-        if(tableIsDisabled){
-            hBaseTableDesc.setDisabledStatus(HBaseDisabledFlag.DISABLED.getCode());
-        }else{
-            hBaseTableDesc.setDisabledStatus(HBaseDisabledFlag.ENABLED.getCode());
+        if (tableIsDisabled) {
+            hBaseTableDetailVo.setDisabledStatus(HBaseDisabledFlag.DISABLED.getCode());
+        } else {
+            hBaseTableDetailVo.setDisabledStatus(HBaseDisabledFlag.ENABLED.getCode());
         }
         String desc = StringUtils.getStringByEnter(110, ihBaseAdminService.getTableDesc(fullTableName));
-        hBaseTableDesc.setTableDesc(desc);
-        mmap.put("hbaseTable", hBaseTableDesc);
+        hBaseTableDetailVo.setTableDesc(desc);
+        hBaseTableDetailVo.setRemark(sysHbaseTable.getRemark());
+        mmap.put("hbaseTable", hBaseTableDetailVo);
         return prefix + "/detail";
     }
 
@@ -106,7 +116,10 @@ public class SysHbaseTableController extends BaseController {
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
-        mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
+        List<SysHbaseNamespace> namespaces = sysHbaseNamespaceService.selectAllSysHbaseNamespaceList();
+        namespaces = namespaces.stream().filter(namespace -> !"hbase".equals(namespace.getNamespaceName().toLowerCase()))
+                .collect(Collectors.toList());
+        mmap.put("namespaces", namespaces);
         mmap.put("tags", sysHbaseTagService.selectAllSysHbaseTagList());
         return prefix + "/add";
     }
@@ -119,8 +132,57 @@ public class SysHbaseTableController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(@Validated SysHbaseTableDto sysHbaseTableDto) {
-        SysHbaseTable sysHbaseTable = sysHbaseTableDto.convertTo();
+        SysHbaseNamespace sysHbaseNamespace = sysHbaseNamespaceService.selectSysHbaseNamespaceById(sysHbaseTableDto.getNamespaceId());
+        String fullTableName = sysHbaseNamespace.getNamespaceName() + ":" + sysHbaseTableDto.getTableName();
+        SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableByNamespaceAndTableName(sysHbaseTableDto.getNamespaceId(), sysHbaseTableDto.getTableName());
 
+        if (sysHbaseTable != null && sysHbaseTable.getTableId() > 0) {
+            return error("HBase表[" + fullTableName + "]已经存在！");
+        }
+        if (ihBaseAdminService.tableIsExists(fullTableName)) {
+            return error("HBase表[" + fullTableName + "]已经存在！");
+        }
+
+        HTableModel hTableModel = new HTableModel();
+        hTableModel.setTableName(fullTableName);
+        List<HFamilyBuilder> familyBuilders = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
+        List<String> families = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
+
+        for (SysHbaseFamilyModel family : sysHbaseTableDto.getFamilies()) {
+            if (families.contains(family.getName())) {
+                throw new HBaseOperationsException("列簇[" + family.getName() + "]已经存在！");
+            }
+            families.add(family.getName());
+
+            HFamilyBuilder familyBuilder = new HFamilyBuilder.Builder().familyName(family.getName())
+                    .maxVersions(family.getMaxVersions()).timeToLive(family.getTimeToLive())
+                    .compressionType(family.getCompressionType()).build();
+            familyBuilders.add(familyBuilder);
+        }
+        hTableModel.sethFamilies(familyBuilders);
+
+        boolean createTableRes = false;
+
+        String startKey = sysHbaseTableDto.getStartKey();
+        String endKey = sysHbaseTableDto.getEndKey();
+        Integer numRegions = sysHbaseTableDto.getPreSplitRegions();
+        boolean preSplit1 = StringUtils.isNotEmpty(sysHbaseTableDto.getPreSplitKeys());
+        boolean preSplit2 = (StringUtils.isNotEmpty(startKey) && StringUtils.isNotEmpty(endKey) && numRegions > 0);
+
+        if (preSplit1 && preSplit2) {
+            return error("只能指定一种预分区方式！");
+        }
+        if (preSplit1) {
+            String[] splitKeys = sysHbaseTableDto.getPreSplitKeys().split(",");
+            createTableRes = ihBaseAdminService.createTable(hTableModel, splitKeys);
+        }
+        if (preSplit2) {
+            createTableRes = ihBaseAdminService.createTable(hTableModel, startKey, endKey, numRegions);
+        }
+        if (!createTableRes) {
+            return error("系统异常，HBase表[" + fullTableName + "]创建失败！");
+        }
+        sysHbaseTable = sysHbaseTableDto.convertTo();
         sysHbaseTable.setCreateBy(ShiroUtils.getSysUser().getLoginName());
         return toAjax(sysHbaseTableService.insertSysHbaseTable(sysHbaseTable));
     }

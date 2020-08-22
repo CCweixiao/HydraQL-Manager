@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
@@ -92,8 +93,11 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public AjaxResult addSave(@Validated SysHbaseNamespace sysHbaseNamespace) {
         final String name = sysHbaseNamespace.getNamespaceName();
+        if ("hbase".equals(name.toLowerCase())) {
+            return error("命名空间[" + name + "]不允许被创建！");
+        }
         SysHbaseNamespace namespace = sysHbaseNamespaceService.selectSysHbaseNamespaceByName(name);
-        String msg = "namespace[" + name + "]已经存在!";
+        String msg = "namespace[" + name + "]已经存在！";
 
         if (namespace != null && namespace.getNamespaceId() > 0) {
             return error(msg);
@@ -101,7 +105,7 @@ public class SysHbaseNamespaceController extends BaseController {
 
         boolean createSuccess = hBaseAdminService.createNamespace(name);
         if (!createSuccess) {
-            return error("namespace[" + name + "]创建失败!");
+            return error("namespace[" + name + "]创建失败！");
         }
 
         return toAjax(sysHbaseNamespaceService.insertSysHbaseNamespace(sysHbaseNamespace));

@@ -1,5 +1,7 @@
 package com.leo.hbase.manager.adaptor.service;
 
+import com.leo.hbase.sdk.core.model.HTableModel;
+
 import java.util.List;
 
 /**
@@ -37,6 +39,26 @@ public interface IHBaseAdminService {
     List<String> listAllTableName();
 
     /**
+     * 创建表
+     *
+     * @param hTableModel HBase表数据模型
+     * @param startKey    预分区开始key
+     * @param endKey      预分区结束key
+     * @param numRegions  预分区数
+     * @return 创建表是否成功
+     */
+    boolean createTable(HTableModel hTableModel, String startKey, String endKey, int numRegions);
+
+    /**
+     * 创建表
+     *
+     * @param hTableModel HBase表数据模型
+     * @param splitKeys   分区keys
+     * @return 创建表是否成功
+     */
+    boolean createTable(HTableModel hTableModel, String[] splitKeys);
+
+    /**
      * 启用表
      *
      * @param tableName 表名
@@ -59,6 +81,14 @@ public interface IHBaseAdminService {
      * @return 是否禁用
      */
     boolean tableIsDisabled(String tableName);
+
+    /**
+     * 判断HBase表是否存在
+     *
+     * @param tableName 表名
+     * @return 是否存在
+     */
+    boolean tableIsExists(String tableName);
 
     /**
      * 删除表

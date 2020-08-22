@@ -1,6 +1,8 @@
 package com.leo.hbase.manager.system.dto;
 
 import com.google.common.base.Converter;
+import com.leo.hbase.manager.common.core.domain.BaseEntity;
+import com.leo.hbase.manager.common.utils.DateUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.valid.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -19,7 +21,7 @@ import java.util.List;
  * @author leojie 2020/8/17 9:46 下午
  */
 @GroupSequence(value = {First.class, Second.class, Third.class, SysHbaseTableDto.class})
-public class SysHbaseTableDto implements Serializable {
+public class SysHbaseTableDto extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -37,39 +39,8 @@ public class SysHbaseTableDto implements Serializable {
     /**
      * HBase表名称
      */
-    //@NotBlank(message = "HBase表名称不能为空", groups = {Second.class})
     @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Second.class})
     private String tableName;
-
-    /**
-     * 在线region数
-     */
-    private Long onlineRegions;
-
-    /**
-     * 下线region数
-     */
-    private Long offlineRegions;
-
-    /**
-     * 失败的region数
-     */
-    private Long failedRegions;
-
-    /**
-     * 在分裂的region数
-     */
-    private Long splitRegions;
-
-    /**
-     * 其他状态的region数
-     */
-    private Long otherRegions;
-
-    /**
-     * 表描述信息
-     */
-    private String tableDesc;
 
     /**
      * 删除标志（0代表存在 2代表删除）
@@ -88,8 +59,25 @@ public class SysHbaseTableDto implements Serializable {
 
     private Long[] tagIds;
 
-    @NotEmpty(message = "请为表至少指定一个列簇",groups = {Third.class})
+    @NotEmpty(message = "请为表至少指定一个列簇", groups = {Third.class})
     private List<@NotNull @Valid SysHbaseFamilyModel> families;
+
+    /**
+     * 预分区开始的key
+     */
+    private String startKey;
+    /**
+     * 预分区结束的key
+     */
+    private String endKey;
+    /**
+     * 分区数
+     */
+    private Integer preSplitRegions;
+    /**
+     * 以指定分区key的方式分区
+     */
+    private String preSplitKeys;
 
     public SysHbaseTable convertTo() {
         SysHbaseTableConvert convert = new SysHbaseTableConvert();
@@ -100,7 +88,7 @@ public class SysHbaseTableDto implements Serializable {
 
         @Override
         protected SysHbaseTable doForward(SysHbaseTableDto sysHbaseTableDto) {
-            //sysHbaseTableDto.setCreateTime(DateUtils.getNowDate());
+            sysHbaseTableDto.setCreateTime(DateUtils.getNowDate());
             SysHbaseTable sysHbaseTable = new SysHbaseTable();
             BeanUtils.copyProperties(sysHbaseTableDto, sysHbaseTable);
             return sysHbaseTable;
@@ -134,54 +122,6 @@ public class SysHbaseTableDto implements Serializable {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
-    }
-
-    public Long getOnlineRegions() {
-        return onlineRegions;
-    }
-
-    public void setOnlineRegions(Long onlineRegions) {
-        this.onlineRegions = onlineRegions;
-    }
-
-    public Long getOfflineRegions() {
-        return offlineRegions;
-    }
-
-    public void setOfflineRegions(Long offlineRegions) {
-        this.offlineRegions = offlineRegions;
-    }
-
-    public Long getFailedRegions() {
-        return failedRegions;
-    }
-
-    public void setFailedRegions(Long failedRegions) {
-        this.failedRegions = failedRegions;
-    }
-
-    public Long getSplitRegions() {
-        return splitRegions;
-    }
-
-    public void setSplitRegions(Long splitRegions) {
-        this.splitRegions = splitRegions;
-    }
-
-    public Long getOtherRegions() {
-        return otherRegions;
-    }
-
-    public void setOtherRegions(Long otherRegions) {
-        this.otherRegions = otherRegions;
-    }
-
-    public String getTableDesc() {
-        return tableDesc;
-    }
-
-    public void setTableDesc(String tableDesc) {
-        this.tableDesc = tableDesc;
     }
 
     public String getDelFlag() {
@@ -224,26 +164,56 @@ public class SysHbaseTableDto implements Serializable {
         this.families = families;
     }
 
+    public String getStartKey() {
+        return startKey;
+    }
+
+    public void setStartKey(String startKey) {
+        this.startKey = startKey;
+    }
+
+    public String getEndKey() {
+        return endKey;
+    }
+
+    public void setEndKey(String endKey) {
+        this.endKey = endKey;
+    }
+
+    public Integer getPreSplitRegions() {
+        return preSplitRegions;
+    }
+
+    public void setPreSplitRegions(Integer preSplitRegions) {
+        this.preSplitRegions = preSplitRegions;
+    }
+
+    public String getPreSplitKeys() {
+        return preSplitKeys;
+    }
+
+    public void setPreSplitKeys(String preSplitKeys) {
+        this.preSplitKeys = preSplitKeys;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
                 .append("tableId", getTableId())
                 .append("namespaceId", getNamespaceId())
                 .append("tableName", getTableName())
-                .append("onlineRegions", getOnlineRegions())
-                .append("offlineRegions", getOfflineRegions())
-                .append("failedRegions", getFailedRegions())
-                .append("splitRegions", getSplitRegions())
-                .append("otherRegions", getOtherRegions())
-                .append("tableDesc", getTableDesc())
                 .append("delFlag", getDelFlag())
                 .append("disableFlag", getDisableFlag())
-                //.append("createBy", getCreateBy())
-                //.append("createTime", getCreateTime())
-                //.append("updateBy", getUpdateBy())
-                //.append("updateTime", getUpdateTime())
+                .append("startKey", getStartKey())
+                .append("endKey", getEndKey())
+                .append("preSplitRegions", getPreSplitRegions())
+                .append("preSplitKeys", getPreSplitKeys())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
                 .append("status", getStatus())
-                // .append("remark", getRemark())
+                .append("remark", getRemark())
                 .toString();
     }
 }

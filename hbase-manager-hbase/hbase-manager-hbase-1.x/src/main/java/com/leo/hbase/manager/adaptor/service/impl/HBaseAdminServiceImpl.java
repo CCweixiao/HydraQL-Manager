@@ -3,6 +3,7 @@ package com.leo.hbase.manager.adaptor.service.impl;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.sdk.core.HBaseAdminTemplate;
 import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
+import com.leo.hbase.sdk.core.model.HTableModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,17 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     }
 
     @Override
+    public boolean createTable(HTableModel hTableModel, String startKey, String endKey, int numRegions) {
+        return hBaseAdminTemplate.createTable(hTableModel, startKey, endKey, numRegions);
+    }
+
+    @Override
+    public boolean createTable(HTableModel hTableModel, String[] splitKeys) {
+        return hBaseAdminTemplate.createTable(hTableModel, splitKeys);
+    }
+
+
+    @Override
     public boolean enableTable(String tableName) {
         return hBaseAdminTemplate.enableTableAsync(tableName);
     }
@@ -50,6 +62,11 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public boolean tableIsDisabled(String tableName) {
         return hBaseAdminTemplate.tableIsDisabled(tableName);
+    }
+
+    @Override
+    public boolean tableIsExists(String tableName) {
+        return hBaseAdminTemplate.tableIsExists(tableName);
     }
 
     @Override
