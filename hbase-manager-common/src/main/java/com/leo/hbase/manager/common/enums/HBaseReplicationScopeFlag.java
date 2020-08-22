@@ -1,20 +1,20 @@
 package com.leo.hbase.manager.common.enums;
 
 /**
- * HBase 禁用状态
+ * HBase Replication Scope
  *
  * @author leojie 2020/8/20 8:33 下午
  */
-public enum HBaseDisabledFlag {
+public enum HBaseReplicationScopeFlag {
     /**
-     * 禁用表的标记状态
+     * Replication Scope的标记状态
      */
-    ENABLED("0", "启用表"),
-    DISABLED("2", "禁用表");
+    CLOSE("0", "CLOSE"),
+    OPEN("1", "OPEN");
     private final String code;
     private final String info;
 
-    HBaseDisabledFlag(String code, String info) {
+    HBaseReplicationScopeFlag(String code, String info) {
         this.code = code;
         this.info = info;
     }

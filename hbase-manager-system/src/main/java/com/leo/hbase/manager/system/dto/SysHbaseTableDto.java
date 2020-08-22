@@ -3,16 +3,21 @@ package com.leo.hbase.manager.system.dto;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.core.domain.BaseEntity;
 import com.leo.hbase.manager.common.utils.DateUtils;
+import com.leo.hbase.manager.system.domain.SysHbaseFamily;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
-import com.leo.hbase.manager.system.valid.*;
+import com.leo.hbase.manager.system.valid.First;
+import com.leo.hbase.manager.system.valid.Second;
+import com.leo.hbase.manager.system.valid.Third;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.BeanUtils;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.io.Serializable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -65,7 +70,7 @@ public class SysHbaseTableDto extends BaseEntity {
     private Long[] tagIds;
 
     @NotEmpty(message = "请为表至少指定一个列簇", groups = {Third.class})
-    private List<@NotNull @Valid SysHbaseFamilyModel> families;
+    private List<@NotNull @Valid SysHbaseFamily> families;
 
     /**
      * 预分区开始的key
@@ -161,11 +166,11 @@ public class SysHbaseTableDto extends BaseEntity {
         this.tagIds = tagIds;
     }
 
-    public List<SysHbaseFamilyModel> getFamilies() {
+    public List<SysHbaseFamily> getFamilies() {
         return families;
     }
 
-    public void setFamilies(List<SysHbaseFamilyModel> families) {
+    public void setFamilies(List<SysHbaseFamily> families) {
         this.families = families;
     }
 

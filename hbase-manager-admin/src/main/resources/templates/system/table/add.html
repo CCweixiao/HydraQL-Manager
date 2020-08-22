@@ -146,12 +146,12 @@
         </form>
     </div>
       
-    <div class="row">
+    <!--<div class="row">
         <div class="col-sm-offset-5 col-sm-10">
             <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
             <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
         </div>
-    </div>
+    </div>-->
 
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: select2-js" />
@@ -175,7 +175,7 @@
 		            align: 'center',
 		            title: '列簇名称',
 		            formatter: function(value, row, index) {
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='输入列簇名称' name='families[%s].name' value='%s'>", index, value);
+		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='输入列簇名称' name='families[%s].familyName' value='%s'>", index, value);
 		        		return html;
                     }
 		        },
@@ -184,7 +184,10 @@
 		            align: 'center',
 		            title: '最大版本数',
 		            formatter: function(value, row, index) {
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='输入最大版本数' name='families[%s].maxVersions' value='%s'>", index, value);
+		                if(value==""){
+		                    value = 1;
+                        }
+		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='最大版本数默认1' name='families[%s].maxVersions' value='%s'>", index, value);
 		        		return html;
                     }
 		        },
@@ -193,7 +196,10 @@
 		            align: 'center',
 		            title: 'TTL',
 		            formatter: function(value, row, index) {
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='设置TTL' name='families[%s].timeToLive' value='%s'>", index, value);
+		                if(value==+""){
+		                    value = "2147483647";
+                        }
+		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='设置TTL默认FOREVER' name='families[%s].ttl' value='%s'>", index, value);
 		        		return html;
                     }
 		        },
@@ -263,10 +269,10 @@
 <div>
 <select class='form-control' name='families[${index}].compressionType'>
     <option value="">所有</option>
-    <option value="0" {{if compressionType==="0"}}selected{{/if}}>SNAPPY</option>
-    <option value="1" {{if compressionType==="1"}}selected{{/if}}>GZIP</option>
-    <option value="2" {{if compressionType==="2"}}selected{{/if}}>LZO</option>
-    <option value="3" {{if compressionType==="3"}}selected{{/if}}>LZ4</option>
+    <option value="SNAPPY" {{if compressionType==="SNAPPY"}}selected{{/if}}>SNAPPY</option>
+    <option value="GZIP" {{if compressionType==="GZIP"}}selected{{/if}}>GZIP</option>
+    <option value="LZO" {{if compressionType==="LZO"}}selected{{/if}}>LZO</option>
+    <option value="LZ4" {{if compressionType==="LZ4"}}selected{{/if}}>LZ4</option>
 </select>
 </div>
 </script>

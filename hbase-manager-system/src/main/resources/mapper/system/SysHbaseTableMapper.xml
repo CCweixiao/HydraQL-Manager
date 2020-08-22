@@ -9,7 +9,6 @@
         <result property="namespaceId" column="namespace_id"/>
         <result property="tableName" column="table_name"/>
         <result property="disableFlag" column="disable_flag"/>
-        <result property="replicationScope" column="replication_scope"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -23,7 +22,6 @@
         <result property="namespaceId" column="namespace_id"/>
         <result property="tableName" column="table_name"/>
         <result property="disableFlag" column="disable_flag"/>
-        <result property="replicationScope" column="replication_scope"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -51,7 +49,6 @@
                namespace_id,
                table_name,
                disable_flag,
-               replication_scope,
                create_by,
                create_time,
                update_by,
@@ -69,7 +66,6 @@
                tag.tag_id,
                tag.tag_name,
                disable_flag,
-               replication_scope,
                ht.create_by,
                ht.create_time,
                ht.update_by,
@@ -88,7 +84,6 @@
             <if test="namespaceId != null ">and hns.namespace_id = #{namespaceId}</if>
             <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
             <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
-            <if test="replicationScope != null  and replicationScope != ''">and replication_scope = #{replicationScope}</if>
             <if test="queryHBaseTagIds != null ">and tag.tag_id in
                 <foreach item="tagId" collection="queryHBaseTagIds" open="(" separator="," close=")">
                     #{tagId}
@@ -121,7 +116,6 @@
             <if test="namespaceId != null">namespace_id,</if>
             <if test="tableName != null and tableName != ''">table_name,</if>
             <if test="disableFlag != null">disable_flag,</if>
-            <if test="replicationScope != null">replication_scope,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -133,7 +127,6 @@
             <if test="namespaceId != null">#{namespaceId},</if>
             <if test="tableName != null and tableName != ''">#{tableName},</if>
             <if test="disableFlag != null">#{disableFlag},</if>
-            <if test="replicationScope != null">#{replicationScope},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -174,18 +167,6 @@
         update sys_hbase_table
         <trim prefix="SET" suffixOverrides=",">
             <if test="disableFlag != null">disable_flag = #{disableFlag},</if>
-            <if test="createBy != null">create_by = #{createBy},</if>
-            <if test="createTime != null">create_time = #{createTime},</if>
-            <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-        </trim>
-        where table_id = #{tableId}
-    </update>
-
-    <update id="updateSysHbaseTableReplicationScope" parameterType="SysHbaseTable">
-        update sys_hbase_table
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="replicationScope != null">replication_scope = #{replicationScope},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>

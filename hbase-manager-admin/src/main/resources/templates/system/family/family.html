@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('列簇数据列表')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            筛选表名：<select id="tableId" name="tableId" class="form-control">
+                            <option th:each="table : ${tableMapList}" th:text="${table['tableName']}"
+                                    th:value="${table['tableId']}" th:field="*{table.tableName}"></option>
+                        </select>
+                        </li>
+                        <!-- <li>
+                             不会有谁的HBase表成百上千的列簇吧
+                             <label>family名称：</label>
+                             <input type="text" name="familyName"/>
+                         </li>-->
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="resetPre()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!-- <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:family:add">
+                 <i class="fa fa-plus"></i> 添加
+             </a>-->
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="system:family:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="system:family:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:family:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:family:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:family:remove')}]];
+    var prefix = ctx + "system/family";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            queryParams: queryParams,
+            modalName: "HBase Family",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'familyId',
+                    title: 'family的编号',
+                    visible: false
+                },
+                {
+                    field: 'tableId',
+                    title: 'HBase表编号'
+                },
+                {
+                    field: 'familyName',
+                    title: 'family名称'
+                },
+                {
+                    field: 'maxVersions',
+                    title: '最大版本号'
+                },
+                {
+                    field: 'ttl',
+                    title: 'ttl'
+                },
+                {
+                    field: 'compressionType',
+                    title: '列簇数据的压缩类型'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.familyId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.familyId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function queryParams(params) {
+        var search = $.table.queryParams(params);
+        search.tableId = $("#tableId").val();
+        return search;
+    }
+
+    function resetPre() {
+        $.form.reset();
+        $("#tableId").val($("#tableId").val()).trigger("change");
+    }
+</script>
+</body>
+</html>

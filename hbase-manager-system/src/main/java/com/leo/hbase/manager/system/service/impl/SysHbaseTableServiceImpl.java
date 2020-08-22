@@ -137,12 +137,6 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService {
         return sysHbaseTableMapper.updateSysHbaseTableDisabledStatus(sysHbaseTable);
     }
 
-    @Override
-    public int updateSysHbaseTableReplicationScope(SysHbaseTable sysHbaseTable) {
-        sysHbaseTable.setUpdateTime(DateUtils.getNowDate());
-        return sysHbaseTableMapper.updateSysHbaseTableReplicationScope(sysHbaseTable);
-    }
-
     /**
      * 删除HBase对象
      *

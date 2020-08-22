@@ -35,7 +35,8 @@
                         </li>
 
                         <li class="select-selectpicker">
-                            <label>表标签： </label><select id="queryHBaseTagIdStr" class="selectpicker" data-none-selected-text="标签筛选" multiple>
+                            <label>表标签： </label><select id="queryHBaseTagIdStr" class="selectpicker"
+                                                        data-none-selected-text="标签筛选" multiple>
                             <option th:each="tag:${tags}" th:text="${tag.tagName}" th:value="${tag.tagId}"></option>
                         </select>
                         </li>
@@ -74,7 +75,7 @@
     </div>
 </div>
 <th:block th:include="include :: footer"/>
-<th:block th:include="include :: bootstrap-select-js" />
+<th:block th:include="include :: bootstrap-select-js"/>
 
 <script th:inline="javascript">
     var detailFlag = [[${@permission.hasPermi('system:table:detail')}]];
@@ -108,7 +109,11 @@
                 },
                 {
                     field: 'tableName',
-                    title: 'table name'
+                    title: 'table name',
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        return '<a href="javascript:void(0)" onclick="familyDetail(\'' + row.tableId + '\')">' + value + '</a>';
+                    }
                 },
                 {
                     field: 'onlineRegions',
@@ -238,6 +243,14 @@
         $("#queryHBaseTagIdStr").selectpicker('refresh');
         $.table.search('formId', 'bootstrap-table');
     }
+
+    /*某一张HBase表的-列簇详情*/
+    function familyDetail(tableId) {
+        console.log(tableId);
+        var url = prefix + '/family/detail/' + tableId;
+        $.modal.openTab("列簇数据", url);
+    }
+
 </script>
 </body>
 </html>

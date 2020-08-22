@@ -7,13 +7,16 @@ import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
+import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
+import com.leo.hbase.manager.common.utils.DateUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
+import com.leo.hbase.manager.system.domain.SysHbaseFamily;
 import com.leo.hbase.manager.system.domain.SysHbaseNamespace;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
-import com.leo.hbase.manager.system.dto.SysHbaseFamilyModel;
 import com.leo.hbase.manager.system.dto.SysHbaseTableDto;
+import com.leo.hbase.manager.system.service.ISysHbaseFamilyService;
 import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
@@ -29,7 +32,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +50,8 @@ public class SysHbaseTableController extends BaseController {
 
     @Autowired
     private ISysHbaseTableService sysHbaseTableService;
+    @Autowired
+    private ISysHbaseFamilyService sysHbaseFamilyService;
     @Autowired
     private ISysHbaseNamespaceService sysHbaseNamespaceService;
     @Autowired
@@ -67,12 +74,8 @@ public class SysHbaseTableController extends BaseController {
 
         HBaseTableDetailVo hBaseTableDetailVo = new HBaseTableDetailVo();
 
-        String namespace = sysHbaseTable.getSysHbaseNamespace().getNamespaceName();
-        String tableName = sysHbaseTable.getTableName();
-        String fullTableName = namespace + ":" + tableName;
-        if ("default".equals(namespace)) {
-            fullTableName = tableName;
-        }
+        String fullTableName = getFullTableName(sysHbaseTable);
+
         hBaseTableDetailVo.setTableName(fullTableName);
         boolean tableIsDisabled = ihBaseAdminService.tableIsDisabled(fullTableName);
         if (tableIsDisabled) {
@@ -85,6 +88,32 @@ public class SysHbaseTableController extends BaseController {
         hBaseTableDetailVo.setRemark(sysHbaseTable.getRemark());
         mmap.put("hbaseTable", hBaseTableDetailVo);
         return prefix + "/detail";
+    }
+
+    @RequiresPermissions("system:table:detail")
+    @GetMapping("/family/detail/{tableId}")
+    public String familyDetail(@PathVariable("tableId") Long tableId, ModelMap mmap) {
+        SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
+        String fullTableName = getFullTableName(sysHbaseTable);
+        sysHbaseTable.setTableName(fullTableName);
+        mmap.put("table", sysHbaseTable);
+        sysHbaseTable = new SysHbaseTable();
+        List<SysHbaseTable> tableList = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
+        if (tableList == null || tableList.isEmpty()) {
+            mmap.put("tableMapList", new ArrayList<>());
+        } else {
+            List<Map<String, Object>> tableMapList = new ArrayList<>(tableList.size());
+            for (SysHbaseTable hbaseTable : tableList) {
+                Map<String, Object> tableMap = new HashMap<>(2);
+                tableMap.put("tableId", hbaseTable.getTableId());
+                String tableName = getFullTableName(hbaseTable);
+                tableMap.put("tableName", tableName);
+                tableMapList.add(tableMap);
+                mmap.put("tableMapList", tableMapList);
+            }
+        }
+
+        return "system/family/family";
     }
 
     /**
@@ -149,14 +178,14 @@ public class SysHbaseTableController extends BaseController {
         List<HFamilyBuilder> familyBuilders = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
         List<String> families = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
 
-        for (SysHbaseFamilyModel family : sysHbaseTableDto.getFamilies()) {
-            if (families.contains(family.getName())) {
-                throw new HBaseOperationsException("列簇[" + family.getName() + "]已经存在！");
+        for (SysHbaseFamily family : sysHbaseTableDto.getFamilies()) {
+            if (families.contains(family.getFamilyName())) {
+                throw new HBaseOperationsException("列簇[" + family.getFamilyName() + "]已经存在！");
             }
-            families.add(family.getName());
+            families.add(family.getFamilyName());
 
-            HFamilyBuilder familyBuilder = new HFamilyBuilder.Builder().familyName(family.getName())
-                    .maxVersions(family.getMaxVersions()).timeToLive(family.getTimeToLive())
+            HFamilyBuilder familyBuilder = new HFamilyBuilder.Builder().familyName(family.getFamilyName())
+                    .maxVersions(family.getMaxVersions()).timeToLive(family.getTtl())
                     .compressionType(family.getCompressionType()).build();
             familyBuilders.add(familyBuilder);
         }
@@ -185,7 +214,24 @@ public class SysHbaseTableController extends BaseController {
         }
         sysHbaseTable = sysHbaseTableDto.convertTo();
         sysHbaseTable.setCreateBy(ShiroUtils.getSysUser().getLoginName());
-        return toAjax(sysHbaseTableService.insertSysHbaseTable(sysHbaseTable));
+
+        int saveTableRow = sysHbaseTableService.insertSysHbaseTable(sysHbaseTable);
+        if (saveTableRow < 0) {
+            return error("系统异常，HBase表信息[" + fullTableName + "]保存失败！");
+        }
+        sysHbaseTable = sysHbaseTableService.selectSysHbaseTableByNamespaceAndTableName(sysHbaseTableDto.getNamespaceId(), sysHbaseTableDto.getTableName());
+
+        if (sysHbaseTable == null || sysHbaseTable.getTableId() < 1) {
+            return error("系统异常，HBase表信息[" + fullTableName + "]保存失败！");
+        }
+        for (SysHbaseFamily family : sysHbaseTableDto.getFamilies()) {
+            family.setTableId(sysHbaseTable.getTableId());
+            family.setCreateBy(ShiroUtils.getLoginName());
+            family.setReplicationScope(HBaseReplicationScopeFlag.CLOSE.getCode());
+            sysHbaseFamilyService.insertSysHbaseFamily(family);
+        }
+
+        return success();
     }
 
     /**
@@ -281,5 +327,15 @@ public class SysHbaseTableController extends BaseController {
             return error("系统异常，表状态修改失败！");
         }
         return toAjax(sysHbaseTableService.deleteSysHbaseTableById(ids));
+    }
+
+    private String getFullTableName(SysHbaseTable sysHbaseTable) {
+        String namespace = sysHbaseTable.getSysHbaseNamespace().getNamespaceName();
+        String tableName = sysHbaseTable.getTableName();
+        String fullTableName = namespace + ":" + tableName;
+        if ("default".equals(namespace)) {
+            fullTableName = tableName;
+        }
+        return fullTableName;
     }
 }

@@ -41,9 +41,6 @@ public class SysHbaseTable extends BaseEntity {
     @Excel(name = "禁用标志", readConverterExp = "0=代表启用表,2=代表禁用表")
     private String disableFlag;
 
-    @Excel(name = "replication标志", readConverterExp = "0, 1")
-    private String replicationScope;
-
     /**
      * 状态（0线上表 1测试表 2启用表）
      */
@@ -141,13 +138,6 @@ public class SysHbaseTable extends BaseEntity {
         this.queryHBaseTagIds = queryHBaseTagIds;
     }
 
-    public String getReplicationScope() {
-        return replicationScope;
-    }
-
-    public void setReplicationScope(String replicationScope) {
-        this.replicationScope = replicationScope;
-    }
 
     public List<SysHbaseTag> getSysHbaseTagList() {
         return sysHbaseTagList;
@@ -165,7 +155,6 @@ public class SysHbaseTable extends BaseEntity {
                 .append("namespace", getSysHbaseNamespace().getNamespaceName())
                 .append("tableName", getTableName())
                 .append("disableFlag", getDisableFlag())
-                .append("replicationScope", getReplicationScope())
                 .append("createBy", getCreateBy())
                 .append("createTime", getCreateTime())
                 .append("updateBy", getUpdateBy())

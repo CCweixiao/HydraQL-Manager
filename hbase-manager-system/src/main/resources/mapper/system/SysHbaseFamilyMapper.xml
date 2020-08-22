@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseFamilyMapper">
+
+    <resultMap type="SysHbaseFamily" id="SysHbaseFamilyResult">
+        <result property="familyId" column="family_id"/>
+        <result property="tableId" column="table_id"/>
+        <result property="familyName" column="family_name"/>
+        <result property="maxVersions" column="max_versions"/>
+        <result property="ttl" column="ttl"/>
+        <result property="compressionType" column="compression_type"/>
+        <result property="replicationScope" column="replication_scope"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectSysHbaseFamilyVo">
+        select family_id,
+               table_id,
+               family_name,
+               max_versions,
+               ttl,
+               compression_type,
+               replication_scope,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from sys_hbase_family
+    </sql>
+
+    <select id="selectSysHbaseFamilyList" parameterType="SysHbaseFamily" resultMap="SysHbaseFamilyResult">
+        <include refid="selectSysHbaseFamilyVo"/>
+        <where>
+            <if test="tableId != null ">and table_id = #{tableId}</if>
+            <if test="replicationScope != null and replicationScope!='' ">and replication_scope = #{replicationScope}</if>
+        </where>
+    </select>
+
+    <select id="selectSysHbaseFamilyById" parameterType="Long" resultMap="SysHbaseFamilyResult">
+        <include refid="selectSysHbaseFamilyVo"/>
+        where family_id = #{familyId}
+    </select>
+
+    <insert id="insertSysHbaseFamily" parameterType="SysHbaseFamily" useGeneratedKeys="true" keyProperty="familyId">
+        insert into sys_hbase_family
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">table_id,</if>
+            <if test="familyName != null and familyName != ''">family_name,</if>
+            <if test="maxVersions != null">max_versions,</if>
+            <if test="ttl != null">ttl,</if>
+            <if test="compressionType != null">compression_type,</if>
+            <if test="replicationScope != null and replicationScope != ''">replication_scope,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">#{tableId},</if>
+            <if test="familyName != null and familyName != ''">#{familyName},</if>
+            <if test="maxVersions != null">#{maxVersions},</if>
+            <if test="ttl != null">#{ttl},</if>
+            <if test="compressionType != null">#{compressionType},</if>
+            <if test="replicationScope != null and replicationScope!=''">#{replicationScope},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysHbaseFamily" parameterType="SysHbaseFamily">
+        update sys_hbase_family
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableId != null">table_id = #{tableId},</if>
+            <if test="familyName != null and familyName != ''">family_name = #{familyName},</if>
+            <if test="maxVersions != null">max_versions = #{maxVersions},</if>
+            <if test="ttl != null">ttl = #{ttl},</if>
+            <if test="compressionType != null">compression_type = #{compressionType},</if>
+            <if test="replicationScope != null and replicationScope!=''">replication_scope = #{replicationScope},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where family_id = #{familyId}
+    </update>
+
+    <delete id="deleteSysHbaseFamilyById" parameterType="Long">
+        delete
+        from sys_hbase_family
+        where family_id = #{familyId}
+    </delete>
+
+    <delete id="deleteSysHbaseFamilyByIds" parameterType="String">
+        delete from sys_hbase_family where family_id in
+        <foreach item="familyId" collection="array" open="(" separator="," close=")">
+            #{familyId}
+        </foreach>
+    </delete>
+
+</mapper>
