@@ -49,6 +49,11 @@ public class SysHbaseTable extends BaseEntity {
 
     private Long[] tagIds;
 
+
+    private String queryHBaseTagIdStr;
+
+    private String[] queryHBaseTagIds;
+
     private List<SysHbaseTag> sysHbaseTagList;
 
     public void setTableId(Long tableId) {
@@ -115,6 +120,22 @@ public class SysHbaseTable extends BaseEntity {
 
     public void setSysHbaseTagVoList(List<SysHbaseTag> sysHbaseTagList) {
         this.sysHbaseTagList = sysHbaseTagList;
+    }
+
+    public String getQueryHBaseTagIdStr() {
+        return queryHBaseTagIdStr;
+    }
+
+    public void setQueryHBaseTagIdStr(String queryHBaseTagIdStr) {
+        this.queryHBaseTagIdStr = queryHBaseTagIdStr;
+    }
+
+    public String[] getQueryHBaseTagIds() {
+        return queryHBaseTagIds;
+    }
+
+    public void setQueryHBaseTagIds(String[] queryHBaseTagIds) {
+        this.queryHBaseTagIds = queryHBaseTagIds;
     }
 
     @Override

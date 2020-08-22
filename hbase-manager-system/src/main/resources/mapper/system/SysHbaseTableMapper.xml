@@ -84,6 +84,11 @@
             <if test="namespaceId != null ">and hns.namespace_id = #{namespaceId}</if>
             <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
             <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
+            <if test="queryHBaseTagIds != null ">and tag.tag_id in
+                <foreach item="tagId" collection="queryHBaseTagIds" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+            </if>
             <if test="status != null  and status != ''">and status = #{status}</if>
         </where>
     </select>

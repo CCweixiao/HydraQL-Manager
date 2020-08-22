@@ -56,6 +56,7 @@ public class SysHbaseTableController extends BaseController {
     @GetMapping()
     public String table(ModelMap mmap) {
         mmap.put("namespaces", sysHbaseNamespaceService.selectAllSysHbaseNamespaceList());
+        mmap.put("tags", sysHbaseTagService.selectAllSysHbaseTagList());
         return prefix + "/table";
     }
 

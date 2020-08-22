@@ -2,6 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('HBase表信息列表')"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
 </head>
 <body class="gray-bg">
 <div class="container-div">
@@ -32,10 +33,17 @@
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
                         </select>
                         </li>
+
+                        <li class="select-selectpicker">
+                            <label>表标签： </label><select id="queryHBaseTagIdStr" class="selectpicker" data-none-selected-text="标签筛选" multiple>
+                            <option th:each="tag:${tags}" th:text="${tag.tagName}" th:value="${tag.tagId}"></option>
+                        </select>
+                        </li>
+
                         <li>
-                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchPre()"><i
                                     class="fa fa-search"></i>&nbsp;搜索</a>
-                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="resetPre()"><i
                                     class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
                     </ul>
@@ -66,6 +74,7 @@
     </div>
 </div>
 <th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-select-js" />
 
 <script th:inline="javascript">
     var detailFlag = [[${@permission.hasPermi('system:table:detail')}]];
@@ -83,6 +92,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
+            queryParams: queryParams,
             modalName: "HBase表信息",
             columns: [{
                 checkbox: true
@@ -192,7 +202,7 @@
     function showHBaseTableTags(row) {
         var tagNames = []
         var tags = row.sysHbaseTagVoList;
-        console.log(tags);
+        //console.log(tags);
         $.each(tags, function (index, tag) {
             tagNames.push(tag.tagName)
         });
@@ -211,6 +221,22 @@
         $.modal.confirm("确认要启用表吗？", function () {
             $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 0});
         })
+    }
+
+    function queryParams(params) {
+        var search = $.table.queryParams(params);
+        search.queryHBaseTagIdStr = $.common.join($('#queryHBaseTagIdStr').selectpicker('val'));
+        return search;
+    }
+
+    function searchPre() {
+        $.table.search('formId', 'bootstrap-table');
+    }
+
+    function resetPre() {
+        $("#formId")[0].reset();
+        $("#queryHBaseTagIdStr").selectpicker('refresh');
+        $.table.search('formId', 'bootstrap-table');
     }
 </script>
 </body>

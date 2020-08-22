@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HBaseService业务层处理
@@ -53,6 +55,12 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService {
      */
     @Override
     public List<SysHbaseTable> selectSysHbaseTableList(SysHbaseTable sysHbaseTable) {
+        String[] tagIds = Convert.toStrArray(sysHbaseTable.getQueryHBaseTagIdStr());
+        if (tagIds.length == 0) {
+            sysHbaseTable.setQueryHBaseTagIds(null);
+        } else {
+            sysHbaseTable.setQueryHBaseTagIds(tagIds);
+        }
         return sysHbaseTableMapper.selectSysHbaseTableList(sysHbaseTable);
     }
 
