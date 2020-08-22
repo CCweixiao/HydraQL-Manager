@@ -26,7 +26,7 @@
             <div class="col-sm-7">
                 <div class="signin-info">
                     <div class="logopanel m-b">
-                        <h1><img alt="[ 若依 ]" src="../static/ruoyi.png" th:src="@{/ruoyi.png}"></h1>
+                        <!--<h1><img alt="[ HBaseManager ]" src="../static/ruoyi.png" th:src="@{/ruoyi.png}"></h1>-->
                     </div>
                     <div class="m-b"></div>
                     <h4>欢迎使用 <strong>HBaseManager 后台管理系统</strong></h4>
@@ -36,6 +36,7 @@
                         <li><i class="fa fa-arrow-circle-o-right m-r-xs"></i> 多集群管理</li>
                         <li><i class="fa fa-arrow-circle-o-right m-r-xs"></i> 数据查询</li>
                         <li><i class="fa fa-arrow-circle-o-right m-r-xs"></i> 权限管理</li>
+                        <li><i class="fa fa-arrow-circle-o-right m-r-xs"></i> 还有更多</li>
                     </ul>
                     <strong th:if="${@config.getKey('sys.account.registerUser')}">还没有账号？ <a th:href="@{/register}">立即注册&raquo;</a></strong>
                 </div>
