@@ -79,6 +79,14 @@ public interface SysHbaseTableMapper
     public int updateSysHbaseTableDisabledStatus(SysHbaseTable sysHbaseTable);
 
     /**
+     * 修改HBase表的Replication状态
+     *
+     * @param sysHbaseTable HBase表
+     * @return 结果
+     */
+    public int updateSysHbaseTableReplicationScope(SysHbaseTable sysHbaseTable);
+
+    /**
      * 删除HBase
      * 
      * @param tableId HBaseID

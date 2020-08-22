@@ -53,6 +53,11 @@ public class SysHbaseTableDto extends BaseEntity {
     private String disableFlag;
 
     /**
+     * replication scope 0 1
+     */
+    private String replicationScope;
+
+    /**
      * 状态（0线上表 1测试表 2弃用表）
      */
     private String status;
@@ -196,6 +201,14 @@ public class SysHbaseTableDto extends BaseEntity {
         this.preSplitKeys = preSplitKeys;
     }
 
+    public String getReplicationScope() {
+        return replicationScope;
+    }
+
+    public void setReplicationScope(String replicationScope) {
+        this.replicationScope = replicationScope;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -204,6 +217,7 @@ public class SysHbaseTableDto extends BaseEntity {
                 .append("tableName", getTableName())
                 .append("delFlag", getDelFlag())
                 .append("disableFlag", getDisableFlag())
+                .append("replicationScope", getReplicationScope())
                 .append("startKey", getStartKey())
                 .append("endKey", getEndKey())
                 .append("preSplitRegions", getPreSplitRegions())

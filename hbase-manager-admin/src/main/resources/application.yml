@@ -90,7 +90,7 @@ pagehelper:
   supportMethodsArguments: true
   params: count=countSql 
 
-# Shiro
+# Shiro 无特殊需求不要修改
 shiro:
   user:
     # 登录地址
@@ -126,7 +126,7 @@ shiro:
     # 踢出之前登录的/之后登录的用户，默认踢出之前登录的用户
     kickoutAfter: false
 
-# 防止XSS攻击
+# 防止XSS攻击 无特殊需求不要修改
 xss: 
   # 过滤开关
   enabled: true
