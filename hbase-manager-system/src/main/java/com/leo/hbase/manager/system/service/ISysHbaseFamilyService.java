@@ -44,6 +44,13 @@ public interface ISysHbaseFamilyService
     public int updateSysHbaseFamily(SysHbaseFamily sysHbaseFamily);
 
     /**
+     * 修改某一个HBase 列簇的Replication Scope
+     * @param sysHbaseFamily 列簇
+     * @return 结果
+     */
+    public int updateSysHbaseFamilyReplicationScope(SysHbaseFamily sysHbaseFamily);
+
+    /**
      * 批量删除HBase Family
      * 
      * @param ids 需要删除的数据ID

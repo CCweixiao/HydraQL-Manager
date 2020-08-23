@@ -7,6 +7,8 @@
     <resultMap type="SysHbaseFamily" id="SysHbaseFamilyResult">
         <result property="familyId" column="family_id"/>
         <result property="tableId" column="table_id"/>
+        <result property="namespaceName" column="namespace_name"/>
+        <result property="tableName" column="table_name"/>
         <result property="familyName" column="family_name"/>
         <result property="maxVersions" column="max_versions"/>
         <result property="ttl" column="ttl"/>
@@ -19,31 +21,36 @@
     </resultMap>
 
     <sql id="selectSysHbaseFamilyVo">
-        select family_id,
-               table_id,
-               family_name,
-               max_versions,
-               ttl,
-               compression_type,
-               replication_scope,
-               create_by,
-               create_time,
-               update_by,
-               update_time
-        from sys_hbase_family
+        SELECT f.family_id,
+               f.table_id,
+               n.namespace_name,
+               CONCAT_WS( ':', n.namespace_name, t.table_name ) AS table_name,
+               f.family_name,
+               f.max_versions,
+               f.ttl,
+               f.compression_type,
+               f.replication_scope,
+               f.create_by,
+               f.create_time,
+               f.update_by,
+               f.update_time
+        FROM sys_hbase_family f
+                 LEFT JOIN sys_hbase_table t ON f.table_id = t.table_id
+                 LEFT JOIN sys_hbase_namespace n ON t.namespace_id = n.namespace_id
     </sql>
 
     <select id="selectSysHbaseFamilyList" parameterType="SysHbaseFamily" resultMap="SysHbaseFamilyResult">
         <include refid="selectSysHbaseFamilyVo"/>
         <where>
-            <if test="tableId != null ">and table_id = #{tableId}</if>
-            <if test="replicationScope != null and replicationScope!='' ">and replication_scope = #{replicationScope}</if>
+            <if test="tableId != null ">and f.table_id = #{tableId}</if>
+            <if test="replicationScope != null and replicationScope!='' ">and f.replication_scope = #{replicationScope}
+            </if>
         </where>
     </select>
 
     <select id="selectSysHbaseFamilyById" parameterType="Long" resultMap="SysHbaseFamilyResult">
         <include refid="selectSysHbaseFamilyVo"/>
-        where family_id = #{familyId}
+        where f.family_id = #{familyId}
     </select>
 
     <insert id="insertSysHbaseFamily" parameterType="SysHbaseFamily" useGeneratedKeys="true" keyProperty="familyId">
@@ -77,7 +84,6 @@
     <update id="updateSysHbaseFamily" parameterType="SysHbaseFamily">
         update sys_hbase_family
         <trim prefix="SET" suffixOverrides=",">
-            <if test="tableId != null">table_id = #{tableId},</if>
             <if test="familyName != null and familyName != ''">family_name = #{familyName},</if>
             <if test="maxVersions != null">max_versions = #{maxVersions},</if>
             <if test="ttl != null">ttl = #{ttl},</if>
@@ -90,6 +96,20 @@
         </trim>
         where family_id = #{familyId}
     </update>
+
+
+    <update id="updateSysHbaseFamilyReplicationScope" parameterType="SysHbaseFamily">
+        update sys_hbase_family
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="replicationScope != null and replicationScope!=''">replication_scope = #{replicationScope},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where family_id = #{familyId}
+    </update>
+
 
     <delete id="deleteSysHbaseFamilyById" parameterType="Long">
         delete

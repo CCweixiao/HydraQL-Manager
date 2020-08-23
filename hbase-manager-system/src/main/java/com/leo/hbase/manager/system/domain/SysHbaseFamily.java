@@ -32,6 +32,12 @@ public class SysHbaseFamily extends BaseEntity {
     @Excel(name = "HBase表编号")
     private Long tableId;
 
+    @Excel(name = "命名空间名称")
+    private String namespaceName;
+
+    @Excel(name = "HBase表名称")
+    private String tableName;
+
     /**
      * family名称
      */
@@ -73,6 +79,22 @@ public class SysHbaseFamily extends BaseEntity {
 
     public Long getTableId() {
         return tableId;
+    }
+
+    public String getNamespaceName() {
+        return namespaceName;
+    }
+
+    public void setNamespaceName(String namespaceName) {
+        this.namespaceName = namespaceName;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public void setFamilyName(String familyName) {
@@ -131,6 +153,8 @@ public class SysHbaseFamily extends BaseEntity {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
                 .append("familyId", getFamilyId())
                 .append("tableId", getTableId())
+                .append("namespaceName", getNamespaceName())
+                .append("tableName", getTableName())
                 .append("familyName", getFamilyName())
                 .append("maxVersions", getMaxVersions())
                 .append("ttl", getTtl())

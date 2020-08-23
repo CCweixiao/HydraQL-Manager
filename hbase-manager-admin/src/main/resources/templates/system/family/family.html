@@ -14,7 +14,7 @@
                         <li>
                             筛选表名：<select id="tableId" name="tableId" class="form-control">
                             <option th:each="table : ${tableMapList}" th:text="${table['tableName']}"
-                                    th:value="${table['tableId']}" th:field="*{table.tableName}"></option>
+                                    th:value="${table['tableId']}" th:field="*{tableObj.tableId}"></option>
                         </select>
                         </li>
                         <!-- <li>
@@ -59,9 +59,12 @@
 <th:block th:include="include :: select2-js"/>
 
 <script th:inline="javascript">
+    var familyReplicationScopeDatas = [[${@dict.getType('sys_hbase_family_replication_scope')}]];
+    var familyCompressionTypeDatas = [[${@dict.getType('sys_hbase_family_compression_type')}]];
     var editFlag = [[${@permission.hasPermi('system:family:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:family:remove')}]];
     var prefix = ctx + "system/family";
+
 
     $(function () {
         var options = {
@@ -81,8 +84,8 @@
                     visible: false
                 },
                 {
-                    field: 'tableId',
-                    title: 'HBase表编号'
+                    field: 'tableName',
+                    title: 'HBase表名称'
                 },
                 {
                     field: 'familyName',
@@ -98,7 +101,22 @@
                 },
                 {
                     field: 'compressionType',
-                    title: '列簇数据的压缩类型'
+                    title: '列簇数据的压缩类型',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        if(value==''){
+                            value = 'NONE'
+                        }
+                        return $.table.selectDictLabel(familyCompressionTypeDatas, value);
+                    }
+                },
+                {
+                    field: 'replicationScope',
+                    title: 'REPLICATION_SCOPE',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(familyReplicationScopeDatas, value);
+                    }
                 },
                 {
                     title: '操作',
@@ -117,6 +135,7 @@
     function queryParams(params) {
         var search = $.table.queryParams(params);
         search.tableId = $("#tableId").val();
+        console.log(search)
         return search;
     }
 

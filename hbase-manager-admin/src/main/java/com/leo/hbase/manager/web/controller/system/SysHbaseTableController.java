@@ -8,7 +8,6 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
-import com.leo.hbase.manager.common.utils.DateUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
@@ -96,8 +95,10 @@ public class SysHbaseTableController extends BaseController {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
         String fullTableName = getFullTableName(sysHbaseTable);
         sysHbaseTable.setTableName(fullTableName);
-        mmap.put("table", sysHbaseTable);
+
+        mmap.put("tableObj", sysHbaseTable);
         sysHbaseTable = new SysHbaseTable();
+
         List<SysHbaseTable> tableList = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
         if (tableList == null || tableList.isEmpty()) {
             mmap.put("tableMapList", new ArrayList<>());
@@ -208,6 +209,9 @@ public class SysHbaseTableController extends BaseController {
         }
         if (preSplit2) {
             createTableRes = ihBaseAdminService.createTable(hTableModel, startKey, endKey, numRegions);
+        }
+        if (!preSplit1 && !preSplit2) {
+            createTableRes = ihBaseAdminService.createTable(hTableModel);
         }
         if (!createTableRes) {
             return error("系统异常，HBase表[" + fullTableName + "]创建失败！");

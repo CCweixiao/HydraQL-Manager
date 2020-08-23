@@ -7,39 +7,61 @@
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-family-edit" th:object="${sysHbaseFamily}">
             <input name="familyId" th:field="*{familyId}" type="hidden">
-            <div class="form-group">    
+            <div class="form-group">
                 <label class="col-sm-3 control-label is-required">HBase表编号：</label>
                 <div class="col-sm-8">
-                    <input name="tableId" th:field="*{tableId}" class="form-control" type="text" required>
+                    <input name="tableId" th:field="*{tableId}" class="form-control" type="text" hidden>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">HBase表名称：</label>
+                <div class="col-sm-8">
+                    <input name="tableName" th:field="*{tableName}" class="form-control" type="text" disabled>
+                </div>
+            </div>
+
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">family名称：</label>
                 <div class="col-sm-8">
-                    <input name="familyName" th:field="*{familyName}" class="form-control" type="text" required>
+                    <input name="familyName" th:field="*{familyName}" class="form-control" type="text" disabled>
                 </div>
             </div>
+
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">最大版本号：</label>
                 <div class="col-sm-8">
-                    <input name="maxVersions" th:field="*{maxVersions}" class="form-control" type="text" required>
+                    <input name="maxVersions" th:field="*{maxVersions}" class="form-control" type="text" disabled>
                 </div>
             </div>
+
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">ttl：</label>
                 <div class="col-sm-8">
-                    <input name="ttl" th:field="*{ttl}" class="form-control" type="text" required>
+                    <input name="ttl" th:field="*{ttl}" class="form-control" type="text" disabled>
                 </div>
             </div>
+
             <div class="form-group">    
                 <label class="col-sm-3 control-label">列簇数据的压缩类型：</label>
                 <div class="col-sm-8">
-                    <select name="compressionType" class="form-control m-b">
-                        <option value="">所有</option>
+                    <select name="compressionType" class="form-control m-b" th:with="type=${@dict.getType('sys_hbase_family_compression_type')}" disabled>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{compressionType}"></option>
                     </select>
-                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">REPLICATION_SCOPE：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_family_replication_scope')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="replicationScope" th:value="${dict.dictValue}"
+                               th:field="*{replicationScope}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+
         </form>
     </div>
     <th:block th:include="include :: footer" />

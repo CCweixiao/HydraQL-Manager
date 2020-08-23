@@ -44,6 +44,13 @@ public interface SysHbaseFamilyMapper
     public int updateSysHbaseFamily(SysHbaseFamily sysHbaseFamily);
 
     /**
+     * 修改某一个HBase 列簇的Replication Scope
+     * @param sysHbaseFamily 列簇
+     * @return 结果
+     */
+    public int updateSysHbaseFamilyReplicationScope(SysHbaseFamily sysHbaseFamily);
+
+    /**
      * 删除HBase Family
      * 
      * @param familyId HBase FamilyID

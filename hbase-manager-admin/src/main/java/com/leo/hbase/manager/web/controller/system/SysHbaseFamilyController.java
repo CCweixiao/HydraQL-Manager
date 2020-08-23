@@ -2,6 +2,8 @@ package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
 
+import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
+import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,6 +35,8 @@ public class SysHbaseFamilyController extends BaseController {
 
     @Autowired
     private ISysHbaseFamilyService sysHbaseFamilyService;
+    @Autowired
+    private IHBaseAdminService adminService;
 
     @RequiresPermissions("system:family:view")
     @GetMapping()
@@ -102,7 +106,17 @@ public class SysHbaseFamilyController extends BaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SysHbaseFamily sysHbaseFamily) {
-        return toAjax(sysHbaseFamilyService.updateSysHbaseFamily(sysHbaseFamily));
+        SysHbaseFamily family = sysHbaseFamilyService.selectSysHbaseFamilyById(sysHbaseFamily.getFamilyId());
+        if (family == null || family.getFamilyId() < 1) {
+            return error("待修改列簇不存在");
+        }
+        //TODO 暂时支持对replication scope的修改
+        if (HBaseReplicationScopeFlag.OPEN.getCode().equals(sysHbaseFamily.getReplicationScope())) {
+            adminService.enableReplication(family.getTableName(), family.getFamilyName());
+        } else {
+            adminService.disableReplication(family.getTableName(), family.getFamilyName());
+        }
+        return toAjax(sysHbaseFamilyService.updateSysHbaseFamilyReplicationScope(sysHbaseFamily));
     }
 
     /**
@@ -113,6 +127,7 @@ public class SysHbaseFamilyController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
-        return toAjax(sysHbaseFamilyService.deleteSysHbaseFamilyByIds(ids));
+        return error("暂不支持列簇删除！");
+        //return toAjax(sysHbaseFamilyService.deleteSysHbaseFamilyByIds(ids));
     }
 }

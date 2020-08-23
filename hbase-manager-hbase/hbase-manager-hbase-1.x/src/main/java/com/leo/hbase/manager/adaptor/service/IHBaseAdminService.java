@@ -59,6 +59,14 @@ public interface IHBaseAdminService {
     boolean createTable(HTableModel hTableModel, String[] splitKeys);
 
     /**
+     * 创建表
+     *
+     * @param hTableModel HBase表数据模型
+     * @return 创建表是否成功
+     */
+    boolean createTable(HTableModel hTableModel);
+
+    /**
      * 启用表
      *
      * @param tableName 表名
@@ -105,4 +113,23 @@ public interface IHBaseAdminService {
      * @return 表的描述信息
      */
     String getTableDesc(String tableName);
+
+    /**
+     * 启用replication
+     *
+     * @param tableName 表名
+     * @param families  列簇
+     * @return 结果
+     */
+    boolean enableReplication(String tableName, String... families);
+
+    /**
+     * 禁用replication
+     *
+     * @param tableName 表名
+     * @param families  列簇
+     * @return 结果
+     */
+    boolean disableReplication(String tableName, String... families);
+
 }

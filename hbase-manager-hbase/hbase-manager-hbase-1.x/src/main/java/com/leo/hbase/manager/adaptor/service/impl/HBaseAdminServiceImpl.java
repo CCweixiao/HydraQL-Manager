@@ -48,6 +48,11 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
         return hBaseAdminTemplate.createTable(hTableModel, splitKeys);
     }
 
+    @Override
+    public boolean createTable(HTableModel hTableModel) {
+        return hBaseAdminTemplate.createTable(hTableModel);
+    }
+
 
     @Override
     public boolean enableTable(String tableName) {
@@ -77,5 +82,15 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public String getTableDesc(String tableName) {
         return hBaseAdminTemplate.getTableDescriptor(tableName);
+    }
+
+    @Override
+    public boolean enableReplication(String tableName, String... families) {
+        return hBaseAdminTemplate.enableReplicationScope(tableName, families);
+    }
+
+    @Override
+    public boolean disableReplication(String tableName, String... families) {
+        return hBaseAdminTemplate.disableReplicationScope(tableName, families);
     }
 }
