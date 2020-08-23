@@ -19,6 +19,7 @@
                 <include>*.xml</include>
                 <include>*.properties</include>
                 <include>mybatis/**</include>
+                <include>sql/**</include>
                 <include>ehcache/**</include>
                 <include>bin/**</include>
                 <include>conf/**</include>

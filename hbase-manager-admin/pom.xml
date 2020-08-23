@@ -140,6 +140,7 @@
                         <exclude>mybatis/**</exclude>
                         <exclude>ehcache/**</exclude>
                         <exclude>bin/**</exclude>
+                        <exclude>sql/**</exclude>
                         <exclude>conf/**</exclude>
                         <exclude>static/**</exclude>
                         <exclude>templates/**</exclude>
