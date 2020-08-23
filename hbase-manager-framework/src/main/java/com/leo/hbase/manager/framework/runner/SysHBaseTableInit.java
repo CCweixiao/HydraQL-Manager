@@ -38,7 +38,8 @@ public class SysHBaseTableInit implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("系统开始同步HBase中的表数据......");
 
-        initHBaseTable();
+        //TODO 完善初始化HBase表数据
+        //initHBaseTable();
 
         log.info("系统成功完成同步HBase中的表数据......");
     }
@@ -69,6 +70,5 @@ public class SysHBaseTableInit implements CommandLineRunner {
 
             }
         }
-
     }
 }
