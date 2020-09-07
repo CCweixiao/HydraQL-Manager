@@ -41,7 +41,6 @@
 [http://www.jielongping.com:9527/index](http://www.jielongping.com:9527/index)
 
 
-
 ## 演示图
 
 ### 1. namespace管理
@@ -128,3 +127,15 @@ nohup java -jar  hbase-manager-admin-1.0.0.jar > /dev/null 2>&1 &
 
 如果有朋友对这个系统比较感兴趣，在体验的过程中，有遇到任何问题，欢迎在公众号里留言。
 系统其它功能模块的使用文档，可以扫一眼若依的官方文档。
+
+## 编译项目
+
+hbase-manager由java开发，maven管理，项目编译十分方便：
+
+```shell script
+git clone https://github.com/CCweixiao/hbase-manager.git
+git clone https://gitee.com/weixiaotome/hbase-manager.git
+cd hbase-manager
+mvn clean package -Dmaven.test.skip=true -Phbase1.x or
+mvn clean package -Dmaven.test.skip=true -Phbase2.x
+```
