@@ -5,7 +5,7 @@
 
     <groupId>com.leo</groupId>
     <artifactId>hbase-manager</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <name>hbase-manager</name>
     <url>https://www.jielongping.com</url>
