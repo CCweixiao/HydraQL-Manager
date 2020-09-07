@@ -5,11 +5,12 @@
     <parent>
         <artifactId>hbase-manager</artifactId>
         <groupId>com.leo</groupId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <packaging>jar</packaging>
     <artifactId>hbase-manager-hbase-1.x</artifactId>
 
 

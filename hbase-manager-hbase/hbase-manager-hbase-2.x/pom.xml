@@ -5,11 +5,12 @@
     <parent>
         <artifactId>hbase-manager</artifactId>
         <groupId>com.leo</groupId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <packaging>jar</packaging>
     <artifactId>hbase-manager-hbase-2.x</artifactId>
 
     <dependencies>
@@ -19,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.CCweixiao</groupId>
-            <artifactId>spring-boot-starter-hbase</artifactId>
+            <artifactId>spring-boot-starter-hbase_1.4</artifactId>
         </dependency>
         <!-- SpringBoot Web容器 -->
         <dependency>

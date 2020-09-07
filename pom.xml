@@ -5,14 +5,14 @@
 
     <groupId>com.leo</groupId>
     <artifactId>hbase-manager</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <name>hbase-manager</name>
     <url>https://www.jielongping.com</url>
-    <description>若依管理系统</description>
+    <description>HBaseManager表管理系统</description>
 
     <properties>
-        <hbase-manager.version>1.0.0</hbase-manager.version>
+        <hbase-manager.version>${project.version}</hbase-manager.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -31,6 +31,35 @@
         <poi.version>3.17</poi.version>
         <velocity.version>1.7</velocity.version>
     </properties>
+
+    <licenses>
+        <!-- 开源协议 -->
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <!-- scm 信息 -->
+        <url>https://github.com/CCweixiao/hbase-manager</url>
+        <connection>https://github.com/CCweixiao/hbase-manager.git</connection>
+    </scm>
+
+    <developers>
+        <!-- 开发者信息 -->
+        <developer>
+            <id>leojie</id>
+            <name>leojie</name>
+            <url>https://www.jielongping.com</url>
+            <email>leohjie1314@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <organization>bigdata</organization>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
 
     <!-- 依赖声明 -->
     <dependencyManagement>
@@ -232,6 +261,8 @@
         <module>hbase-manager-quartz</module>
         <module>hbase-manager-generator</module>
         <module>hbase-manager-common</module>
+        <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
+        <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -246,11 +277,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.5.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <compilerVersion>${java.version}</compilerVersion>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <optimize>true</optimize>
+                    <maxmem>1024m</maxmem>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-Xlint:all,-serial,-path</arg>
+                    </compilerArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
                 </configuration>
             </plugin>
         </plugins>
@@ -280,18 +334,6 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-    <developers>
-        <developer>
-            <name>leojie</name>
-            <id>leojie</id>
-            <email>leojie1314@gmail.com</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>+8</timezone>
-        </developer>
-    </developers>
 
     <profiles>
         <profile>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hbase-manager</artifactId>
         <groupId>com.leo</groupId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -14,7 +14,7 @@
     <url>https://www.jielongping.com</url>
     <name>hbase-manager-admin</name>
 
-    <description>hbase-manager-admin服务入口</description>
+    <description>hbase-manager-admin web入口</description>
 
     <dependencies>
 
@@ -129,6 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <classesDirectory>target/classes/</classesDirectory>
                     <excludes>
@@ -167,35 +168,5 @@
 
 
     </build>
-
-  <!--  <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.1.RELEASE</version>
-                <configuration>
-                    <fork>true</fork> &lt;!&ndash; 如果没有该配置，devtools不会生效 &ndash;&gt;
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>   
-                <groupId>org.apache.maven.plugins</groupId>   
-                <artifactId>maven-war-plugin</artifactId>   
-                <version>3.0.0</version>   
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <warName>${project.artifactId}</warName>
-                </configuration>   
-           </plugin>   
-        </plugins>
-        <finalName>${project.artifactId}</finalName>
-    </build>-->
 
 </project>
