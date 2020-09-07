@@ -116,6 +116,13 @@ public interface IHBaseAdminService {
     String getTableDesc(String tableName);
 
     /**
+     * 获取HBase表简介
+     * @param tableName 表名
+     * @return 表的描述信息
+     */
+    HTableDescriptor getTableDescriptor(String tableName);
+
+    /**
      * 启用replication
      *
      * @param tableName 表名

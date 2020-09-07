@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增HBase')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-data-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label is-required">row key：</label>
+                <div class="col-sm-8">
+                    <input name="rowKey" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label is-required">列簇名称：</label>
+                <div class="col-sm-8">
+                    <input name="familyName" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">时间戳：</label>
+                <div class="col-sm-8">
+                    <input name="timestamp" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label is-required">数据值：</label>
+                <div class="col-sm-8">
+                    <input name="value" class="form-control" type="text" required>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "system/data"
+        $("#form-data-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-data-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

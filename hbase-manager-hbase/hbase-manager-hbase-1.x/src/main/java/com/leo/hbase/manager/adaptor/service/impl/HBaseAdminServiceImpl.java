@@ -90,6 +90,11 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     }
 
     @Override
+    public HTableDescriptor getTableDescriptor(String tableName) {
+        return hBaseAdminTemplate.getTableDescriptor(tableName);
+    }
+
+    @Override
     public boolean enableReplication(String tableName, List<String> families) {
         return hBaseAdminTemplate.enableReplicationScope(tableName, families);
     }
