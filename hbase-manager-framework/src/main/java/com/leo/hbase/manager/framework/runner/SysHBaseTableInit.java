@@ -58,7 +58,7 @@ public class SysHBaseTableInit implements CommandLineRunner {
                     hbaseTable = new SysHbaseTable();
                     hbaseTable.setNamespaceId(namespaceId);
                     hbaseTable.setTableName(shortTableName);
-                    if (ihBaseAdminService.tableIsDisabled(tableName)) {
+                    if (ihBaseAdminService.isTableDisabled(tableName)) {
                         hbaseTable.setDisableFlag(HBaseDisabledFlag.DISABLED.getCode());
                     } else {
                         hbaseTable.setDisableFlag(HBaseDisabledFlag.ENABLED.getCode());
@@ -67,7 +67,6 @@ public class SysHBaseTableInit implements CommandLineRunner {
                     hbaseTable.setRemark("由系统初始化时迁移而来");
                     sysHbaseTableService.insertSysHbaseTable(hbaseTable);
                 }
-
             }
         }
     }

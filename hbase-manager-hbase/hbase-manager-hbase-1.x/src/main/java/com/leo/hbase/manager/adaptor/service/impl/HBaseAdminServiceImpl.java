@@ -1,13 +1,16 @@
 package com.leo.hbase.manager.adaptor.service.impl;
 
+import com.github.CCweixiao.HBaseAdminTemplate;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
-import com.leo.hbase.sdk.core.HBaseAdminTemplate;
-import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
-import com.leo.hbase.sdk.core.model.HTableModel;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author leojie 2020/8/19 11:04 下午
@@ -24,33 +27,35 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
 
     @Override
     public boolean createNamespace(String namespace) {
-        return hBaseAdminTemplate.createNamespace(namespace);
+        NamespaceDescriptor namespaceDescriptor = NamespaceDescriptor.create(namespace).build();
+        return hBaseAdminTemplate.createNamespace(namespaceDescriptor);
     }
 
     @Override
     public boolean deleteNamespace(String namespace) {
-        //TODO 删除命名空间
-        throw new HBaseOperationsException("暂未支持删除命名空间！");
+        return hBaseAdminTemplate.deleteNamespace(namespace);
     }
 
     @Override
     public List<String> listAllTableName() {
-        return hBaseAdminTemplate.listTableNames();
+        return Arrays.stream(hBaseAdminTemplate.listTables()).map(HTableDescriptor::getNameAsString).collect(Collectors.toList());
     }
 
     @Override
-    public boolean createTable(HTableModel hTableModel, String startKey, String endKey, int numRegions) {
-        return hBaseAdminTemplate.createTable(hTableModel, startKey, endKey, numRegions);
+    public boolean createTable(HTableDescriptor tableDescriptor, String startKey, String endKey, int numRegions) {
+        return hBaseAdminTemplate.createTable(tableDescriptor, Bytes.toBytes(startKey), Bytes.toBytes(endKey), numRegions);
     }
 
     @Override
-    public boolean createTable(HTableModel hTableModel, String[] splitKeys) {
-        return hBaseAdminTemplate.createTable(hTableModel, splitKeys);
+    public boolean createTable(HTableDescriptor tableDescriptor, String[] splitKeys) {
+
+        byte[][] splitKeyBytes = (byte[][]) Arrays.stream(splitKeys).map(Bytes::toBytes).toArray();
+        return hBaseAdminTemplate.createTable(tableDescriptor, splitKeyBytes);
     }
 
     @Override
-    public boolean createTable(HTableModel hTableModel) {
-        return hBaseAdminTemplate.createTable(hTableModel);
+    public boolean createTable(HTableDescriptor tableDescriptor) {
+        return hBaseAdminTemplate.createTable(tableDescriptor);
     }
 
 
@@ -65,13 +70,13 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     }
 
     @Override
-    public boolean tableIsDisabled(String tableName) {
-        return hBaseAdminTemplate.tableIsDisabled(tableName);
+    public boolean isTableDisabled(String tableName) {
+        return hBaseAdminTemplate.isTableDisabled(tableName);
     }
 
     @Override
     public boolean tableIsExists(String tableName) {
-        return hBaseAdminTemplate.tableIsExists(tableName);
+        return hBaseAdminTemplate.tableExists(tableName);
     }
 
     @Override
@@ -81,16 +86,16 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
 
     @Override
     public String getTableDesc(String tableName) {
-        return hBaseAdminTemplate.getTableDescriptor(tableName);
+        return hBaseAdminTemplate.getTableDescriptor(tableName).toString();
     }
 
     @Override
-    public boolean enableReplication(String tableName, String... families) {
+    public boolean enableReplication(String tableName, List<String> families) {
         return hBaseAdminTemplate.enableReplicationScope(tableName, families);
     }
 
     @Override
-    public boolean disableReplication(String tableName, String... families) {
+    public boolean disableReplication(String tableName, List<String> families) {
         return hBaseAdminTemplate.disableReplicationScope(tableName, families);
     }
 }

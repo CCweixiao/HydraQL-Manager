@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.adaptor.service;
 
-import com.leo.hbase.sdk.core.model.HTableModel;
+
+import org.apache.hadoop.hbase.HTableDescriptor;
 
 import java.util.List;
 
@@ -41,30 +42,30 @@ public interface IHBaseAdminService {
     /**
      * 创建表
      *
-     * @param hTableModel HBase表数据模型
-     * @param startKey    预分区开始key
-     * @param endKey      预分区结束key
-     * @param numRegions  预分区数
+     * @param tableDescriptor 表描述
+     * @param startKey        预分区开始key
+     * @param endKey          预分区结束key
+     * @param numRegions      预分区数
      * @return 创建表是否成功
      */
-    boolean createTable(HTableModel hTableModel, String startKey, String endKey, int numRegions);
+    boolean createTable(HTableDescriptor tableDescriptor, String startKey, String endKey, int numRegions);
 
     /**
      * 创建表
      *
-     * @param hTableModel HBase表数据模型
-     * @param splitKeys   分区keys
+     * @param tableDescriptor 表描述
+     * @param splitKeys       分区keys
      * @return 创建表是否成功
      */
-    boolean createTable(HTableModel hTableModel, String[] splitKeys);
+    boolean createTable(HTableDescriptor tableDescriptor, String[] splitKeys);
 
     /**
      * 创建表
      *
-     * @param hTableModel HBase表数据模型
+     * @param tableDescriptor 表描述
      * @return 创建表是否成功
      */
-    boolean createTable(HTableModel hTableModel);
+    boolean createTable(HTableDescriptor tableDescriptor);
 
     /**
      * 启用表
@@ -88,7 +89,7 @@ public interface IHBaseAdminService {
      * @param tableName 表名
      * @return 是否禁用
      */
-    boolean tableIsDisabled(String tableName);
+    boolean isTableDisabled(String tableName);
 
     /**
      * 判断HBase表是否存在
@@ -121,7 +122,7 @@ public interface IHBaseAdminService {
      * @param families  列簇
      * @return 结果
      */
-    boolean enableReplication(String tableName, String... families);
+    boolean enableReplication(String tableName, List<String> families);
 
     /**
      * 禁用replication
@@ -130,6 +131,6 @@ public interface IHBaseAdminService {
      * @param families  列簇
      * @return 结果
      */
-    boolean disableReplication(String tableName, String... families);
+    boolean disableReplication(String tableName, List<String> families);
 
 }

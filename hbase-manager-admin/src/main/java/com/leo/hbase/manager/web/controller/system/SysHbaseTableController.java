@@ -1,5 +1,6 @@
 package com.leo.hbase.manager.web.controller.system;
 
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.controller.BaseController;
@@ -20,9 +21,10 @@ import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import com.leo.hbase.manager.system.vo.HBaseTableDetailVo;
-import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
-import com.leo.hbase.sdk.core.model.HFamilyBuilder;
-import com.leo.hbase.sdk.core.model.HTableModel;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -76,7 +78,7 @@ public class SysHbaseTableController extends BaseController {
         String fullTableName = getFullTableName(sysHbaseTable);
 
         hBaseTableDetailVo.setTableName(fullTableName);
-        boolean tableIsDisabled = ihBaseAdminService.tableIsDisabled(fullTableName);
+        boolean tableIsDisabled = ihBaseAdminService.isTableDisabled(fullTableName);
         if (tableIsDisabled) {
             hBaseTableDetailVo.setDisabledStatus(HBaseDisabledFlag.DISABLED.getCode());
         } else {
@@ -174,9 +176,8 @@ public class SysHbaseTableController extends BaseController {
             return error("HBase表[" + fullTableName + "]已经存在！");
         }
 
-        HTableModel hTableModel = new HTableModel();
-        hTableModel.setTableName(fullTableName);
-        List<HFamilyBuilder> familyBuilders = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
+        HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(fullTableName));
+
         List<String> families = new ArrayList<>(sysHbaseTableDto.getFamilies().size());
 
         for (SysHbaseFamily family : sysHbaseTableDto.getFamilies()) {
@@ -184,14 +185,12 @@ public class SysHbaseTableController extends BaseController {
                 throw new HBaseOperationsException("列簇[" + family.getFamilyName() + "]已经存在！");
             }
             families.add(family.getFamilyName());
-
-            HFamilyBuilder familyBuilder = new HFamilyBuilder.Builder().familyName(family.getFamilyName())
-                    .maxVersions(family.getMaxVersions()).timeToLive(family.getTtl())
-                    .compressionType(family.getCompressionType()).build();
-            familyBuilders.add(familyBuilder);
+            HColumnDescriptor columnDescriptor = new HColumnDescriptor(family.getFamilyName());
+            columnDescriptor.setMaxVersions(family.getMaxVersions());
+            columnDescriptor.setTimeToLive(family.getTtl());
+            columnDescriptor.setCompressionType(Compression.Algorithm.valueOf(family.getCompressionType()));
+            tableDescriptor.addFamily(columnDescriptor);
         }
-        hTableModel.sethFamilies(familyBuilders);
-
         boolean createTableRes = false;
 
         String startKey = sysHbaseTableDto.getStartKey();
@@ -205,13 +204,13 @@ public class SysHbaseTableController extends BaseController {
         }
         if (preSplit1) {
             String[] splitKeys = sysHbaseTableDto.getPreSplitKeys().split(",");
-            createTableRes = ihBaseAdminService.createTable(hTableModel, splitKeys);
+            createTableRes = ihBaseAdminService.createTable(tableDescriptor, splitKeys);
         }
         if (preSplit2) {
-            createTableRes = ihBaseAdminService.createTable(hTableModel, startKey, endKey, numRegions);
+            createTableRes = ihBaseAdminService.createTable(tableDescriptor, startKey, endKey, numRegions);
         }
         if (!preSplit1 && !preSplit2) {
-            createTableRes = ihBaseAdminService.createTable(hTableModel);
+            createTableRes = ihBaseAdminService.createTable(tableDescriptor);
         }
         if (!createTableRes) {
             return error("系统异常，HBase表[" + fullTableName + "]创建失败！");
@@ -323,7 +322,7 @@ public class SysHbaseTableController extends BaseController {
             return error("非禁用状态的表不能被删除");
         }
         final String fullHBaseTableName = exitsTable.getSysHbaseNamespace().getNamespaceName() + ":" + exitsTable.getTableName();
-        if (!ihBaseAdminService.tableIsDisabled(fullHBaseTableName)) {
+        if (!ihBaseAdminService.isTableDisabled(fullHBaseTableName)) {
             return error("非禁用状态的表不能被删除");
         }
         boolean deleteTableDisabledStatusRes = ihBaseAdminService.deleteTable(fullHBaseTableName);

@@ -72,7 +72,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public AjaxResult export(SysHbaseNamespace sysHbaseNamespace) {
         List<SysHbaseNamespace> list = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
-        ExcelUtil<SysHbaseNamespace> util = new ExcelUtil<SysHbaseNamespace>(SysHbaseNamespace.class);
+        ExcelUtil<SysHbaseNamespace> util = new ExcelUtil<>(SysHbaseNamespace.class);
         return util.exportExcel(list, "namespace");
     }
 

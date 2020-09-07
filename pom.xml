@@ -219,10 +219,9 @@
             </dependency>
             <dependency>
                 <groupId>com.github.CCweixiao</groupId>
-                <artifactId>spring-boot-starter-hbase</artifactId>
+                <artifactId>spring-boot-starter-hbase_1.4</artifactId>
                 <version>${spring.boot.starter.hbase.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -302,7 +301,7 @@
             </activation>
             <properties>
                 <hbase.version>1.4.3</hbase.version>
-                <spring.boot.starter.hbase.version>1.0.1</spring.boot.starter.hbase.version>
+                <spring.boot.starter.hbase.version>1.0.5</spring.boot.starter.hbase.version>
             </properties>
             <modules>
                 <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>

@@ -2,7 +2,7 @@ package com.leo.hbase.manager.framework.web.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.leo.hbase.sdk.core.exception.HBaseOperationsException;
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
