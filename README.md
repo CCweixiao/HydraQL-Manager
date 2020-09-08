@@ -122,7 +122,8 @@ mvn clean package -Dmaven.test.skip=true -Phbase2.x
 
 
 安装包下载地址：
-链接:[https://pan.baidu.com/s/100PoILquH2defxT5opw6bA](https://pan.baidu.com/s/100PoILquH2defxT5opw6bA) 密码:mu2w
+链接:[https://pan.baidu.com/s/1bmqSZFTn-b2OJBL-QfO1HQ](https://pan.baidu.com/s/100PoILquH2defxT5opw6bA) 密码:oo1l
+
 
 
 ### 安装部署
