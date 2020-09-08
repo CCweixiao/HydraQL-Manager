@@ -2,7 +2,7 @@
 
 一直想做一款HBase表管理系统，不仅是为了从命令行下创建HBase表的琐碎工作之中解放出来。同时，也是为了更好地管理与维护HBase的表信息。 出于这些目的，看了很多优秀的开源项目，但是一直没有发现合适自己的。于是利用空闲时间，基于若依后台管理框架，开始写一套HBase的表管理系统。 如此便有了HBaseManager。
 
-目前，系统的功能还很初级，只有基本的namespace管理、HBase表的增删改查，以及HBase表的标签管理等功能。 当然，您也可以对他进行深度定制，以做出更强的系统。所有前端和后台的代码都是基于若依框架进行封装，十分的精简易上手，出错概率低。 同时支持移动客户端访问（若依框架的特性）。之后系统会陆续更新越来越多实用的功能。
+目前，系统的功能还很初级，只有基本的namespace管理、HBase表的增删改查，以及HBase表的标签管理、基本的数据查询等功能。 当然，您也可以对他进行深度定制，以做出更强的系统。所有前端和后台的代码都是基于若依框架进行封装，十分的精简易上手，出错概率低。 同时支持移动客户端访问（若依框架的特性）。之后系统会陆续更新越来越多实用的功能。
 
 * 感谢 [ruoyi](https://ruoyi.vip/) 后台管理系统。
 
@@ -11,9 +11,9 @@
 1. namespace管理：包括namespace的创建、删除（后续将支持）等功能
 2. HBase表管理：表创建（包括预分区建表等）、表信息登记维护、表删除、列簇管理等
 3. 标签管理：HBase表的一些标签管理等
-4. 数据预览：后续将支持数据预览等表数据管理的功能。
+4. 数据管理：HBase表数据的查询（更新删除等操作）。
 5. 多集群管理：后续将支持多集群管理。
-6. 监控功能：后续考虑增加丰富的监控功能，以期待代替HBase本身的监控界面
+6. 监控功能：后续可能会考虑增加丰富的监控功能，以期待代替HBase本身的监控界面
 7. 更多功能：......
 
 ## 若依系统本身功能
@@ -49,39 +49,79 @@
 
 ### 2. 表管理
 
-新增表
+**新增表**
 
 ![add table](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-094231.jpg)
 
 ![show1](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_d5d45db3-3db7-4396-99cb-42817367134f.png)
 
 
-
 ![detail](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_135c9aa0-c6d7-4764-93d7-e9b3ebee22bb.png)
 
-表信息列表
+**表信息列表**
 
 ![table-list](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-094559.jpg)
 
-查看表详情
+**查看表详情**
 
 ![table-detail](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-094734.jpg)
 
-列簇信息，点击表名连接，跳转查看被选择表的列簇信息。
+**列簇信息，点击表名连接，跳转查看被选择表的列簇信息**
 
 ![family](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-094829.jpg)
 
-目前列簇只支持修改，replication-scope
+**目前列簇只支持修改，replication-scope**
 
 ![update](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-094910.jpg)
 
-## 抢鲜体验
+### 3. 表数据管理
 
-由于目前系统功能尚不是很完善，所以源码暂不好意思开源，待系统稳定之后，一定公开源码，接受大家的考验。如果只是想抢鲜体验的话，这里提供编译好的安装包，整个系统配置简单，部署方便。
+**查询表数据**
+
+![data-manager](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-09-08-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_39eb0382-0ce9-439e-91da-d84fa15857b1.png)
+
+## 快速体验
+
+### clone源码
+
+鉴于GitHub的龟速，hbase-manager的所有源码，由gitee和github双平台来托管。
+
+```shell script
+git clone https://github.com/CCweixiao/hbase-manager.git
+git clone https://gitee.com/weixiaotome/hbase-manager.git
+```
+
+**gitee**
+![gitee](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-09-08-135146.jpg)
+
+**github**
+![github](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-09-08-135314.jpg)
+
+### 编译项目
+
+hbase-manager由java开发，maven管理，项目编译十分方便：
+
+```shell script
+cd hbase-manager
+mvn clean package -Dmaven.test.skip=true -Phbase1.x or
+mvn clean package -Dmaven.test.skip=true -Phbase2.x
+```
+
+-Phbase1.x 默认加载hbase1.x的client api
+-Phbase2.x 默认加载hbase2.x的client api
+
+如果想适配自己集群的HBase版本，请移步至pom.xml文件中修改，然后自行编译就好。
+
+
+如果只是想抢鲜体验的话，这里提供编译好的安装包，整个系统配置简单，部署方便。
+默认提供安装包基于的HBase版本分别为1.4.3和2.1.0
+
 
 安装包下载地址：
 链接:[https://pan.baidu.com/s/100PoILquH2defxT5opw6bA](https://pan.baidu.com/s/100PoILquH2defxT5opw6bA) 密码:mu2w
 
+
+### 安装部署
 
 示例命令：
 
@@ -123,19 +163,9 @@ nohup java -jar  hbase-manager-admin-1.0.0.jar > /dev/null 2>&1 &
 
 ![index](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_cff58a9d-df31-4488-b222-2b00deb5156d.png)
 
-系统目前的功能还比较简陋，后续会根据工作中的需要，增加更多实用和丰富的功能。
 
 如果有朋友对这个系统比较感兴趣，在体验的过程中，有遇到任何问题，欢迎在公众号里留言。
 系统其它功能模块的使用文档，可以扫一眼若依的官方文档。
 
-## 编译项目
+![find-me](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-24-145842.jpg)
 
-hbase-manager由java开发，maven管理，项目编译十分方便：
-
-```shell script
-git clone https://github.com/CCweixiao/hbase-manager.git
-git clone https://gitee.com/weixiaotome/hbase-manager.git
-cd hbase-manager
-mvn clean package -Dmaven.test.skip=true -Phbase1.x or
-mvn clean package -Dmaven.test.skip=true -Phbase2.x
-```
