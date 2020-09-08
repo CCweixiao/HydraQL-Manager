@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hbase-manager</artifactId>
         <groupId>com.leo</groupId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.CCweixiao</groupId>
-            <artifactId>spring-boot-starter-hbase_1.4</artifactId>
+            <artifactId>spring-boot-starter-hbase_2.1</artifactId>
         </dependency>
         <!-- SpringBoot Web容器 -->
         <dependency>

@@ -5,7 +5,7 @@
 
     <groupId>com.leo</groupId>
     <artifactId>hbase-manager</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <name>hbase-manager</name>
     <url>https://www.jielongping.com</url>
@@ -30,6 +30,9 @@
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <poi.version>3.17</poi.version>
         <velocity.version>1.7</velocity.version>
+        <hbase1.x.version>1.4.3</hbase1.x.version>
+        <hbase2.x.version>2.1.0</hbase2.x.version>
+        <base.spring.boot.starter.hbase.version>1.0.5</base.spring.boot.starter.hbase.version>
     </properties>
 
     <licenses>
@@ -251,6 +254,11 @@
                 <artifactId>spring-boot-starter-hbase_1.4</artifactId>
                 <version>${spring.boot.starter.hbase.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.CCweixiao</groupId>
+                <artifactId>spring-boot-starter-hbase_2.1</artifactId>
+                <version>${spring.boot.starter.hbase.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -342,8 +350,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <hbase.version>1.4.3</hbase.version>
-                <spring.boot.starter.hbase.version>1.0.5</spring.boot.starter.hbase.version>
+                <hbase.version>${hbase1.x.version}</hbase.version>
+                <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
             </properties>
             <modules>
                 <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
@@ -352,8 +360,8 @@
         <profile>
             <id>hbase2.x</id>
             <properties>
-                <hbase.version>1.4.3</hbase.version>
-                <spring.boot.starter.hbase.version>1.0.1</spring.boot.starter.hbase.version>
+                <hbase.version>${hbase2.x.version}</hbase.version>
+                <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
             </properties>
             <modules>
                 <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>

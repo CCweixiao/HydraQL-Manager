@@ -110,6 +110,10 @@ mvn clean package -Dmaven.test.skip=true -Phbase2.x
 -Phbase1.x 默认加载hbase1.x的client api
 -Phbase2.x 默认加载hbase2.x的client api
 
+打包成功后，在hbase-manager-admin/target/dist目录下找到我们打包的安装包。
+
+![PACKAGE](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-09-08-140715.jpg)
+
 如果想适配自己集群的HBase版本，请移步至pom.xml文件中修改，然后自行编译就好。
 
 
