@@ -14,6 +14,14 @@ import java.util.List;
 public interface IHBaseAdminService {
 
     /**
+     * get the descriptor of namespace.
+     *
+     * @param namespaceName the name of descriptor.
+     * @return the descriptor of namespace
+     */
+    NamespaceDesc getNamespaceDesc(String namespaceName);
+
+    /**
      * get all namespace descriptor.
      *
      * @return all namespace descriptor

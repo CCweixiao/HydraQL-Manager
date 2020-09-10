@@ -1,29 +1,24 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.github.CCweixiao.util.StrUtil;
+import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
-import com.leo.hbase.manager.system.domain.SysHbaseTable;
-import com.leo.hbase.manager.system.service.ISysHbaseTableService;
+import com.leo.hbase.manager.common.annotation.Log;
+import com.leo.hbase.manager.common.core.controller.BaseController;
+import com.leo.hbase.manager.common.core.domain.AjaxResult;
+import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
+import com.leo.hbase.manager.system.dto.NamespaceDescDto;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.system.domain.SysHbaseNamespace;
-import com.leo.hbase.manager.system.service.ISysHbaseNamespaceService;
-import com.leo.hbase.manager.common.core.controller.BaseController;
-import com.leo.hbase.manager.common.core.domain.AjaxResult;
-import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HBaseNamespaceController
@@ -35,12 +30,8 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 @RequestMapping("/system/namespace")
 public class SysHbaseNamespaceController extends BaseController {
     private String prefix = "system/namespace";
+    public static final String DEFAULT_SYS_TABLE_NAMESPACE = "hbase";
 
-    @Autowired
-    private ISysHbaseNamespaceService sysHbaseNamespaceService;
-
-    @Autowired
-    private ISysHbaseTableService sysHbaseTableService;
 
     @Autowired
     private IHBaseAdminService hBaseAdminService;
@@ -57,9 +48,13 @@ public class SysHbaseNamespaceController extends BaseController {
     @RequiresPermissions("system:namespace:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseNamespace sysHbaseNamespace) {
-        startPage();
-        List<SysHbaseNamespace> list = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
+    public TableDataInfo list(NamespaceDescDto namespaceDescDto) {
+        List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
+                .map(namespaceDesc -> new NamespaceDescDto().convertFot(namespaceDesc)).collect(Collectors.toList());
+        if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
+            list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
+                    .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
+        }
         return getDataTable(list);
     }
 
@@ -70,9 +65,14 @@ public class SysHbaseNamespaceController extends BaseController {
     @Log(title = "HBaseNamespace", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseNamespace sysHbaseNamespace) {
-        List<SysHbaseNamespace> list = sysHbaseNamespaceService.selectSysHbaseNamespaceList(sysHbaseNamespace);
-        ExcelUtil<SysHbaseNamespace> util = new ExcelUtil<>(SysHbaseNamespace.class);
+    public AjaxResult export(NamespaceDescDto namespaceDescDto) {
+        List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
+                .map(namespaceDesc -> new NamespaceDescDto().convertFot(namespaceDesc)).collect(Collectors.toList());
+        if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
+            list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
+                    .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
+        }
+        ExcelUtil<NamespaceDescDto> util = new ExcelUtil<>(NamespaceDescDto.class);
         return util.exportExcel(list, "namespace");
     }
 
@@ -91,33 +91,31 @@ public class SysHbaseNamespaceController extends BaseController {
     @Log(title = "HBaseNamespace", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(@Validated SysHbaseNamespace sysHbaseNamespace) {
-        final String name = sysHbaseNamespace.getNamespaceName();
-        if ("hbase".equals(name.toLowerCase())) {
+    public AjaxResult addSave(@Validated NamespaceDescDto namespaceDescDto) {
+        final String name = namespaceDescDto.getNamespaceName();
+        if (DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
             return error("命名空间[" + name + "]不允许被创建！");
         }
-        SysHbaseNamespace namespace = sysHbaseNamespaceService.selectSysHbaseNamespaceByName(name);
-        String msg = "namespace[" + name + "]已经存在！";
+        NamespaceDesc namespaceDesc = new NamespaceDesc();
+        namespaceDesc.setNamespaceId(namespaceDescDto.getNamespaceName());
+        namespaceDesc.setNamespaceName(namespaceDescDto.getNamespaceName());
 
-        if (namespace != null && namespace.getNamespaceId() > 0) {
-            return error(msg);
-        }
+        final boolean createdOrNot = hBaseAdminService.createNamespace(namespaceDesc);
 
-        boolean createSuccess = hBaseAdminService.createNamespace(name);
-        if (!createSuccess) {
+        if (!createdOrNot) {
             return error("namespace[" + name + "]创建失败！");
         }
 
-        return toAjax(sysHbaseNamespaceService.insertSysHbaseNamespace(sysHbaseNamespace));
+        return success("namespace[" + name + "]创建成功！");
     }
 
     /**
      * 修改HBaseNamespace
      */
     @GetMapping("/edit/{namespaceId}")
-    public String edit(@PathVariable("namespaceId") Long namespaceId, ModelMap mmap) {
-        SysHbaseNamespace sysHbaseNamespace = sysHbaseNamespaceService.selectSysHbaseNamespaceById(namespaceId);
-        mmap.put("sysHbaseNamespace", sysHbaseNamespace);
+    public String edit(@PathVariable("namespaceId") String namespaceId, ModelMap mmap) {
+        NamespaceDesc namespaceDesc = hBaseAdminService.getNamespaceDesc(namespaceId);
+        mmap.put("namespaceDesc", namespaceDesc);
         return prefix + "/edit";
     }
 
@@ -128,20 +126,8 @@ public class SysHbaseNamespaceController extends BaseController {
     @Log(title = "HBaseNamespace", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(@Validated SysHbaseNamespace sysHbaseNamespace) {
-        if (sysHbaseNamespace.getNamespaceId() == null || sysHbaseNamespace.getNamespaceId() < 1) {
-            return error("待修改namespace的id不能为空");
-        }
-        final String editNamespaceName = sysHbaseNamespace.getNamespaceName();
-        SysHbaseNamespace editNamespace = sysHbaseNamespaceService.selectSysHbaseNamespaceByName(editNamespaceName);
-
-        String msg = "namespace[" + editNamespaceName + "]已经存在!";
-
-        if (editNamespace != null && editNamespace.getNamespaceId().longValue() != sysHbaseNamespace.getNamespaceId().longValue()) {
-            return error(msg);
-        }
-
-        return toAjax(sysHbaseNamespaceService.updateSysHbaseNamespace(sysHbaseNamespace));
+    public AjaxResult editSave(@Validated NamespaceDescDto namespaceDescDto) {
+        return error("暂不支持对namespace的重命名");
     }
 
     /**
@@ -151,20 +137,11 @@ public class SysHbaseNamespaceController extends BaseController {
     @Log(title = "HBaseNamespace", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(Long ids) {
-        //判断namespace id是否有使用
-        SysHbaseNamespace namespace = sysHbaseNamespaceService.selectSysHbaseNamespaceById(ids);
-        if (namespace == null || namespace.getNamespaceId() < 1) {
-            return error("namespace[" + ids + "]不存在！");
+    public AjaxResult remove(String ids) {
+        final boolean deletedOrNot = hBaseAdminService.deleteNamespace(ids);
+        if (!deletedOrNot) {
+            return error("namespace[" + ids + "]删除失败！");
         }
-        List<SysHbaseTable> tableList = sysHbaseTableService.selectSysHbaseTableListByNamespaceId(ids);
-        if (tableList != null && !tableList.isEmpty()) {
-            return error("该namespace中存在表，不能被删除!");
-        }
-        boolean deleteRes = hBaseAdminService.deleteNamespace(namespace.getNamespaceName());
-        if (!deleteRes) {
-            return error("系统错误，namespace删除失败！");
-        }
-        return toAjax(sysHbaseNamespaceService.deleteSysHbaseNamespaceById(ids));
+        return success("namespace[" + ids + "]删除成功！");
     }
 }

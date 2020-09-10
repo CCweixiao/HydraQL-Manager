@@ -33,12 +33,12 @@ public class SysHBaseNamespaceInit implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("系统开始同步HBase中的namespace数据......");
 
-        initNamespace();
+        //initNamespace();
 
         log.info("系统成功完成同步HBase中的namespace数据......");
     }
 
-    private void initNamespace() {
+ /*   private void initNamespace() {
         List<String> allNamespace = ihBaseAdminService.listAllNamespace();
         if (allNamespace != null && !allNamespace.isEmpty()) {
             for (String namespaceName : allNamespace) {
@@ -51,5 +51,5 @@ public class SysHBaseNamespaceInit implements CommandLineRunner {
                 }
             }
         }
-    }
+    }*/
 }

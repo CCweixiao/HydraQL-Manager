@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HBaseOperationsException.class)
     public AjaxResult hbaseOperationException(HBaseOperationsException e) {
         log.error("HBase操作异常：", e);
-        return AjaxResult.error("HBase异常：" + e.getMessage());
+        return AjaxResult.error("HBase异常：" + e.getCause().getMessage());
     }
 
     /**

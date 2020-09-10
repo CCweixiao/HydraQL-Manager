@@ -28,6 +28,16 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     private HBaseAdminTemplate hBaseAdminTemplate;
 
     @Override
+    public NamespaceDesc getNamespaceDesc(String namespaceName) {
+        final NamespaceDescriptor namespaceDescriptor = hBaseAdminTemplate.getNamespaceDescriptor(namespaceName);
+        NamespaceDesc namespaceDesc = new NamespaceDesc();
+        namespaceDesc.setNamespaceId(namespaceDescriptor.getName());
+        namespaceDesc.setNamespaceName(namespaceDescriptor.getName());
+        namespaceDesc.setNamespaceProps(namespaceDescriptor.getConfiguration());
+        return namespaceDesc;
+    }
+
+    @Override
     public List<NamespaceDesc> listAllNamespaceDesc() {
         return Arrays.stream(hBaseAdminTemplate.listNamespaceDescriptors()).map(namespaceDescriptor -> {
             NamespaceDesc namespaceDesc = new NamespaceDesc();
@@ -46,7 +56,9 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public boolean createNamespace(NamespaceDesc namespace) {
         NamespaceDescriptor namespaceDescriptor = NamespaceDescriptor.create(namespace.getNamespaceName()).build();
-        namespace.getNamespaceProps().forEach(namespaceDescriptor::setConfiguration);
+        if (namespace.getNamespaceProps() != null && !namespace.getNamespaceProps().isEmpty()) {
+            namespace.getNamespaceProps().forEach(namespaceDescriptor::setConfiguration);
+        }
         return hBaseAdminTemplate.createNamespace(namespaceDescriptor);
     }
 

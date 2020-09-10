@@ -11,7 +11,6 @@ public class NamespaceDesc {
     private Map<String, String> namespaceProps;
 
 
-
     public String getNamespaceId() {
         return namespaceId;
     }

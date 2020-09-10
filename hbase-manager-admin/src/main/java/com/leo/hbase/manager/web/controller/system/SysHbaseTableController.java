@@ -84,7 +84,7 @@ public class SysHbaseTableController extends BaseController {
         } else {
             hBaseTableDetailVo.setDisabledStatus(HBaseDisabledFlag.ENABLED.getCode());
         }
-        String desc = StringUtils.getStringByEnter(110, ihBaseAdminService.getTableDesc(fullTableName));
+        String desc = StringUtils.getStringByEnter(110, ihBaseAdminService.getTableDescToString(fullTableName));
         hBaseTableDetailVo.setTableDesc(desc);
         hBaseTableDetailVo.setRemark(sysHbaseTable.getRemark());
         mmap.put("hbaseTable", hBaseTableDetailVo);
