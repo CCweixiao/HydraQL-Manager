@@ -21,14 +21,12 @@ public interface SysHbaseTableMapper
     public SysHbaseTable selectSysHbaseTableById(Long tableId);
 
     /**
-     * 根据namespace和table name查询HBase表
+     * 查询HBase表
      *
-     * @param namespaceId 命名空间 id
-     * @param tableName 表名
      * @return HBase
      */
-    public SysHbaseTable selectSysHbaseTableByNamespaceAndTableName(@Param(value = "namespaceId") Long namespaceId,
-                                                                    @Param(value = "tableName") String tableName);
+    public SysHbaseTable selectSysHbaseTableByName(String tableName);
+
 
     /**
      * 查询HBase列表
@@ -38,13 +36,6 @@ public interface SysHbaseTableMapper
      */
     public List<SysHbaseTable> selectSysHbaseTableList(SysHbaseTable sysHbaseTable);
 
-    /**
-     * 根据namespace id 查询HBase列表
-     *
-     * @param namespaceId namespace id
-     * @return HBase集合
-     */
-    public List<SysHbaseTable> selectSysHbaseTableListByNamespaceId(Long namespaceId);
 
     /**
      * 新增HBase
@@ -70,13 +61,6 @@ public interface SysHbaseTableMapper
      */
     public int updateSysHbaseTableStatus(SysHbaseTable sysHbaseTable);
 
-    /**
-     * 修改HBase表的禁用状态
-     *
-     * @param sysHbaseTable HBase表
-     * @return 结果
-     */
-    public int updateSysHbaseTableDisabledStatus(SysHbaseTable sysHbaseTable);
 
     /**
      * 修改HBase表的Replication状态
@@ -85,6 +69,14 @@ public interface SysHbaseTableMapper
      * @return 结果
      */
     public int updateSysHbaseTableReplicationScope(SysHbaseTable sysHbaseTable);
+
+    /**
+     * 修改HBase表的禁用状态
+     *
+     * @param sysHbaseTable HBase表
+     * @return 结果
+     */
+    public int updateSysHbaseTableDisabledStatus(SysHbaseTable sysHbaseTable);
 
     /**
      * 删除HBase

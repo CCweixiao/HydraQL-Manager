@@ -104,7 +104,7 @@
                     visible: false
                 },
                 {
-                    field: 'sysHbaseNamespace.namespaceName',
+                    field: 'namespaceName',
                     title: 'namespace'
                 },
                 {
@@ -213,7 +213,7 @@
     /**表标签信息显示*/
     function showHBaseTableTags(row) {
         var tagNames = []
-        var tags = row.sysHbaseTagVoList;
+        var tags = row.sysHbaseTagList;
         //console.log(tags);
         $.each(tags, function (index, tag) {
             tagNames.push(tag.tagName)

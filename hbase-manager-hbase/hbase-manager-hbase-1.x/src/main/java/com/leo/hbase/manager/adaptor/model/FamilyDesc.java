@@ -54,4 +54,24 @@ public class FamilyDesc {
             return new FamilyDesc(this);
         }
     }
+
+    public String getFamilyName() {
+        return familyName;
+    }
+
+    public Integer getMaxVersions() {
+        return maxVersions;
+    }
+
+    public Integer getTimeToLive() {
+        return timeToLive;
+    }
+
+    public String getCompressionType() {
+        return compressionType;
+    }
+
+    public Integer getReplicationScope() {
+        return replicationScope;
+    }
 }

@@ -3,7 +3,6 @@ package com.leo.hbase.manager.system.dto;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.common.annotation.Excel;
-import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import org.springframework.beans.BeanUtils;
 
 import javax.validation.constraints.NotBlank;
@@ -27,7 +26,7 @@ public class NamespaceDescDto {
         return convert.convert(this);
     }
 
-    public NamespaceDescDto convertFot(NamespaceDesc namespaceDesc) {
+    public NamespaceDescDto convertFor(NamespaceDesc namespaceDesc) {
         NamespaceDescDto.NamespaceDescDtoConvert convert = new NamespaceDescDto.NamespaceDescDtoConvert();
         return convert.reverse().convert(namespaceDesc);
     }

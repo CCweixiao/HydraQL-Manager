@@ -19,14 +19,13 @@ public interface ISysHbaseTableService {
      */
     public SysHbaseTable selectSysHbaseTableById(Long tableId);
 
+
     /**
-     * 根据namespace和table name查询HBase表
+     * 查询HBase表
      *
-     * @param namespaceId 命名空间Id
-     * @param tableName   表名
      * @return HBase
      */
-    public SysHbaseTable selectSysHbaseTableByNamespaceAndTableName(Long namespaceId, String tableName);
+    public SysHbaseTable selectSysHbaseTableByName(String tableName);
 
 
     /**
@@ -36,14 +35,6 @@ public interface ISysHbaseTableService {
      * @return HBase集合
      */
     public List<SysHbaseTable> selectSysHbaseTableList(SysHbaseTable sysHbaseTable);
-
-    /**
-     * 根据namespace id 查询HBase列表
-     *
-     * @param namespaceId namespace id
-     * @return HBase集合
-     */
-    public List<SysHbaseTable> selectSysHbaseTableListByNamespaceId(Long namespaceId);
 
     /**
      * 新增HBase
@@ -69,6 +60,7 @@ public interface ISysHbaseTableService {
      */
     public int updateSysHbaseTableStatus(SysHbaseTable sysHbaseTable);
 
+
     /**
      * 修改HBase表的禁用状态
      *
@@ -76,6 +68,7 @@ public interface ISysHbaseTableService {
      * @return 结果
      */
     public int updateSysHbaseTableDisabledStatus(SysHbaseTable sysHbaseTable);
+
 
     /**
      * 批量删除HBase

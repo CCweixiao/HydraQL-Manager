@@ -50,7 +50,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public TableDataInfo list(NamespaceDescDto namespaceDescDto) {
         List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
-                .map(namespaceDesc -> new NamespaceDescDto().convertFot(namespaceDesc)).collect(Collectors.toList());
+                .map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc)).collect(Collectors.toList());
         if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
             list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
                     .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public AjaxResult export(NamespaceDescDto namespaceDescDto) {
         List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
-                .map(namespaceDesc -> new NamespaceDescDto().convertFot(namespaceDesc)).collect(Collectors.toList());
+                .map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc)).collect(Collectors.toList());
         if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
             list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
                     .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
@@ -96,10 +96,7 @@ public class SysHbaseNamespaceController extends BaseController {
         if (DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
             return error("命名空间[" + name + "]不允许被创建！");
         }
-        NamespaceDesc namespaceDesc = new NamespaceDesc();
-        namespaceDesc.setNamespaceId(namespaceDescDto.getNamespaceName());
-        namespaceDesc.setNamespaceName(namespaceDescDto.getNamespaceName());
-
+        NamespaceDesc namespaceDesc = namespaceDescDto.convertTo();
         final boolean createdOrNot = hBaseAdminService.createNamespace(namespaceDesc);
 
         if (!createdOrNot) {

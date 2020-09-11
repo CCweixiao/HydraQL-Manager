@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * HBaseService业务层处理
@@ -43,9 +41,10 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService {
     }
 
     @Override
-    public SysHbaseTable selectSysHbaseTableByNamespaceAndTableName(Long namespaceId, String tableName) {
-        return sysHbaseTableMapper.selectSysHbaseTableByNamespaceAndTableName(namespaceId, tableName);
+    public SysHbaseTable selectSysHbaseTableByName(String tableName) {
+        return sysHbaseTableMapper.selectSysHbaseTableByName(tableName);
     }
+
 
     /**
      * 查询HBase列表
@@ -64,10 +63,6 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService {
         return sysHbaseTableMapper.selectSysHbaseTableList(sysHbaseTable);
     }
 
-    @Override
-    public List<SysHbaseTable> selectSysHbaseTableListByNamespaceId(Long namespaceId) {
-        return sysHbaseTableMapper.selectSysHbaseTableListByNamespaceId(namespaceId);
-    }
 
     /**
      * 新增HBase表

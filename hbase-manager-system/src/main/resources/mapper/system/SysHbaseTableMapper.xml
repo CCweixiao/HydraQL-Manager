@@ -4,40 +4,34 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableMapper">
 
-    <resultMap id="SysHbaseTableBaseResult" type="SysHbaseTable">
+    <resultMap type="SysHbaseTable" id="SysHbaseTableBaseResult">
         <result property="tableId" column="table_id"/>
-        <result property="namespaceId" column="namespace_id"/>
+        <result property="namespaceName" column="namespace_name"/>
         <result property="tableName" column="table_name"/>
-        <result property="disableFlag" column="disable_flag"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
+        <result property="disableFlag" column="disable_flag"/>
         <result property="status" column="status"/>
         <result property="remark" column="remark"/>
     </resultMap>
 
     <resultMap type="SysHbaseTable" id="SysHbaseTableResult">
         <result property="tableId" column="table_id"/>
-        <result property="namespaceId" column="namespace_id"/>
+        <result property="namespaceName" column="namespace_name"/>
         <result property="tableName" column="table_name"/>
-        <result property="disableFlag" column="disable_flag"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
+        <result property="disableFlag" column="disable_flag"/>
         <result property="status" column="status"/>
         <result property="remark" column="remark"/>
 
-        <association property="sysHbaseNamespace" column="namespace_id" javaType="SysHbaseNamespace"
-                     resultMap="sysHbaseNamespaceResult"/>
         <collection property="sysHbaseTagList" javaType="java.util.List" resultMap="sysHbaseTagResult"/>
     </resultMap>
 
-    <resultMap id="sysHbaseNamespaceResult" type="SysHbaseNamespace">
-        <id property="namespaceId" column="namespace_id"/>
-        <result property="namespaceName" column="namespace_name"/>
-    </resultMap>
 
     <resultMap id="sysHbaseTagResult" type="SysHbaseTag">
         <id property="tagId" column="tag_id"/>
@@ -46,13 +40,13 @@
 
     <sql id="selectSysHbaseTableBaseVo">
         select table_id,
-               namespace_id,
+               namespace_name,
                table_name,
-               disable_flag,
                create_by,
                create_time,
                update_by,
                update_time,
+               disable_flag,
                status,
                remark
         from sys_hbase_table
@@ -60,20 +54,18 @@
 
     <sql id="selectSysHbaseTableVo">
         SELECT ht.table_id,
-               hns.namespace_id,
-               hns.namespace_name,
-               table_name,
+               ht.table_name,
+               ht.namespace_name,
                tag.tag_id,
                tag.tag_name,
-               disable_flag,
                ht.create_by,
                ht.create_time,
                ht.update_by,
                ht.update_time,
+               ht.disable_flag,
                ht.`status`,
                ht.remark
         FROM sys_hbase_table ht
-                 left join sys_hbase_namespace hns on ht.namespace_id = hns.namespace_id
                  left join sys_hbase_table_tag htt on ht.table_id = htt.table_id
                  left join sys_hbase_tag tag on htt.tag_id = tag.tag_id
     </sql>
@@ -81,9 +73,8 @@
     <select id="selectSysHbaseTableList" parameterType="SysHbaseTable" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
         <where>
-            <if test="namespaceId != null ">and hns.namespace_id = #{namespaceId}</if>
+            <if test="namespaceName != null  and namespaceName != ''">and namespace_name = #{namespaceName}</if>
             <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
-            <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
             <if test="queryHBaseTagIds != null ">and tag.tag_id in
                 <foreach item="tagId" collection="queryHBaseTagIds" open="(" separator="," close=")">
                     #{tagId}
@@ -93,44 +84,37 @@
         </where>
     </select>
 
-
-    <select id="selectSysHbaseTableListByNamespaceId" parameterType="Long" resultMap="SysHbaseTableBaseResult">
-        <include refid="selectSysHbaseTableBaseVo"/>
-        where namespace_id = #{namespaceId}
-    </select>
-
-    <select id="selectSysHbaseTableByNamespaceAndTableName" resultMap="SysHbaseTableBaseResult">
-        <include refid="selectSysHbaseTableBaseVo"/>
-        where namespace_id = #{namespaceId} and table_name =#{tableName}
-    </select>
-
-
     <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
         <include refid="selectSysHbaseTableVo"/>
         where ht.table_id = #{tableId}
     </select>
 
+    <select id="selectSysHbaseTableByName" parameterType="String" resultMap="SysHbaseTableBaseResult">
+        <include refid="selectSysHbaseTableBaseVo"/>
+        where table_name = #{tableName}
+    </select>
+
     <insert id="insertSysHbaseTable" parameterType="SysHbaseTable" useGeneratedKeys="true" keyProperty="tableId">
         insert into sys_hbase_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="namespaceId != null">namespace_id,</if>
-            <if test="tableName != null and tableName != ''">table_name,</if>
-            <if test="disableFlag != null">disable_flag,</if>
+            <if test="namespaceName != null and namespaceName != ''">namespace_name,</if>
+            <if test="tableName != null and tableName != ''">`table_name`,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-            <if test="status != null">status,</if>
+            <if test="disableFlag != null and disableFlag != ''">disable_flag,</if>
+            <if test="status != null">`status`,</if>
             <if test="remark != null">remark,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="namespaceId != null">#{namespaceId},</if>
+            <if test="namespaceName != null and namespaceName != ''">#{namespaceName},</if>
             <if test="tableName != null and tableName != ''">#{tableName},</if>
-            <if test="disableFlag != null">#{disableFlag},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
+            <if test="disableFlag != null and disableFlag !=''">#{disableFlag},</if>
             <if test="status != null">#{status},</if>
             <if test="remark != null">#{remark},</if>
         </trim>
@@ -157,7 +141,7 @@
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="status != null">`status` = #{status},</if>
         </trim>
         where table_id = #{tableId}
     </update>

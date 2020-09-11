@@ -128,7 +128,6 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
         } else {
             fullTableName = DEFAULT_NAMESPACE_NAME + TABLE_NAME_SPLIT_CHAR + fullTableName;
         }
-        tableDesc.setTableId(fullTableName);
         tableDesc.setTableName(fullTableName);
         tableDesc.setNamespaceId(namespaceName);
         tableDesc.setNamespaceName(namespaceName);
