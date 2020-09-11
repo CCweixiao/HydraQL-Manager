@@ -75,6 +75,7 @@
             exportUrl: prefix + "/export",
             queryParams: queryParams,
             modalName: "HBase Family",
+            sidePagination: 'client',
             columns: [{
                 checkbox: true
             },
@@ -96,7 +97,7 @@
                     title: '最大版本号'
                 },
                 {
-                    field: 'ttl',
+                    field: 'timeToLive',
                     title: 'ttl'
                 },
                 {

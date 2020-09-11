@@ -43,19 +43,22 @@ public class SysHBaseTableInit implements CommandLineRunner {
             if (hbaseTable == null) {
                 hbaseTable = new SysHbaseTable();
                 String namespaceName = "default";
-                if(tableName.contains(":")){
+                String fullTableName = tableName;
+                if (tableName.contains(":")) {
                     namespaceName = tableName.split(":")[0];
+                } else {
+                    fullTableName = "default" + ":" + tableName;
                 }
                 hbaseTable.setNamespaceName(namespaceName);
-                hbaseTable.setTableName(tableName);
+                hbaseTable.setTableName(fullTableName);
                 hbaseTable.setCreateBy("admin");
                 hbaseTable.setCreateTime(DateUtils.getNowDate());
                 hbaseTable.setRemark("由系统初始化时迁移而来");
                 hbaseTable.setStatus(HBaseTableStatus.ONLINE.getCode());
                 boolean disabled = ihBaseAdminService.isTableDisabled(tableName);
-                if(disabled){
+                if (disabled) {
                     hbaseTable.setDisableFlag(HBaseDisabledFlag.DISABLED.getCode());
-                }else {
+                } else {
                     hbaseTable.setDisableFlag(HBaseDisabledFlag.ENABLED.getCode());
                 }
                 sysHbaseTableService.insertSysHbaseTable(hbaseTable);

@@ -8,7 +8,7 @@
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-table-edit" th:object="${sysHbaseTable}">
         <input name="tableId" th:field="*{tableId}" type="hidden">
-        <div class="form-group">
+       <!-- <div class="form-group">
             <label class="col-sm-3 control-label is-required">namespace：</label>
             <div class="col-sm-8">
                 <select name="namespaceId" class="form-control" disabled>
@@ -16,7 +16,7 @@
                             th:text="${namespace.namespaceName}" th:selected="${sysHbaseTable.namespaceId == namespace.namespaceId}"></option>
                 </select>
             </div>
-        </div>
+        </div>-->
         <div class="form-group">
             <label class="col-sm-3 control-label is-required">HBase表名称：</label>
             <div class="col-sm-8">
@@ -54,6 +54,7 @@
                 </div>
             </div>
         </div>
+
         <div class="form-group">
             <label class="col-sm-3 control-label">备注：</label>
             <div class="col-sm-8">

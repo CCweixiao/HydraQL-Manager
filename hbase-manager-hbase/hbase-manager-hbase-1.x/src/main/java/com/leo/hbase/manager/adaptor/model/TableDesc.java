@@ -35,6 +35,11 @@ public class TableDesc {
      */
     private String preSplitKeys;
 
+    /**
+     * 表描述信息
+     */
+    private String tableDesc;
+
     public String getNamespaceId() {
         return namespaceId;
     }
@@ -129,5 +134,13 @@ public class TableDesc {
 
     public void setPreSplitKeys(String preSplitKeys) {
         this.preSplitKeys = preSplitKeys;
+    }
+
+    public String getTableDesc() {
+        return tableDesc;
+    }
+
+    public void setTableDesc(String tableDesc) {
+        this.tableDesc = tableDesc;
     }
 }

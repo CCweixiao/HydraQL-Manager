@@ -80,7 +80,8 @@
                     #{tagId}
                 </foreach>
             </if>
-            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="status != null  and status != ''">and `status` = #{status}</if>
+            <if test="disableFlag != null  and disableFlag != ''">and disable_flag = #{disableFlag}</if>
         </where>
     </select>
 

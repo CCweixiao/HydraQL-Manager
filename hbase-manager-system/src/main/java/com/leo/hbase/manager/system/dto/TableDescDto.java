@@ -6,6 +6,7 @@ import com.leo.hbase.manager.adaptor.model.TableDesc;
 import com.leo.hbase.manager.common.annotation.Excel;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseMetaTableFlag;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.valid.First;
 import com.leo.hbase.manager.system.valid.Fourth;
@@ -165,7 +166,8 @@ public class TableDescDto {
             tableDescDto.setMetaTable(metaTable);
             String disableStatus = tableDesc.isDisabled() ? HBaseDisabledFlag.DISABLED.getCode() : HBaseDisabledFlag.ENABLED.getCode();
             tableDescDto.setDisableFlag(disableStatus);
-            //tableDescDto.setFamilies(tableDesc.getFamilyDescList().stream().map(familyDesc -> new FamilyDescDto().convertFor(familyDesc)).collect(Collectors.toList()));
+            String desc = StringUtils.getStringByEnter(110, tableDesc.getTableDesc());
+            tableDescDto.setTableDesc(desc);
             return tableDescDto;
         }
     }

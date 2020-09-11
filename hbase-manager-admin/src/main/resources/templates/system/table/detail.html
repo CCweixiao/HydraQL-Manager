@@ -16,7 +16,7 @@
 
 		<div class="form-group">
 			<label class="col-sm-2 control-label">状态：</label>
-			<div class="form-control-static" th:class="${hbaseTable.disabledStatus == '0' ? 'label label-primary' : 'label label-danger'}" th:text="${hbaseTable.disabledStatus == '0' ? '启用' : '禁用'}">
+			<div class="form-control-static" th:class="${hbaseTable.disableFlag == '0' ? 'label label-primary' : 'label label-danger'}" th:text="${hbaseTable.disableFlag == '0' ? '启用' : '禁用'}">
 			</div>
 		</div>
 

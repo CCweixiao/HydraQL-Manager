@@ -133,6 +133,8 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
         tableDesc.setNamespaceName(namespaceName);
         tableDesc.setMetaTable(tableDescriptor.isMetaTable());
         tableDesc.setDisabled(hBaseAdminTemplate.isTableDisabled(tableName));
+        tableDesc.setTableDesc(tableDescriptor.toString());
+
         return tableDesc;
     }
 

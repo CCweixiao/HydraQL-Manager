@@ -1,23 +1,25 @@
 package com.leo.hbase.manager.web.controller.system;
 
+import com.leo.hbase.manager.adaptor.model.FamilyDesc;
+import com.leo.hbase.manager.adaptor.model.TableDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
-import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.system.domain.SysHbaseFamily;
-import com.leo.hbase.manager.system.service.ISysHbaseFamilyService;
+import com.leo.hbase.manager.system.domain.SysHbaseTable;
+import com.leo.hbase.manager.system.dto.FamilyDescDto;
+import com.leo.hbase.manager.system.service.ISysHbaseTableService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HBase FamilyController
@@ -31,9 +33,9 @@ public class SysHbaseFamilyController extends BaseController {
     private String prefix = "system/family";
 
     @Autowired
-    private ISysHbaseFamilyService sysHbaseFamilyService;
+    private ISysHbaseTableService sysHbaseTableService;
     @Autowired
-    private IHBaseAdminService adminService;
+    private IHBaseAdminService ihBaseAdminService;
 
     @RequiresPermissions("system:family:view")
     @GetMapping()
@@ -47,10 +49,16 @@ public class SysHbaseFamilyController extends BaseController {
     @RequiresPermissions("system:family:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseFamily sysHbaseFamily) {
-        startPage();
-        List<SysHbaseFamily> list = sysHbaseFamilyService.selectSysHbaseFamilyList(sysHbaseFamily);
-        return getDataTable(list);
+    public TableDataInfo list(SysHbaseTable sysHbaseTable) {
+        SysHbaseTable existsTable = sysHbaseTableService.selectSysHbaseTableById(sysHbaseTable.getTableId());
+
+        final List<FamilyDesc> familyDescList = ihBaseAdminService.getFamilyDesc(existsTable.getTableName());
+        final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
+            FamilyDescDto familyDescDto =new FamilyDescDto().convertFor(familyDesc);
+            familyDescDto.setTableName(existsTable.getTableName());
+            return familyDescDto;
+        }).collect(Collectors.toList());
+        return getDataTable(familyDescDtoList);
     }
 
     /**
@@ -61,9 +69,10 @@ public class SysHbaseFamilyController extends BaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SysHbaseFamily sysHbaseFamily) {
-        List<SysHbaseFamily> list = sysHbaseFamilyService.selectSysHbaseFamilyList(sysHbaseFamily);
+        /*List<SysHbaseFamily> list = sysHbaseFamilyService.selectSysHbaseFamilyList(sysHbaseFamily);
         ExcelUtil<SysHbaseFamily> util = new ExcelUtil<SysHbaseFamily>(SysHbaseFamily.class);
-        return util.exportExcel(list, "family");
+        return util.exportExcel(list, "family");*/
+        return error("暂不支持列簇的导出");
     }
 
     /**
@@ -82,16 +91,17 @@ public class SysHbaseFamilyController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SysHbaseFamily sysHbaseFamily) {
-        return toAjax(sysHbaseFamilyService.insertSysHbaseFamily(sysHbaseFamily));
+        return error("暂不支持列簇的保存");
+        // return toAjax(sysHbaseFamilyService.insertSysHbaseFamily(sysHbaseFamily));
     }
 
     /**
      * 修改HBase Family
      */
     @GetMapping("/edit/{familyId}")
-    public String edit(@PathVariable("familyId") Long familyId, ModelMap mmap) {
-        SysHbaseFamily sysHbaseFamily = sysHbaseFamilyService.selectSysHbaseFamilyById(familyId);
-        mmap.put("sysHbaseFamily", sysHbaseFamily);
+    public String edit(@PathVariable("familyId") String familyId, ModelMap mmap) {
+        /*SysHbaseFamily sysHbaseFamily = sysHbaseFamilyService.selectSysHbaseFamilyById(familyId);
+        mmap.put("sysHbaseFamily", sysHbaseFamily);*/
         return prefix + "/edit";
     }
 
@@ -103,17 +113,7 @@ public class SysHbaseFamilyController extends BaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SysHbaseFamily sysHbaseFamily) {
-        SysHbaseFamily family = sysHbaseFamilyService.selectSysHbaseFamilyById(sysHbaseFamily.getFamilyId());
-        if (family == null || family.getFamilyId() < 1) {
-            return error("待修改列簇不存在");
-        }
-        //TODO 暂时支持对replication scope的修改
-        if (HBaseReplicationScopeFlag.OPEN.getCode().equals(sysHbaseFamily.getReplicationScope())) {
-            adminService.enableReplication(family.getTableName(), Collections.singletonList(family.getFamilyName()));
-        } else {
-            adminService.disableReplication(family.getTableName(), Collections.singletonList(family.getFamilyName()));
-        }
-        return toAjax(sysHbaseFamilyService.updateSysHbaseFamilyReplicationScope(sysHbaseFamily));
+        return error("暂不支持列簇的保存");
     }
 
     /**

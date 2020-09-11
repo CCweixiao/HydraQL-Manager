@@ -150,7 +150,15 @@ public class SysHbaseTableServiceImpl implements ISysHbaseTableService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSysHbaseTableById(Long tableId) {
-        return sysHbaseTableMapper.deleteSysHbaseTableById(tableId);
+        //删除HBase表后删除tag
+        int row = sysHbaseTableMapper.deleteSysHbaseTableById(tableId);
+        if (row > 0) {
+            sysHbaseTableTagMapper.deleteSysHbaseTableTagById(tableId);
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

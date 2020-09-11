@@ -10,6 +10,7 @@ import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
@@ -68,13 +69,14 @@ public class SysHbaseTableController extends BaseController {
     public String detail(@PathVariable("tableId") Long tableId, ModelMap mmap) {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
         final TableDesc tableDesc = ihBaseAdminService.getTableDesc(sysHbaseTable.getTableName());
+
         String fullTableName = getFullTableName(tableDesc.getTableName());
         tableDesc.setTableName(fullTableName);
         TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
-        String desc = StringUtils.getStringByEnter(110, tableDescDto.getTableDesc());
-        tableDescDto.setTableDesc(desc);
+
         tableDescDto.setStatus(sysHbaseTable.getStatus());
         tableDescDto.setRemark(sysHbaseTable.getRemark());
+
         mmap.put("hbaseTable", tableDescDto);
         return prefix + "/detail";
     }
@@ -280,12 +282,12 @@ public class SysHbaseTableController extends BaseController {
             return error("系统异常，表状态修改失败！");
         }
         sysHbaseTable.setUpdateBy(ShiroUtils.getSysUser().getLoginName());
-        return success("操作成功！");
+        return toAjax(sysHbaseTableService.updateSysHbaseTableDisabledStatus(sysHbaseTable));
     }
 
 
     /**
-     * 删除HBase
+     * 删除HBase表
      */
     @RequiresPermissions("system:table:remove")
     @Log(title = "HBase", businessType = BusinessType.DELETE)
@@ -302,7 +304,7 @@ public class SysHbaseTableController extends BaseController {
         }
         final String fullHBaseTableName = exitsTable.getTableName();
 
-        if (!ihBaseAdminService.isTableDisabled(fullHBaseTableName)) {
+        if (HBaseDisabledFlag.ENABLED.getCode().equals(exitsTable.getDisableFlag())) {
             return error("非禁用状态的表不能被删除");
         }
 

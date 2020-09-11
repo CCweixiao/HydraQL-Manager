@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 @GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, Five.class, FamilyDescDto.class})
 public class FamilyDescDto {
 
+    private String tableName;
     private String familyId;
     @Excel(name = "family名称")
     private String familyName;
@@ -35,6 +36,14 @@ public class FamilyDescDto {
     public FamilyDescDto convertFor(FamilyDesc familyDesc) {
         FamilyDescDto.FamilyDescDtoConvert convert = new FamilyDescDto.FamilyDescDtoConvert();
         return convert.reverse().convert(familyDesc);
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public String getFamilyId() {
@@ -99,6 +108,7 @@ public class FamilyDescDto {
     @Override
     public String toString() {
         return "FamilyDescDto{" +
+                "tableName='" + tableName + '\'' +
                 "familyId='" + familyId + '\'' +
                 ", familyName='" + familyName + '\'' +
                 ", maxVersions=" + maxVersions +
@@ -112,14 +122,13 @@ public class FamilyDescDto {
 
         @Override
         protected FamilyDesc doForward(FamilyDescDto familyDescDto) {
-            final FamilyDesc familyDesc = new FamilyDesc.Builder()
+            return new FamilyDesc.Builder()
                     .familyName(familyDescDto.getFamilyName())
                     .maxVersions(familyDescDto.getMaxVersions())
                     .timeToLive(familyDescDto.getTimeToLive())
                     .compressionType(familyDescDto.getCompressionType())
                     .replicationScope(familyDescDto.getReplicationScope())
                     .build();
-            return familyDesc;
         }
 
         @Override
@@ -129,8 +138,8 @@ public class FamilyDescDto {
             familyDescDto.setFamilyName(familyDesc.getFamilyName());
             familyDescDto.setMaxVersions(familyDesc.getMaxVersions());
             familyDescDto.setCompressionType(familyDesc.getCompressionType());
-            familyDescDto.setReplicationScope(familyDescDto.getReplicationScope());
-            familyDescDto.setTimeToLive(familyDescDto.getTimeToLive());
+            familyDescDto.setReplicationScope(familyDesc.getReplicationScope());
+            familyDescDto.setTimeToLive(familyDesc.getTimeToLive());
             return familyDescDto;
         }
     }
