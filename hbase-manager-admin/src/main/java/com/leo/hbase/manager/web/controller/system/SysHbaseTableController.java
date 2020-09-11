@@ -205,8 +205,10 @@ public class SysHbaseTableController extends BaseController {
         }
 
         sysHbaseTable = new SysHbaseTable();
+        sysHbaseTable.setNamespaceName(tableDesc.getNamespaceName());
         sysHbaseTable.setCreateBy(ShiroUtils.getSysUser().getLoginName());
         sysHbaseTable.setTableName(fullTableName);
+        sysHbaseTable.setDisableFlag(HBaseDisabledFlag.ENABLED.getCode());
         sysHbaseTable.setRemark(tableDescDto.getRemark());
         sysHbaseTable.setStatus(tableDescDto.getStatus());
         sysHbaseTable.setTagIds(tableDescDto.getTagIds());

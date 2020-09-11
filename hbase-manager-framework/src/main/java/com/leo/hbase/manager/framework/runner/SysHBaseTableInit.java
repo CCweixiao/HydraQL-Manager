@@ -39,16 +39,17 @@ public class SysHBaseTableInit implements CommandLineRunner {
     private void initHBaseTable() {
         List<String> allTables = ihBaseAdminService.listAllTableName();
         for (String tableName : allTables) {
-            SysHbaseTable hbaseTable = sysHbaseTableService.selectSysHbaseTableByName(tableName);
+
+            String namespaceName = "default";
+            String fullTableName = tableName;
+            if (tableName.contains(":")) {
+                namespaceName = tableName.split(":")[0];
+            } else {
+                fullTableName = "default" + ":" + tableName;
+            }
+            SysHbaseTable hbaseTable = sysHbaseTableService.selectSysHbaseTableByName(fullTableName);
             if (hbaseTable == null) {
                 hbaseTable = new SysHbaseTable();
-                String namespaceName = "default";
-                String fullTableName = tableName;
-                if (tableName.contains(":")) {
-                    namespaceName = tableName.split(":")[0];
-                } else {
-                    fullTableName = "default" + ":" + tableName;
-                }
                 hbaseTable.setNamespaceName(namespaceName);
                 hbaseTable.setTableName(fullTableName);
                 hbaseTable.setCreateBy("admin");
@@ -62,6 +63,8 @@ public class SysHBaseTableInit implements CommandLineRunner {
                     hbaseTable.setDisableFlag(HBaseDisabledFlag.ENABLED.getCode());
                 }
                 sysHbaseTableService.insertSysHbaseTable(hbaseTable);
+            } else {
+                log.info("HBase表[" + fullTableName + "]已经被初始化！");
             }
         }
     }
