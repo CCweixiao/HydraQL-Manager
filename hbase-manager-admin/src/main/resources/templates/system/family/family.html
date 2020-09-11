@@ -105,7 +105,7 @@
                     title: '列簇数据的压缩类型',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        if(value==''){
+                        if(value=='' || value =='none'){
                             value = 'NONE'
                         }
                         return $.table.selectDictLabel(familyCompressionTypeDatas, value);
