@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSON;
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.util.StrUtil;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.adaptor.service.IHBaseService;
@@ -17,6 +18,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,11 +56,14 @@ public class SysHbaseTableDataController extends BaseController {
         List<CxSelect> cxTableInfoList = new ArrayList<>(allTableNames.size());
 
         for (String tableName : allTableNames) {
+            if (ihBaseAdminService.isTableDisabled(tableName)) {
+                continue;
+            }
+            HTableDescriptor tableDescriptor = ihBaseAdminService.getTableDescriptor(tableName);
             CxSelect cxSelectTable = new CxSelect();
             cxSelectTable.setN(tableName);
             cxSelectTable.setV(tableName);
 
-            HTableDescriptor tableDescriptor = ihBaseAdminService.getTableDescriptor(tableName);
             List<String> families = tableDescriptor.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
             List<CxSelect> tempFamilyList = new ArrayList<>();
             for (String family : families) {
@@ -83,12 +88,18 @@ public class SysHbaseTableDataController extends BaseController {
     @ResponseBody
     public TableDataInfo list(SysHbaseTableData sysHbaseTableData) {
         List<SysHbaseTableData> list = new ArrayList<>();
+
+
         if (StrUtil.isBlank(sysHbaseTableData.getTableName())) {
             return getDataTable(list);
         }
+
+        if (ihBaseAdminService.isTableDisabled(sysHbaseTableData.getTableName())) {
+            throw new HBaseOperationsException("表[" + sysHbaseTableData.getTableName() + "]处于禁用状态，无法被查询！");
+        }
+
         if (StrUtil.isNotBlank(sysHbaseTableData.getRowKey())) {
-            //TODO 可以指定列簇
-            final List<Map<String, Object>> dataMapList = ihBaseService.get(sysHbaseTableData.getTableName(), sysHbaseTableData.getRowKey());
+            final List<Map<String, Object>> dataMapList = ihBaseService.get(sysHbaseTableData.getTableName(), sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName());
             if (dataMapList.isEmpty()) {
                 return getDataTable(list);
             }
@@ -99,18 +110,13 @@ public class SysHbaseTableDataController extends BaseController {
 
             return getDataTable(list);
         }
-        int limit = 10;
-        if (sysHbaseTableData.getLimit() != null && sysHbaseTableData.getLimit() > 0) {
-            limit = sysHbaseTableData.getLimit();
-        }
-        List<List<Map<String, Object>>> dataMaps = ihBaseService.find(sysHbaseTableData.getTableName(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getStartKey(), limit);
+        List<List<Map<String, Object>>> dataMaps = ihBaseService.find(sysHbaseTableData.getTableName(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getStartKey(), sysHbaseTableData.getLimit());
         if (dataMaps == null || dataMaps.isEmpty()) {
             return getDataTable(list);
         }
 
         list = dataMaps.stream().flatMap(Collection::stream).map(dd -> mapToHBaseTableData(sysHbaseTableData.getTableName(), dd)).collect(Collectors.toList());
 
-        //startPage();
         return getDataTable(list);
     }
 
@@ -143,8 +149,13 @@ public class SysHbaseTableDataController extends BaseController {
     @Log(title = "HBase数据", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SysHbaseTableData sysHbaseTableData) {
-        return error("暂不支持新增数据");
+    public AjaxResult addSave(@Validated SysHbaseTableData sysHbaseTableData) {
+        String tableName = sysHbaseTableData.getTableName();
+        if (ihBaseAdminService.isTableDisabled(tableName)) {
+            throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
+        }
+        ihBaseService.saveOrUpdate(tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
+        return success("数据新增成功！");
     }
 
     /**

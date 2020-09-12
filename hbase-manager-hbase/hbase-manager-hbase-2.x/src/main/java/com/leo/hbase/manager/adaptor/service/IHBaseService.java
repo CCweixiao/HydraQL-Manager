@@ -10,11 +10,12 @@ public interface IHBaseService {
     /**
      * 根据row key查找数据
      *
-     * @param tableName 表名
-     * @param rowKey    row key
+     * @param tableName  表名
+     * @param rowKey     row key
+     * @param familyName 列簇名
      * @return 查询数据
      */
-    List<Map<String, Object>> get(String tableName, String rowKey);
+    List<Map<String, Object>> get(String tableName, String rowKey, String familyName);
 
 
     /**
@@ -37,4 +38,13 @@ public interface IHBaseService {
      * @param qualifier  字段名
      */
     void delete(String tableName, String rowKey, String familyName, String qualifier);
+
+    /**
+     * 保存数据
+     * @param tableName 表名
+     * @param rowKey rowKey
+     * @param familyAndQualifierName 列簇名
+     * @param value 值
+     */
+    void saveOrUpdate(String tableName, String rowKey, String familyAndQualifierName, String value);
 }
