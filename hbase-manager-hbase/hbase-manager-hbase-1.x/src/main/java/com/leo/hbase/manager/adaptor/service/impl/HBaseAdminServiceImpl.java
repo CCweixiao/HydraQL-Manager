@@ -18,13 +18,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.leo.hbase.manager.adaptor.HMHBaseConstant.DEFAULT_NAMESPACE_NAME;
+import static com.leo.hbase.manager.adaptor.HMHBaseConstant.TABLE_NAME_SPLIT_CHAR;
+
 /**
  * @author leojie 2020/8/19 11:04 下午
  */
 @Service
 public class HBaseAdminServiceImpl implements IHBaseAdminService {
-    public static final String TABLE_NAME_SPLIT_CHAR = ":";
-    public static final String DEFAULT_NAMESPACE_NAME = "default";
 
     @Autowired
     private HBaseAdminTemplate hBaseAdminTemplate;
@@ -97,8 +98,6 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
         for (int i = 0; i < bytes.size(); i++) {
             splitKeyBytes[i] = bytes.get(i);
         }
-
-        // byte[][] splitKeyBytes = (byte[][]) Arrays.stream(splitKeys).map(Bytes::toBytes).toArray();
         return hBaseAdminTemplate.createTable(tableDescriptor, splitKeyBytes);
     }
 

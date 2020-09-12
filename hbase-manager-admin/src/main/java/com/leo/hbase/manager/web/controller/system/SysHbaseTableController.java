@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.github.CCweixiao.exception.HBaseOperationsException;
+import com.leo.hbase.manager.adaptor.HMHBaseConstant;
 import com.leo.hbase.manager.adaptor.model.FamilyDesc;
 import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.adaptor.model.TableDesc;
@@ -70,7 +71,7 @@ public class SysHbaseTableController extends BaseController {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
         final TableDesc tableDesc = ihBaseAdminService.getTableDesc(sysHbaseTable.getTableName());
 
-        String fullTableName = getFullTableName(tableDesc.getTableName());
+        String fullTableName = HMHBaseConstant.getFullTableName(tableDesc.getTableName());
         tableDesc.setTableName(fullTableName);
         TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
 
@@ -85,7 +86,7 @@ public class SysHbaseTableController extends BaseController {
     @GetMapping("/family/detail/{tableId}")
     public String familyDetail(@PathVariable("tableId") Long tableId, ModelMap mmap) {
         SysHbaseTable sysHbaseTable = sysHbaseTableService.selectSysHbaseTableById(tableId);
-        String fullTableName = getFullTableName(sysHbaseTable.getTableName());
+        String fullTableName = HMHBaseConstant.getFullTableName(sysHbaseTable.getTableName());
         sysHbaseTable.setTableName(fullTableName);
         mmap.put("tableObj", sysHbaseTable);
         sysHbaseTable = new SysHbaseTable();
@@ -97,7 +98,7 @@ public class SysHbaseTableController extends BaseController {
             for (SysHbaseTable hbaseTable : tableList) {
                 Map<String, Object> tableMap = new HashMap<>(2);
                 tableMap.put("tableId", hbaseTable.getTableId());
-                tableMap.put("tableName", getFullTableName(hbaseTable.getTableName()));
+                tableMap.put("tableName", HMHBaseConstant.getFullTableName(hbaseTable.getTableName()));
                 tableMapList.add(tableMap);
                 mmap.put("tableMapList", tableMapList);
             }
@@ -136,7 +137,7 @@ public class SysHbaseTableController extends BaseController {
     @GetMapping("/add")
     public String add(ModelMap mmap) {
         List<NamespaceDescDto> namespaces = ihBaseAdminService.listAllNamespaceDesc().stream()
-                .filter(namespaceDesc -> !"hbase".equals(namespaceDesc.getNamespaceName()))
+                .filter(namespaceDesc -> !HMHBaseConstant.DEFAULT_SYS_TABLE_NAMESPACE.equals(namespaceDesc.getNamespaceName()))
                 .map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc)).collect(Collectors.toList());
         mmap.put("namespaces", namespaces);
         mmap.put("tags", sysHbaseTagService.selectAllSysHbaseTagList());
@@ -315,13 +316,5 @@ public class SysHbaseTableController extends BaseController {
             return error("系统异常，表状态修改失败！");
         }
         return toAjax(sysHbaseTableService.deleteSysHbaseTableById(ids));
-    }
-
-    private String getFullTableName(String tableName) {
-        if (tableName.contains(":")) {
-            return tableName;
-        } else {
-            return "default" + ":" + tableName;
-        }
     }
 }

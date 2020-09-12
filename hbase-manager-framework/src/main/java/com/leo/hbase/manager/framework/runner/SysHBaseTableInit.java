@@ -1,5 +1,6 @@
 package com.leo.hbase.manager.framework.runner;
 
+import com.leo.hbase.manager.adaptor.HMHBaseConstant;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseTableStatus;
@@ -40,12 +41,12 @@ public class SysHBaseTableInit implements CommandLineRunner {
         List<String> allTables = ihBaseAdminService.listAllTableName();
         for (String tableName : allTables) {
 
-            String namespaceName = "default";
+            String namespaceName = HMHBaseConstant.DEFAULT_NAMESPACE_NAME;
             String fullTableName = tableName;
-            if (tableName.contains(":")) {
-                namespaceName = tableName.split(":")[0];
+            if (tableName.contains(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)) {
+                namespaceName = tableName.split(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)[0];
             } else {
-                fullTableName = "default" + ":" + tableName;
+                fullTableName = HMHBaseConstant.DEFAULT_NAMESPACE_NAME + HMHBaseConstant.TABLE_NAME_SPLIT_CHAR + tableName;
             }
             SysHbaseTable hbaseTable = sysHbaseTableService.selectSysHbaseTableByName(fullTableName);
             if (hbaseTable == null) {

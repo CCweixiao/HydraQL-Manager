@@ -1,6 +1,9 @@
 package com.leo.hbase.manager.adaptor.service;
 
 
+import com.leo.hbase.manager.adaptor.model.FamilyDesc;
+import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
+import com.leo.hbase.manager.adaptor.model.TableDesc;
 import org.apache.hadoop.hbase.HTableDescriptor;
 
 import java.util.List;
@@ -10,19 +13,41 @@ import java.util.List;
  */
 public interface IHBaseAdminService {
     /**
+     * get the descriptor of namespace.
+     *
+     * @param namespaceName the name of descriptor.
+     * @return the descriptor of namespace
+     */
+    NamespaceDesc getNamespaceDesc(String namespaceName);
+
+    /**
+     * get all namespace descriptor.
+     *
+     * @return all namespace descriptor
+     */
+    List<NamespaceDesc> listAllNamespaceDesc();
+
+    /**
      * 获取所有的命名空间
      *
      * @return 所有的命名空间
      */
-    List<String> listAllNamespace();
+    List<String> listAllNamespaceName();
 
     /**
-     * 创建命名空间
-     *
-     * @param namespace 命名空间名称
-     * @return 是否创建成功
+     * get table name list by namespace name.
+     * @param namespaceName namespace name
+     * @return all tables
      */
-    boolean createNamespace(String namespace);
+    List<String> listAllTableNamesByNamespaceName(String namespaceName);
+
+    /**
+     * create a namespace
+     *
+     * @param namespace the descriptor of namespace.
+     * @return created the namespace successfully or not.
+     */
+    boolean createNamespace(NamespaceDesc namespace);
 
     /**
      * 删除命名空间
@@ -108,15 +133,32 @@ public interface IHBaseAdminService {
     boolean deleteTable(String tableName);
 
     /**
+     * get table descriptor.
+     *
+     * @param tableName table name.
+     * @return table descriptor
+     */
+    TableDesc getTableDesc(String tableName);
+
+    /**
      * 获取表的描述信息
      *
      * @param tableName 表名
      * @return 表的描述信息
      */
-    String getTableDesc(String tableName);
+    String getTableDescToString(String tableName);
+
+    /**
+     * get all families by HBase table name.
+     *
+     * @param tableName the name of HBase table.
+     * @return families
+     */
+    List<FamilyDesc> getFamilyDesc(String tableName);
 
     /**
      * 获取HBase表简介
+     *
      * @param tableName 表名
      * @return 表的描述信息
      */
@@ -139,5 +181,4 @@ public interface IHBaseAdminService {
      * @return 结果
      */
     boolean disableReplication(String tableName, List<String> families);
-
 }

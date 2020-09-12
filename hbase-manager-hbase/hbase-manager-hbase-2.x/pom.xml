@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.leo</groupId>
+            <artifactId>hbase-manager-hbase-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
         </dependency>

@@ -37,5 +37,4 @@ public interface IHBaseService {
      * @param qualifier  字段名
      */
     void delete(String tableName, String rowKey, String familyName, String qualifier);
-
 }

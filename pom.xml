@@ -269,8 +269,10 @@
         <module>hbase-manager-quartz</module>
         <module>hbase-manager-generator</module>
         <module>hbase-manager-common</module>
+        <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
         <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
         <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
+
     </modules>
 
     <packaging>pom</packaging>
@@ -344,6 +346,7 @@
     </pluginRepositories>
 
     <profiles>
+
         <profile>
             <id>hbase1.x</id>
             <activation>
@@ -354,9 +357,11 @@
                 <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
             </properties>
             <modules>
+                <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
                 <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
             </modules>
         </profile>
+
         <profile>
             <id>hbase2.x</id>
             <properties>
@@ -364,6 +369,7 @@
                 <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
             </properties>
             <modules>
+                <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
                 <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
             </modules>
         </profile>

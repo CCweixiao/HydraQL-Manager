@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.leo</groupId>
+            <artifactId>hbase-manager-hbase-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
         </dependency>
@@ -28,7 +33,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.github.CCweixiao.util.StrUtil;
+import com.leo.hbase.manager.adaptor.HMHBaseConstant;
 import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/system/namespace")
 public class SysHbaseNamespaceController extends BaseController {
     private String prefix = "system/namespace";
-    public static final String DEFAULT_SYS_TABLE_NAMESPACE = "hbase";
 
 
     @Autowired
@@ -92,7 +92,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @ResponseBody
     public AjaxResult addSave(@Validated NamespaceDescDto namespaceDescDto) {
         final String name = namespaceDescDto.getNamespaceName();
-        if (DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
+        if (HMHBaseConstant.DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
             return error("命名空间[" + name + "]不允许被创建！");
         }
         final List<String> listAllNamespaceName = hBaseAdminService.listAllNamespaceName();
