@@ -6,12 +6,14 @@ import com.leo.hbase.manager.adaptor.model.FamilyDesc;
 import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.adaptor.model.TableDesc;
 import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
+import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -163,11 +165,38 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
 
     @Override
     public boolean enableReplication(String tableName, List<String> families) {
-        return hBaseAdminTemplate.enableReplicationScope(tableName, families);
+        final HTableDescriptor tableDescriptor = hBaseAdminTemplate.getTableDescriptor(tableName);
+        final List<String> tempFamilies = new ArrayList<>(4);
+
+        families.forEach(familyName -> {
+            HColumnDescriptor columnDescriptor = tableDescriptor.getFamily(Bytes.toBytes(familyName));
+            int scope = columnDescriptor.getScope();
+            if (scope == 0) {
+                tempFamilies.add(familyName);
+            }
+        });
+        if (tempFamilies.isEmpty()) {
+            return true;
+        }
+        return hBaseAdminTemplate.enableReplicationScope(tableName, tempFamilies);
     }
 
     @Override
     public boolean disableReplication(String tableName, List<String> families) {
+        final HTableDescriptor tableDescriptor = hBaseAdminTemplate.getTableDescriptor(tableName);
+        final List<String> tempFamilies = new ArrayList<>(4);
+
+        families.forEach(familyName -> {
+            HColumnDescriptor columnDescriptor = tableDescriptor.getFamily(Bytes.toBytes(familyName));
+            int scope = columnDescriptor.getScope();
+            if (scope == 1) {
+                tempFamilies.add(familyName);
+            }
+        });
+        if (tempFamilies.isEmpty()) {
+            return true;
+        }
+
         return hBaseAdminTemplate.disableReplicationScope(tableName, families);
     }
 

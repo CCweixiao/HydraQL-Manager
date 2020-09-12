@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 @GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, Five.class, FamilyDescDto.class})
 public class FamilyDescDto {
 
+    @Excel(name = "HBase表名")
     private String tableName;
     private String familyId;
     @Excel(name = "family名称")
@@ -24,6 +25,7 @@ public class FamilyDescDto {
     private Integer maxVersions;
     @Excel(name = "ttl")
     private Integer timeToLive;
+    @Excel(name = "列簇压缩类型")
     private String compressionType;
     @Excel(name = "replication标志", readConverterExp = "0, 1")
     private Integer replicationScope;
