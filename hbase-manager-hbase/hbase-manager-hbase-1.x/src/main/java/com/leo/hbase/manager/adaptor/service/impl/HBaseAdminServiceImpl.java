@@ -32,6 +32,9 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public NamespaceDesc getNamespaceDesc(String namespaceName) {
         final NamespaceDescriptor namespaceDescriptor = hBaseAdminTemplate.getNamespaceDescriptor(namespaceName);
+        if (namespaceDescriptor == null) {
+            throw new HBaseOperationsException("namespace[" + namespaceName + "]不存在");
+        }
         NamespaceDesc namespaceDesc = new NamespaceDesc();
         namespaceDesc.setNamespaceId(namespaceDescriptor.getName());
         namespaceDesc.setNamespaceName(namespaceDescriptor.getName());
@@ -53,6 +56,11 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
     @Override
     public List<String> listAllNamespaceName() {
         return hBaseAdminTemplate.listNamespaces();
+    }
+
+    @Override
+    public List<String> listAllTableNamesByNamespaceName(String namespaceName) {
+        return hBaseAdminTemplate.listTableNamesByNamespace(namespaceName);
     }
 
     @Override
@@ -81,8 +89,16 @@ public class HBaseAdminServiceImpl implements IHBaseAdminService {
 
     @Override
     public boolean createTable(HTableDescriptor tableDescriptor, String[] splitKeys) {
+        if (splitKeys == null || splitKeys.length < 1) {
+            throw new HBaseOperationsException("请指定正确格式的需要预分区的key");
+        }
+        final List<byte[]> bytes = Arrays.stream(splitKeys).distinct().map(Bytes::toBytes).collect(Collectors.toList());
+        byte[][] splitKeyBytes = new byte[bytes.size()][];
+        for (int i = 0; i < bytes.size(); i++) {
+            splitKeyBytes[i] = bytes.get(i);
+        }
 
-        byte[][] splitKeyBytes = (byte[][]) Arrays.stream(splitKeys).map(Bytes::toBytes).toArray();
+        // byte[][] splitKeyBytes = (byte[][]) Arrays.stream(splitKeys).map(Bytes::toBytes).toArray();
         return hBaseAdminTemplate.createTable(tableDescriptor, splitKeyBytes);
     }
 

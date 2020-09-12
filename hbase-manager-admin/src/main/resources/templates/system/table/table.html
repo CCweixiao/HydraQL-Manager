@@ -12,7 +12,7 @@
                 <div class="select-list">
                     <ul>
                         <li>
-                            命名空间：<select name="namespaceId">
+                            命名空间：<select name="namespaceName">
                             <option value="">所有</option>
                             <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
                                     th:text="${namespace.namespaceName}"></option>
@@ -152,9 +152,6 @@
                     formatter: function (value, row, index) {
                         return disableOrEnableTools(row);
                     }
-                    /*formatter: function (value, row, index) {
-                        return $.table.selectDictLabel(datas2, value);
-                    }*/
                 },
                 {
                     field: 'status',

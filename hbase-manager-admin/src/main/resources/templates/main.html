@@ -87,6 +87,10 @@
                 <div class="ibox-content">
                     <p><i class="fa fa-send-o"></i> 官网：<a href="http://www.jielongping.com" target="_blank">http://www.jielongping.com</a>
                     </p>
+                    <p id="wx-qrcode">
+                        <a href="javascript:;"><img th:src="@{/img/wx-gongzhong.jpg}" width="100%" alt="扫描关注微信号">
+                        </a>
+                    </p>
                     <!--  <p><i class="fa fa-qq"></i> QQ群：<s>满1389287</s> <s>满1679294</s> <s>满1529866</s> <s>满1772718</s> <s>满1366522</s> <s>满1382251</s> <s>满1145125</s> <s>满86752435</s> <s>满134072510</s> <s>满210336300</s> <a href="https://jq.qq.com/?_wv=1027&k=5omzbKc" target="_blank">339522636</a>
                       </p>-->
                     <!--<p><i class="fa fa-weixin"></i> 微信：<a href="javascript:;">long2326130720</a>
@@ -122,6 +126,27 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v201">v2.0.1</a><code
+                                            class="pull-right">2020.09.12</code>
+                                    </h5>
+                                </div>
+                                <div id="v201" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>去除namespace定义的MySQL表</li>
+                                            <li>去除family定义的MySQL表</li>
+                                            <li>减少HBase table信息表的字段，初始化表数据更加方便</li>
+                                            <li>HBase namespace管理</li>
+                                            <li>HBase 表信息管理</li>
+                                            <li>HBase 表标签管理</li>
+                                            <li>HBase 表数据查询</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -140,7 +165,6 @@
                         <a href="javascript:;"><img th:src="@{/img/weixin.png}" width="100%" alt="请使用手机微信扫码支付">
                         </a>
                     </p>
-
                 </div>
             </div>
         </div>

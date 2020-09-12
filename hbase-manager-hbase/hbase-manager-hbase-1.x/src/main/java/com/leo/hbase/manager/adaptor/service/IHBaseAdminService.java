@@ -36,6 +36,13 @@ public interface IHBaseAdminService {
     List<String> listAllNamespaceName();
 
     /**
+     * get table name list by namespace name.
+     * @param namespaceName namespace name
+     * @return all tables
+     */
+    List<String> listAllTableNamesByNamespaceName(String namespaceName);
+
+    /**
      * create a namespace
      *
      * @param namespace the descriptor of namespace.

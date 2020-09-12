@@ -49,8 +49,8 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(NamespaceDescDto namespaceDescDto) {
-        List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
-                .map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc)).collect(Collectors.toList());
+        List<NamespaceDescDto> list = getAllNamespaces();
+
         if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
             list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
                     .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
@@ -66,8 +66,7 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(NamespaceDescDto namespaceDescDto) {
-        List<NamespaceDescDto> list = hBaseAdminService.listAllNamespaceDesc().stream()
-                .map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc)).collect(Collectors.toList());
+        List<NamespaceDescDto> list = getAllNamespaces();
         if (StrUtil.isNotBlank(namespaceDescDto.getNamespaceName())) {
             list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
                     .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
@@ -95,6 +94,10 @@ public class SysHbaseNamespaceController extends BaseController {
         final String name = namespaceDescDto.getNamespaceName();
         if (DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
             return error("命名空间[" + name + "]不允许被创建！");
+        }
+        final List<String> listAllNamespaceName = hBaseAdminService.listAllNamespaceName();
+        if (listAllNamespaceName.contains(namespaceDescDto.getNamespaceName())) {
+            return error("namespace[" + name + "]已经存在！");
         }
         NamespaceDesc namespaceDesc = namespaceDescDto.convertTo();
         final boolean createdOrNot = hBaseAdminService.createNamespace(namespaceDesc);
@@ -135,10 +138,21 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
+        List<String> tableNames = hBaseAdminService.listAllTableNamesByNamespaceName(ids);
+        if (tableNames != null && !tableNames.isEmpty()) {
+            return error("namespace[" + ids + "]包含表，删除失败！");
+        }
+
         final boolean deletedOrNot = hBaseAdminService.deleteNamespace(ids);
         if (!deletedOrNot) {
             return error("namespace[" + ids + "]删除失败！");
         }
         return success("namespace[" + ids + "]删除成功！");
+    }
+
+    private List<NamespaceDescDto> getAllNamespaces() {
+        return hBaseAdminService.listAllNamespaceDesc()
+                .stream().map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc))
+                .collect(Collectors.toList());
     }
 }
