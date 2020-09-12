@@ -6,6 +6,10 @@
 
 * 感谢 [ruoyi](https://ruoyi.vip/) 后台管理系统。
 
+## 极速体验站点
+
+[http://www.jielongping.com:9527/index](http://www.jielongping.com:9527/index)
+
 ## HBase表管理功能
 
 1. namespace管理：包括namespace的创建、删除（后续将支持）等功能
