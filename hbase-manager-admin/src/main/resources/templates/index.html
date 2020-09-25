@@ -183,7 +183,8 @@
                 </div>
                 <ul class="nav navbar-top-links navbar-right welcome-message">
 	                <li><a title="全屏显示" href="javascript:void(0)" id="fullScreen"><i class="fa fa-arrows-alt"></i> 全屏显示</a></li>
-                    <li class="dropdown user-menu">
+					<li><a href="javascript:void(0)" th:onclick="switchHBaseCluster()" id="currentCluster"><i class="fa fa-database"></i> [[${currentHBaseClusterCode}]]</a></li>
+					<li class="dropdown user-menu">
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
 							<img th:src="(${#strings.isEmpty(user.avatar)}) ? @{/img/profile.jpg} : @{${user.avatar}}" th:onerror="this.src='img/profile.jpg'" class="user-image">
 							<span class="hidden-xs">[[${#strings.defaultString(user.userName, '-')}]]</span>
@@ -201,6 +202,10 @@
 								<a onclick="switchSkin()">
 								<i class="fa fa-dashboard"></i> 切换主题</a>
 							</li>
+							<!--<li>
+								<a onclick="switchHBaseCluster()">
+									<i class="fa fa-database"></i> 切换HBase集群</a>
+							</li>-->
 							<li class="divider"></li>
 							<li>
 								<a th:href="@{logout}">
@@ -283,6 +288,17 @@ function switchSkin() {
 		title : "切换主题",
 		area : ["530px", "386px"],
 		content : [ctx + "system/switchSkin", 'no']
+	})
+}
+
+/* 切换集群 */
+function switchHBaseCluster() {
+	layer.open({
+		type : 2,
+		shadeClose : true,
+		title : "切换HBase集群",
+		area : ["530px", "386px"],
+		content : [ctx + "system/switchCluster", 'no']
 	})
 }
 

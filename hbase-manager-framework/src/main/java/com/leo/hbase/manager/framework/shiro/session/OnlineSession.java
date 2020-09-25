@@ -33,6 +33,9 @@ public class OnlineSession extends SimpleSession
     /** 操作系统 */
     private String os;
 
+    /** 该用户当前所选的集群ID */
+    private String cluster;
+
     /** 在线状态 */
     private OnlineStatus status = OnlineStatus.on_line;
 
@@ -109,6 +112,14 @@ public class OnlineSession extends SimpleSession
     public void setStatus(OnlineStatus status)
     {
         this.status = status;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
     }
 
     public void markAttributeChanged()

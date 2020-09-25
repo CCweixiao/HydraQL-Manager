@@ -11,7 +11,7 @@ app:
   # 文件路径 示例（ Windows配置D:/hbase-manager/uploadPath，Linux配置 /home/hbase-manager/uploadPath）
   profile: /Users/mac/other_project/hbase-manager/upload_path
   # 获取ip地址开关
-  addressEnabled: true
+  addressEnabled: false
 
 # 开发环境配置
 server:

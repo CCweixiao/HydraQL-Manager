@@ -1379,6 +1379,7 @@ CREATE TABLE `sys_user_online`
     `login_location`   varchar(255)         DEFAULT '' COMMENT '登录地点',
     `browser`          varchar(50)          DEFAULT '' COMMENT '浏览器类型',
     `os`               varchar(50)          DEFAULT '' COMMENT '操作系统',
+    `cluster`          varchar(255)         DEFAULT '' COMMENT '当前用户所选的集群ID',
     `status`           varchar(10)          DEFAULT '' COMMENT '在线状态on_line在线off_line离线',
     `start_timestamp`  datetime             DEFAULT NULL COMMENT 'session创建时间',
     `last_access_time` datetime             DEFAULT NULL COMMENT 'session最后访问时间',

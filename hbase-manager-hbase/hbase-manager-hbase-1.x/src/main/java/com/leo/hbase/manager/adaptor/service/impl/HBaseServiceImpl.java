@@ -1,9 +1,6 @@
 package com.leo.hbase.manager.adaptor.service.impl;
 
-import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.HBaseTemplate;
-import com.github.CCweixiao.RowMapper;
-import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.util.HBytesUtil;
 import com.github.CCweixiao.util.StrUtil;
 import com.leo.hbase.manager.adaptor.service.IHBaseService;
