@@ -32,7 +32,7 @@
         <velocity.version>1.7</velocity.version>
         <hbase1.x.version>1.4.3</hbase1.x.version>
         <hbase2.x.version>2.1.0</hbase2.x.version>
-        <base.spring.boot.starter.hbase.version>1.0.5</base.spring.boot.starter.hbase.version>
+        <base.hbase.sdk.core.version>2.0.2</base.hbase.sdk.core.version>
     </properties>
 
     <licenses>
@@ -251,13 +251,13 @@
             </dependency>
             <dependency>
                 <groupId>com.github.CCweixiao</groupId>
-                <artifactId>spring-boot-starter-hbase_1.4</artifactId>
-                <version>${spring.boot.starter.hbase.version}</version>
+                <artifactId>hbase-sdk-core_1.4</artifactId>
+                <version>${hbase.sdk.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.CCweixiao</groupId>
-                <artifactId>spring-boot-starter-hbase_2.1</artifactId>
-                <version>${spring.boot.starter.hbase.version}</version>
+                <artifactId>hbase-sdk-core_2.1</artifactId>
+                <version>${hbase.sdk.core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -269,7 +269,6 @@
         <module>hbase-manager-quartz</module>
         <module>hbase-manager-generator</module>
         <module>hbase-manager-common</module>
-        <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
         <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
         <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
 
@@ -354,10 +353,9 @@
             </activation>
             <properties>
                 <hbase.version>${hbase1.x.version}</hbase.version>
-                <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
+                <hbase.sdk.core.version>${base.hbase.sdk.core.version}</hbase.sdk.core.version>
             </properties>
             <modules>
-                <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
                 <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
             </modules>
         </profile>
@@ -366,10 +364,9 @@
             <id>hbase2.x</id>
             <properties>
                 <hbase.version>${hbase2.x.version}</hbase.version>
-                <spring.boot.starter.hbase.version>${base.spring.boot.starter.hbase.version}</spring.boot.starter.hbase.version>
+                <hbase.sdk.core.version>${base.hbase.sdk.core.version}</hbase.sdk.core.version>
             </properties>
             <modules>
-                <module>hbase-manager-hbase/hbase-manager-hbase-common</module>
                 <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
             </modules>
         </profile>

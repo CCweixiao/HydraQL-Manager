@@ -1,16 +1,15 @@
 package com.leo.hbase.manager.web.controller.system;
 
+import com.github.CCweixiao.constant.HMHBaseConstant;
+import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.util.StrUtil;
-import com.leo.hbase.manager.adaptor.HMHBaseConstant;
-import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
-import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
 import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.system.dto.NamespaceDescDto;
+import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,12 +28,12 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping("/system/namespace")
-public class SysHbaseNamespaceController extends BaseController {
+public class SysHbaseNamespaceController extends SysHbaseBaseController {
     private String prefix = "system/namespace";
 
 
     @Autowired
-    private IHBaseAdminService hBaseAdminService;
+    private IMultiHBaseAdminService multiHBaseAdminService;
 
     @RequiresPermissions("system:namespace:view")
     @GetMapping()
@@ -91,16 +90,19 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(@Validated NamespaceDescDto namespaceDescDto) {
+        String clusterCode = clusterCodeOfCurrentSession();
+
         final String name = namespaceDescDto.getNamespaceName();
         if (HMHBaseConstant.DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
             return error("命名空间[" + name + "]不允许被创建！");
         }
-        final List<String> listAllNamespaceName = hBaseAdminService.listAllNamespaceName();
+        final List<String> listAllNamespaceName = multiHBaseAdminService.listAllNamespaceName(clusterCode);
+
         if (listAllNamespaceName.contains(namespaceDescDto.getNamespaceName())) {
             return error("namespace[" + name + "]已经存在！");
         }
         NamespaceDesc namespaceDesc = namespaceDescDto.convertTo();
-        final boolean createdOrNot = hBaseAdminService.createNamespace(namespaceDesc);
+        final boolean createdOrNot = multiHBaseAdminService.createNamespace(clusterCode, namespaceDesc);
 
         if (!createdOrNot) {
             return error("namespace[" + name + "]创建失败！");
@@ -114,8 +116,8 @@ public class SysHbaseNamespaceController extends BaseController {
      */
     @GetMapping("/edit/{namespaceId}")
     public String edit(@PathVariable("namespaceId") String namespaceId, ModelMap mmap) {
-        NamespaceDesc namespaceDesc = hBaseAdminService.getNamespaceDesc(namespaceId);
-        mmap.put("namespaceDesc", namespaceDesc);
+        NamespaceDesc namespaceDesc = multiHBaseAdminService.getNamespaceDesc(clusterCodeOfCurrentSession(), namespaceId);
+        mmap.put("namespaceDesc", new NamespaceDescDto().convertFor(namespaceDesc));
         return prefix + "/edit";
     }
 
@@ -138,12 +140,14 @@ public class SysHbaseNamespaceController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
-        List<String> tableNames = hBaseAdminService.listAllTableNamesByNamespaceName(ids);
+        String clusterCode = clusterCodeOfCurrentSession();
+
+        List<String> tableNames = multiHBaseAdminService.listAllTableNamesByNamespaceName(clusterCode, ids);
         if (tableNames != null && !tableNames.isEmpty()) {
             return error("namespace[" + ids + "]包含表，删除失败！");
         }
 
-        final boolean deletedOrNot = hBaseAdminService.deleteNamespace(ids);
+        final boolean deletedOrNot = multiHBaseAdminService.deleteNamespace(clusterCode, ids);
         if (!deletedOrNot) {
             return error("namespace[" + ids + "]删除失败！");
         }
@@ -151,7 +155,7 @@ public class SysHbaseNamespaceController extends BaseController {
     }
 
     private List<NamespaceDescDto> getAllNamespaces() {
-        return hBaseAdminService.listAllNamespaceDesc()
+        return multiHBaseAdminService.listAllNamespaceDesc(clusterCodeOfCurrentSession())
                 .stream().map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc))
                 .collect(Collectors.toList());
     }

@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.common.utils;
 
 import com.leo.hbase.manager.common.constant.HBaseManagerConstants;
+import com.leo.hbase.manager.common.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class HBaseConfigUtils {
         getResources("hbase-manager.properties");
     }
 
-    private static void getResources(String name){
+    private static void getResources(String name) {
         try {
             try {
                 String osName = System.getProperties().getProperty("os.name");
@@ -67,7 +68,9 @@ public class HBaseConfigUtils {
         return Boolean.valueOf(value).booleanValue();
     }
 
-    /** Retrieve a property as a boolean array. */
+    /**
+     * Retrieve a property as a boolean array.
+     */
     public static boolean[] getBooleanPropertyArray(String name, boolean[] defaultValue, String splitStr) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null) {
@@ -86,12 +89,16 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property as a int,defaults to 0 if not present. */
+    /**
+     * Retrieve a property as a int,defaults to 0 if not present.
+     */
     public static int getIntProperty(String name) {
         return getIntProperty(name, 0);
     }
 
-    /** Retrieve a property as a int. */
+    /**
+     * Retrieve a property as a int.
+     */
     public static int getIntProperty(String name, int defaultValue) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null) {
@@ -105,7 +112,9 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property as a int array. */
+    /**
+     * Retrieve a property as a int array.
+     */
     public static int[] getIntPropertyArray(String name, int[] defaultValue, String splitStr) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null) {
@@ -123,12 +132,16 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property as a long,defaults to 0L if not present. */
+    /**
+     * Retrieve a property as a long,defaults to 0L if not present.
+     */
     public static Long getLongProperty(String name) {
         return getLongProperty(name, 0L);
     }
 
-    /** Retrieve a property as a long. */
+    /**
+     * Retrieve a property as a long.
+     */
     public static Long getLongProperty(String name, Long defaultValue) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null || "".equals(value)) {
@@ -142,7 +155,9 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property value. */
+    /**
+     * Retrieve a property value.
+     */
     public static String getProperty(String key) {
         return CONFIG.getProperty(key);
     }
@@ -150,10 +165,8 @@ public class HBaseConfigUtils {
     /**
      * Retrieve a property value & default value.
      *
-     * @param key
-     *            Retrieve key
-     * @param defaultValue
-     *            Return default retrieve value
+     * @param key          Retrieve key
+     * @param defaultValue Return default retrieve value
      * @return String.
      */
     public static String getProperty(String key, String defaultValue) {
@@ -165,7 +178,9 @@ public class HBaseConfigUtils {
         return value;
     }
 
-    /** Retrieve a property as a array. */
+    /**
+     * Retrieve a property as a array.
+     */
     public static String[] getPropertyArray(String name, String[] defaultValue, String splitStr) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null) {
@@ -178,7 +193,9 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property as a array,no default value. */
+    /**
+     * Retrieve a property as a array,no default value.
+     */
     public static String[] getPropertyArray(String name, String splitStr) {
         String value = HBaseConfigUtils.getProperty(name);
         if (value == null) {
@@ -191,7 +208,9 @@ public class HBaseConfigUtils {
         }
     }
 
-    /** Retrieve a property as a array,no default value. */
+    /**
+     * Retrieve a property as a array,no default value.
+     */
     public static List<String> getPropertyArrayList(String name, String splitStr) {
         String value = HBaseConfigUtils.getProperty(name);
         List<String> list = new ArrayList<>();
@@ -207,11 +226,13 @@ public class HBaseConfigUtils {
         return list;
     }
 
-    /** Retrieve map property keys. */
+    /**
+     * Retrieve map property keys.
+     */
     public static Map<String, String> getPropertyMap(String name) {
         String[] maps = getPropertyArray(name, ",");
         Map<String, String> map = new HashMap<>();
-        if(maps == null){
+        if (maps == null) {
             return map;
         }
         try {
@@ -227,7 +248,9 @@ public class HBaseConfigUtils {
         return map;
     }
 
-    /** Retrieve all property keys. */
+    /**
+     * Retrieve all property keys.
+     */
     public static Enumeration<Object> keys() {
         return CONFIG.keys();
     }
@@ -235,16 +258,25 @@ public class HBaseConfigUtils {
     /**
      * Reload special property file.
      *
-     * @param name
-     *            System configure name.
+     * @param name System configure name.
      */
     public static void reload(String name) {
         CONFIG.clear();
         getResources(name);
     }
 
-    /** Construction method. */
+    /**
+     * Construction method.
+     */
     private HBaseConfigUtils() {
+    }
+
+    public static List<String> getAllClusterAlias() {
+        List<String> clusterCodes = HBaseConfigUtils.getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
+        if (clusterCodes.isEmpty()) {
+            throw new BusinessException("请在hbase-manager.properties中配置需要管理的集群");
+        }
+        return clusterCodes;
     }
 
 }

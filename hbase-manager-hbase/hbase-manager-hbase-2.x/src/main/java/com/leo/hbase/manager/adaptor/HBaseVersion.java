@@ -5,6 +5,6 @@ package com.leo.hbase.manager.adaptor;
  */
 public class HBaseVersion {
     public static String version() {
-        return "HBase 1.x";
+        return "HBase 2.x";
     }
 }

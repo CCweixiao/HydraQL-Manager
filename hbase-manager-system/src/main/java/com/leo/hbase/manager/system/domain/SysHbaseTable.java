@@ -20,6 +20,8 @@ public class SysHbaseTable extends BaseEntity {
      */
     private Long tableId;
 
+    private String clusterCode;
+
     /**
      * 表的命名空间
      */
@@ -65,6 +67,14 @@ public class SysHbaseTable extends BaseEntity {
 
     public void setTableId(Long tableId) {
         this.tableId = tableId;
+    }
+
+    public String getClusterCode() {
+        return clusterCode;
+    }
+
+    public void setClusterCode(String clusterCode) {
+        this.clusterCode = clusterCode;
     }
 
     public String getNamespaceName() {
@@ -145,6 +155,7 @@ public class SysHbaseTable extends BaseEntity {
     public String toString() {
         return "SysHbaseTable{" +
                 "tableId=" + tableId +
+                ", clusterCode='" + clusterCode + '\'' +
                 ", namespaceName='" + namespaceName + '\'' +
                 ", tableName='" + tableName + '\'' +
                 ", disableFlag='" + disableFlag + '\'' +

@@ -1,9 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import com.leo.hbase.manager.adaptor.model.FamilyDesc;
-import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
+import com.github.CCweixiao.model.FamilyDesc;
 import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
@@ -12,6 +10,7 @@ import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.dto.FamilyDescDto;
 import com.leo.hbase.manager.system.service.ISysHbaseTableService;
+import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,13 +29,13 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping("/system/family")
-public class SysHbaseFamilyController extends BaseController {
+public class SysHbaseFamilyController extends SysHbaseBaseController {
     private String prefix = "system/family";
 
     @Autowired
     private ISysHbaseTableService sysHbaseTableService;
     @Autowired
-    private IHBaseAdminService ihBaseAdminService;
+    private IMultiHBaseAdminService multiHBaseAdminService;
 
     @RequiresPermissions("system:family:view")
     @GetMapping()
@@ -52,7 +51,9 @@ public class SysHbaseFamilyController extends BaseController {
     @ResponseBody
     public TableDataInfo list(SysHbaseTable sysHbaseTable) {
         SysHbaseTable existsTable = sysHbaseTableService.selectSysHbaseTableById(sysHbaseTable.getTableId());
-        final List<FamilyDesc> familyDescList = ihBaseAdminService.getFamilyDesc(existsTable.getTableName());
+
+
+        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), existsTable.getTableName());
         final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
             FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
             familyDescDto.setTableName(existsTable.getTableName());
@@ -70,7 +71,9 @@ public class SysHbaseFamilyController extends BaseController {
     @ResponseBody
     public AjaxResult export(SysHbaseTable sysHbaseTable) {
         SysHbaseTable existsTable = sysHbaseTableService.selectSysHbaseTableById(sysHbaseTable.getTableId());
-        final List<FamilyDesc> familyDescList = ihBaseAdminService.getFamilyDesc(existsTable.getTableName());
+
+        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(),
+                existsTable.getTableName());
         final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
             FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
             familyDescDto.setTableName(existsTable.getTableName());
@@ -108,7 +111,7 @@ public class SysHbaseFamilyController extends BaseController {
         String tableName = familyId.substring(0, familyId.lastIndexOf(":"));
         String familyName = familyId.substring(familyId.lastIndexOf(":") + 1);
 
-        final List<FamilyDesc> familyDescList = ihBaseAdminService.getFamilyDesc(tableName);
+        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), tableName);
         final List<FamilyDescDto> familyDescDtoList = familyDescList.stream()
                 .filter(familyDesc -> familyDesc.getFamilyName().equals(familyName))
                 .map(familyDesc -> new FamilyDescDto().convertFor(familyDesc))
@@ -129,13 +132,14 @@ public class SysHbaseFamilyController extends BaseController {
     @ResponseBody
     public AjaxResult editSave(FamilyDescDto familyDescDto) {
         final Integer replicationScope = familyDescDto.getReplicationScope();
+        final String clusterCode = clusterCodeOfCurrentSession();
 
-        if(replicationScope.toString().equals(HBaseReplicationScopeFlag.CLOSE.getCode())){
-            ihBaseAdminService.disableReplication(familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
+        if (replicationScope.toString().equals(HBaseReplicationScopeFlag.CLOSE.getCode())) {
+            multiHBaseAdminService.disableReplication(clusterCode, familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
         }
 
-        if(replicationScope.toString().equals(HBaseReplicationScopeFlag.OPEN.getCode())){
-            ihBaseAdminService.enableReplication(familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
+        if (replicationScope.toString().equals(HBaseReplicationScopeFlag.OPEN.getCode())) {
+            multiHBaseAdminService.enableReplication(clusterCode, familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
         }
         return success();
     }

@@ -1,7 +1,7 @@
 package com.leo.hbase.manager.system.dto;
 
+import com.github.CCweixiao.model.FamilyDesc;
 import com.google.common.base.Converter;
-import com.leo.hbase.manager.adaptor.model.FamilyDesc;
 import com.leo.hbase.manager.common.annotation.Excel;
 import com.leo.hbase.manager.system.valid.*;
 
@@ -16,17 +16,23 @@ import javax.validation.constraints.Size;
 @GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, Five.class, FamilyDescDto.class})
 public class FamilyDescDto {
 
+    private String familyId;
+
     @Excel(name = "HBase表名")
     private String tableName;
-    private String familyId;
+
     @Excel(name = "family名称")
     private String familyName;
+
     @Excel(name = "最大版本号")
     private Integer maxVersions;
+
     @Excel(name = "ttl")
     private Integer timeToLive;
+
     @Excel(name = "列簇压缩类型")
     private String compressionType;
+
     @Excel(name = "replication标志", readConverterExp = "0, 1")
     private Integer replicationScope;
 
@@ -107,19 +113,6 @@ public class FamilyDescDto {
         this.replicationScope = replicationScope;
     }
 
-    @Override
-    public String toString() {
-        return "FamilyDescDto{" +
-                "tableName='" + tableName + '\'' +
-                "familyId='" + familyId + '\'' +
-                ", familyName='" + familyName + '\'' +
-                ", maxVersions=" + maxVersions +
-                ", timeToLive=" + timeToLive +
-                ", compressionType='" + compressionType + '\'' +
-                ", replicationScope=" + replicationScope +
-                '}';
-    }
-
     public static class FamilyDescDtoConvert extends Converter<FamilyDescDto, FamilyDesc> {
 
         @Override
@@ -144,5 +137,18 @@ public class FamilyDescDto {
             familyDescDto.setTimeToLive(familyDesc.getTimeToLive());
             return familyDescDto;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "FamilyDescDto{" +
+                "tableName='" + tableName + '\'' +
+                "familyId='" + familyId + '\'' +
+                ", familyName='" + familyName + '\'' +
+                ", maxVersions=" + maxVersions +
+                ", timeToLive=" + timeToLive +
+                ", compressionType='" + compressionType + '\'' +
+                ", replicationScope=" + replicationScope +
+                '}';
     }
 }

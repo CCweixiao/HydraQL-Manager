@@ -65,7 +65,7 @@ public class SysIndexController extends BaseController {
                 currentHBaseClusterCode = onlineSession.getCluster();
             }
         }
-        if(StrUtil.isBlank(currentHBaseClusterCode)){
+        if (StrUtil.isBlank(currentHBaseClusterCode)) {
             currentHBaseClusterCode = "未选择集群";
         }
         mmap.put("currentHBaseClusterCode", currentHBaseClusterCode);
@@ -81,7 +81,7 @@ public class SysIndexController extends BaseController {
     //切换集群
     @GetMapping("/system/switchCluster")
     public String switchCluster(ModelMap mmap) {
-        List<String> clusterCodes = HBaseConfigUtils.getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
+        List<String> clusterCodes = HBaseConfigUtils.getAllClusterAlias();
         mmap.put("clusterCodes", clusterCodes);
         return "cluster";
     }

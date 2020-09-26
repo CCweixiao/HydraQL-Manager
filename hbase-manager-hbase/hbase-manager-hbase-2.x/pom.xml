@@ -15,17 +15,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.leo</groupId>
-            <artifactId>hbase-manager-hbase-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.CCweixiao</groupId>
-            <artifactId>spring-boot-starter-hbase_2.1</artifactId>
+            <artifactId>hbase-sdk-core_2.1</artifactId>
         </dependency>
         <!-- SpringBoot Web容器 -->
         <dependency>

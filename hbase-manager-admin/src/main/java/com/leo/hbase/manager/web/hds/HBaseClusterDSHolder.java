@@ -37,10 +37,7 @@ public class HBaseClusterDSHolder {
      * cluster1.hbase.node.parent=/hbase
      */
     private synchronized void initAllHBaseTemplate() {
-        List<String> allClusters = HBaseConfigUtils.getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
-        if (allClusters.isEmpty()) {
-            throw new RuntimeException("请在hbase-manager.properties中配置需要管理的集群！");
-        }
+        List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
             LOG.info("开始解析HBase集群:{}的配置......", cluster);
             String quorum = HBaseConfigUtils.getProperty(cluster + ".hbase.quorum", "localhost");
@@ -56,10 +53,7 @@ public class HBaseClusterDSHolder {
     }
 
     private synchronized void initAllHBaseAdminTemplate() {
-        List<String> allClusters = HBaseConfigUtils.getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
-        if (allClusters.isEmpty()) {
-            throw new RuntimeException("请在hbase-manager.properties中配置需要管理的集群！");
-        }
+        List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
             LOG.info("开始解析HBase集群:{}的配置......", cluster);
             String quorum = HBaseConfigUtils.getProperty(cluster + ".hbase.quorum", "localhost");

@@ -1,36 +1,31 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.alibaba.fastjson.JSON;
 import com.github.CCweixiao.exception.HBaseOperationsException;
+import com.github.CCweixiao.model.FamilyDesc;
+import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.StrUtil;
-import com.leo.hbase.manager.adaptor.service.IHBaseAdminService;
-import com.leo.hbase.manager.adaptor.service.IHBaseService;
+import com.leo.hbase.manager.common.annotation.Log;
+import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.domain.CxSelect;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
+import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
+import com.leo.hbase.manager.system.domain.SysHbaseTableData;
+import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
+import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.system.domain.SysHbaseTableData;
-import com.leo.hbase.manager.common.core.controller.BaseController;
-import com.leo.hbase.manager.common.core.domain.AjaxResult;
-import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * HBaseController
@@ -40,31 +35,34 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
  */
 @Controller
 @RequestMapping("/system/data")
-public class SysHbaseTableDataController extends BaseController {
+public class SysHbaseTableDataController extends SysHbaseBaseController {
     private String prefix = "system/data";
 
     @Autowired
-    private IHBaseService ihBaseService;
+    private IMultiHBaseService multiHBaseService;
 
     @Autowired
-    private IHBaseAdminService ihBaseAdminService;
+    private IMultiHBaseAdminService multiHBaseAdminService;
 
     @RequiresPermissions("system:data:view")
     @GetMapping()
     public String data(ModelMap mmap) {
-        final List<String> allTableNames = ihBaseAdminService.listAllTableName();
+        String clusterCode = clusterCodeOfCurrentSession();
+
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCode);
         List<CxSelect> cxTableInfoList = new ArrayList<>(allTableNames.size());
 
         for (String tableName : allTableNames) {
-            if (ihBaseAdminService.isTableDisabled(tableName)) {
+            if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
                 continue;
             }
-            HTableDescriptor tableDescriptor = ihBaseAdminService.getTableDescriptor(tableName);
+            TableDesc tableDesc = multiHBaseAdminService.getTableDesc(clusterCode, tableName);
+
             CxSelect cxSelectTable = new CxSelect();
             cxSelectTable.setN(tableName);
             cxSelectTable.setV(tableName);
 
-            List<String> families = tableDescriptor.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
+            List<String> families = tableDesc.getFamilyDescList().stream().map(FamilyDesc::getFamilyName).collect(Collectors.toList());
             List<CxSelect> tempFamilyList = new ArrayList<>();
             for (String family : families) {
                 CxSelect cxSelectFamily = new CxSelect();
@@ -87,6 +85,7 @@ public class SysHbaseTableDataController extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SysHbaseTableData sysHbaseTableData) {
+        String clusterCode = clusterCodeOfCurrentSession();
         List<SysHbaseTableData> list = new ArrayList<>();
 
 
@@ -94,12 +93,12 @@ public class SysHbaseTableDataController extends BaseController {
             return getDataTable(list);
         }
 
-        if (ihBaseAdminService.isTableDisabled(sysHbaseTableData.getTableName())) {
+        if (multiHBaseAdminService.isTableDisabled(clusterCode, sysHbaseTableData.getTableName())) {
             throw new HBaseOperationsException("表[" + sysHbaseTableData.getTableName() + "]处于禁用状态，无法被查询！");
         }
 
         if (StrUtil.isNotBlank(sysHbaseTableData.getRowKey())) {
-            final List<Map<String, Object>> dataMapList = ihBaseService.get(sysHbaseTableData.getTableName(), sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName());
+            final List<Map<String, Object>> dataMapList = multiHBaseService.get(clusterCode, sysHbaseTableData.getTableName(), sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName());
             if (dataMapList.isEmpty()) {
                 return getDataTable(list);
             }
@@ -110,7 +109,7 @@ public class SysHbaseTableDataController extends BaseController {
 
             return getDataTable(list);
         }
-        List<List<Map<String, Object>>> dataMaps = ihBaseService.find(sysHbaseTableData.getTableName(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getStartKey(), sysHbaseTableData.getLimit());
+        List<List<Map<String, Object>>> dataMaps = multiHBaseService.find(clusterCode, sysHbaseTableData.getTableName(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getStartKey(), sysHbaseTableData.getLimit());
         if (dataMaps == null || dataMaps.isEmpty()) {
             return getDataTable(list);
         }
@@ -150,11 +149,12 @@ public class SysHbaseTableDataController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(@Validated SysHbaseTableData sysHbaseTableData) {
+        String clusterCode = clusterCodeOfCurrentSession();
         String tableName = sysHbaseTableData.getTableName();
-        if (ihBaseAdminService.isTableDisabled(tableName)) {
+        if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
             throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
         }
-        ihBaseService.saveOrUpdate(tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
+        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
         return success("数据新增成功！");
     }
 
@@ -199,7 +199,7 @@ public class SysHbaseTableDataController extends BaseController {
         String familyName = conditions[1].split(":")[0];
         String qualifier = conditions[1].split(":")[1];
         String rowKey = conditions[2];
-        ihBaseService.delete(tableName, rowKey, familyName, qualifier);
+        multiHBaseService.delete(clusterCodeOfCurrentSession(), tableName, rowKey, familyName, qualifier);
         return success("数据删除成功！");
     }
 

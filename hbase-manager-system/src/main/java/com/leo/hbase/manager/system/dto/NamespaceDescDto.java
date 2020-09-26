@@ -1,7 +1,7 @@
 package com.leo.hbase.manager.system.dto;
 
+import com.github.CCweixiao.model.NamespaceDesc;
 import com.google.common.base.Converter;
-import com.leo.hbase.manager.adaptor.model.NamespaceDesc;
 import com.leo.hbase.manager.common.annotation.Excel;
 import org.springframework.beans.BeanUtils;
 
@@ -39,8 +39,8 @@ public class NamespaceDescDto {
         this.namespaceId = namespaceId;
     }
 
-    @NotBlank(message = "HBase命名空间不能为空")
-    @Size(min = 1, max = 128, message = "HBase命名空间长度不能超过128个字符")
+    @NotBlank(message = "HBase的命名空间不能为空")
+    @Size(min = 1, max = 128, message = "HBase命名空间的长度不能超过128个字符")
     public String getNamespaceName() {
         return namespaceName;
     }
@@ -62,12 +62,13 @@ public class NamespaceDescDto {
         @Override
         protected NamespaceDesc doForward(NamespaceDescDto namespaceDescDto) {
             NamespaceDesc namespaceDesc = new NamespaceDesc();
-            BeanUtils.copyProperties(namespaceDescDto, namespaceDesc);
-            if (namespaceDescDto.getPropertyList() != null && !namespaceDescDto.getPropertyList().isEmpty()) {
-                Map<String, String> props = new HashMap<>(namespaceDescDto.getPropertyList().size());
-                namespaceDescDto.getPropertyList().forEach(property -> {
-                    props.put(property.getKey(), property.getValue());
-                });
+
+            namespaceDesc.setNamespaceName(namespaceDescDto.getNamespaceName());
+            List<Property> nsPropList = namespaceDescDto.getPropertyList();
+
+            if (nsPropList != null && !nsPropList.isEmpty()) {
+                Map<String, String> props = new HashMap<>(nsPropList.size());
+                nsPropList.forEach(property -> props.put(property.getKey(), property.getValue()));
                 namespaceDesc.setNamespaceProps(props);
             }
             return namespaceDesc;
@@ -76,10 +77,12 @@ public class NamespaceDescDto {
         @Override
         protected NamespaceDescDto doBackward(NamespaceDesc namespaceDesc) {
             NamespaceDescDto namespaceDescDto = new NamespaceDescDto();
-            BeanUtils.copyProperties(namespaceDesc, namespaceDescDto);
-            if (namespaceDesc.getNamespaceProps() != null && !namespaceDesc.getNamespaceProps().isEmpty()) {
-                List<Property> properties = new ArrayList<>(namespaceDesc.getNamespaceProps().size());
-                namespaceDesc.getNamespaceProps().forEach((k, v) -> {
+            namespaceDescDto.setNamespaceId(namespaceDesc.getNamespaceName());
+            namespaceDescDto.setNamespaceName(namespaceDesc.getNamespaceName());
+            final Map<String, String> namespaceProps = namespaceDesc.getNamespaceProps();
+            if (namespaceProps != null && !namespaceProps.isEmpty()) {
+                List<Property> properties = new ArrayList<>(namespaceProps.size());
+                namespaceProps.forEach((k, v) -> {
                     Property property = new Property();
                     property.setKey(k);
                     property.setValue(v);
@@ -93,6 +96,8 @@ public class NamespaceDescDto {
 
     @Override
     public String toString() {
+        //"{NAME => 'ns2', PROPERTY_NAME => 'PROPERTY_VALUE', name => 'leo'} ";
+
         return "NamespaceDescDto{" +
                 "namespaceId='" + namespaceId + '\'' +
                 ", namespaceName='" + namespaceName + '\'' +

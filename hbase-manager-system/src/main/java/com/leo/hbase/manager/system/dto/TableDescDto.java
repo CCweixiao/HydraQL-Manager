@@ -1,8 +1,8 @@
 package com.leo.hbase.manager.system.dto;
 
+import com.github.CCweixiao.model.FamilyDesc;
+import com.github.CCweixiao.model.TableDesc;
 import com.google.common.base.Converter;
-import com.leo.hbase.manager.adaptor.model.FamilyDesc;
-import com.leo.hbase.manager.adaptor.model.TableDesc;
 import com.leo.hbase.manager.common.annotation.Excel;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseMetaTableFlag;
@@ -36,7 +36,7 @@ public class TableDescDto {
     @Size(min = 1, max = 128, message = "HBase命名空间长度不能超过128个字符", groups = {Second.class})
     private String namespaceId;
 
-    private Long tableId;
+    private String tableId;
 
     @Excel(name = "HBase表名称")
     @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Third.class})
@@ -136,20 +136,16 @@ public class TableDescDto {
         @Override
         protected TableDesc doForward(TableDescDto tableDescDto) {
             TableDesc tableDesc = new TableDesc();
-            tableDesc.setNamespaceId(tableDescDto.getNamespaceId());
             tableDesc.setNamespaceName(tableDescDto.getNamespaceId());
             tableDesc.setTableName(tableDescDto.getTableName());
-            tableDesc.setTableId(tableDescDto.getTableId());
             tableDesc.setStartKey(tableDescDto.getStartKey());
             tableDesc.setEndKey(tableDescDto.getEndKey());
             tableDesc.setPreSplitRegions(tableDescDto.getPreSplitRegions());
             tableDesc.setPreSplitKeys(tableDescDto.getPreSplitKeys());
-
-            if (tableDescDto.getPropertyList() != null && !tableDescDto.getPropertyList().isEmpty()) {
-                Map<String, String> props = new HashMap<>(tableDescDto.getPropertyList().size());
-                tableDescDto.getPropertyList().forEach(property -> {
-                    props.put(property.getKey(), property.getValue());
-                });
+            final List<Property> propertyList = tableDescDto.getPropertyList();
+            if ( propertyList!= null && !propertyList.isEmpty()) {
+                Map<String, String> props = new HashMap<>(propertyList.size());
+                propertyList.forEach(property -> props.put(property.getKey(), property.getValue()));
                 tableDesc.setTableProps(props);
             }
             final List<FamilyDesc> familyDescList = tableDescDto.getFamilies().stream().map(FamilyDescDto::convertTo).collect(Collectors.toList());
@@ -162,6 +158,7 @@ public class TableDescDto {
             TableDescDto tableDescDto = new TableDescDto();
             tableDescDto.setNamespaceId(tableDesc.getNamespaceName());
             tableDescDto.setTableName(tableDesc.getTableName());
+            tableDescDto.setTableId(tableDesc.getTableName());
             String metaTable = tableDesc.isMetaTable() ? HBaseMetaTableFlag.META_TABLE.getCode() : HBaseMetaTableFlag.USER_TABLE.getCode();
             tableDescDto.setMetaTable(metaTable);
             String disableStatus = tableDesc.isDisabled() ? HBaseDisabledFlag.DISABLED.getCode() : HBaseDisabledFlag.ENABLED.getCode();
@@ -181,11 +178,11 @@ public class TableDescDto {
     }
 
 
-    public Long getTableId() {
+    public String getTableId() {
         return tableId;
     }
 
-    public void setTableId(Long tableId) {
+    public void setTableId(String tableId) {
         this.tableId = tableId;
     }
 

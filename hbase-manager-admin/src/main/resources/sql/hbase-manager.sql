@@ -563,6 +563,7 @@ DROP TABLE IF EXISTS `sys_hbase_table`;
 CREATE TABLE `sys_hbase_table`
 (
     `table_id`       bigint(20)   NOT NULL AUTO_INCREMENT COMMENT 'HBase表编号',
+    `cluster_code`   varchar(200) NOT NULL COMMENT 'HBase的集群编号',
     `namespace_name` varchar(200) NOT NULL COMMENT 'HBase表命名空间',
     `table_name`     varchar(200) NOT NULL COMMENT 'HBase表名称',
     `create_by`      varchar(64)  DEFAULT '' COMMENT '创建者',
