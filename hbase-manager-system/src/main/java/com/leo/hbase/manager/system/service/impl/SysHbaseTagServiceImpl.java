@@ -49,6 +49,13 @@ public class SysHbaseTagServiceImpl implements ISysHbaseTagService {
     }
 
     @Override
+    public List<SysHbaseTag> selectSysHbaseTagListByIds(String ids) {
+        Long[] tagIds = Convert.toLongArray(ids);
+        return sysHbaseTagMapper.selectSysHbaseTagListByIds(tagIds);
+
+    }
+
+    @Override
     public List<SysHbaseTag> selectAllSysHbaseTagList() {
         return sysHbaseTagMapper.selectAllSysHbaseTagList();
     }

@@ -174,5 +174,14 @@ public interface IMultiHBaseAdminService {
      */
     boolean disableReplication(String clusterCode, String tableName, List<String> families);
 
+    /**
+     * 修改表
+     *
+     * @param clusterCode 集群ID
+     * @param tableDesc   表描述
+     * @return 结果
+     */
+    boolean modifyTable(String clusterCode, TableDesc tableDesc);
+
 
 }

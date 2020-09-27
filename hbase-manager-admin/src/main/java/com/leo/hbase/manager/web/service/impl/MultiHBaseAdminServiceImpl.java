@@ -122,4 +122,10 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.disableReplicationScope(tableName, families);
     }
+
+    @Override
+    public boolean modifyTable(String clusterCode, TableDesc tableDesc) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.modifyTableProps(tableDesc);
+    }
 }

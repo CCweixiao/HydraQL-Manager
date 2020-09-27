@@ -4,9 +4,12 @@ import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.annotation.Excel;
+import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseMetaTableFlag;
+import com.leo.hbase.manager.common.enums.HBaseTableStatus;
 import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.valid.First;
 import com.leo.hbase.manager.system.valid.Fourth;
@@ -19,10 +22,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -120,6 +120,16 @@ public class TableDescDto {
      */
     private String preSplitKeys;
 
+    /**
+     * 最新修改人
+     */
+    private String lastUpdateBy;
+
+    /**
+     * 最新修改时间戳
+     */
+    private Long lastUpdateTimestamp;
+
     public TableDesc convertTo() {
         TableDescDto.TableDescDtoConvert convert = new TableDescDto.TableDescDtoConvert();
         return convert.convert(this);
@@ -142,14 +152,32 @@ public class TableDescDto {
             tableDesc.setEndKey(tableDescDto.getEndKey());
             tableDesc.setPreSplitRegions(tableDescDto.getPreSplitRegions());
             tableDesc.setPreSplitKeys(tableDescDto.getPreSplitKeys());
-            final List<Property> propertyList = tableDescDto.getPropertyList();
-            if ( propertyList!= null && !propertyList.isEmpty()) {
-                Map<String, String> props = new HashMap<>(propertyList.size());
-                propertyList.forEach(property -> props.put(property.getKey(), property.getValue()));
-                tableDesc.setTableProps(props);
+
+            List<Property> propertyList = tableDescDto.getPropertyList();
+            if (propertyList == null) {
+                propertyList = new ArrayList<>();
             }
-            final List<FamilyDesc> familyDescList = tableDescDto.getFamilies().stream().map(FamilyDescDto::convertTo).collect(Collectors.toList());
-            tableDesc.setFamilyDescList(familyDescList);
+            propertyList.add(new Property("status", tableDescDto.getStatus()));
+            propertyList.add(new Property("remark", tableDescDto.getRemark()));
+            String tagIdStr = "";
+            final Long[] tagIds = tableDescDto.getTagIds();
+            if (tagIds != null && tagIds.length > 0) {
+                tagIdStr = StringUtils.join(tagIds, ",");
+            }
+            propertyList.add(new Property("tagIds", tagIdStr));
+            propertyList.add(new Property("lastUpdateBy", tableDescDto.getLastUpdateBy()));
+            propertyList.add(new Property("lastUpdateTimestamp", tableDescDto.getLastUpdateTimestamp().toString()));
+
+            Map<String, String> props = new HashMap<>(propertyList.size());
+            propertyList.forEach(property -> props.put(property.getKey(), property.getValue()));
+            tableDesc.setTableProps(props);
+
+            final List<FamilyDescDto> families = tableDescDto.getFamilies();
+            if(families!=null&&!families.isEmpty()){
+                final List<FamilyDesc> familyDescList = families.stream().map(FamilyDescDto::convertTo).collect(Collectors.toList());
+                tableDesc.setFamilyDescList(familyDescList);
+            }
+
             return tableDesc;
         }
 
@@ -158,13 +186,40 @@ public class TableDescDto {
             TableDescDto tableDescDto = new TableDescDto();
             tableDescDto.setNamespaceId(tableDesc.getNamespaceName());
             tableDescDto.setTableName(tableDesc.getTableName());
-            tableDescDto.setTableId(tableDesc.getTableName());
+            final String tableId = StrEnDeUtils.encrypt(tableDesc.getTableName());
+            tableDescDto.setTableId(tableId);
             String metaTable = tableDesc.isMetaTable() ? HBaseMetaTableFlag.META_TABLE.getCode() : HBaseMetaTableFlag.USER_TABLE.getCode();
             tableDescDto.setMetaTable(metaTable);
             String disableStatus = tableDesc.isDisabled() ? HBaseDisabledFlag.DISABLED.getCode() : HBaseDisabledFlag.ENABLED.getCode();
             tableDescDto.setDisableFlag(disableStatus);
             String desc = StringUtils.getStringByEnter(110, tableDesc.getTableDesc());
             tableDescDto.setTableDesc(desc);
+
+            final Map<String, String> tableProps = tableDesc.getTableProps();
+            if (tableProps == null || tableProps.isEmpty()) {
+                tableDescDto.setStatus(HBaseTableStatus.ONLINE.getCode());
+                tableDescDto.setRemark("暂无表备注");
+                tableDescDto.setTagIds(new Long[]{});
+                tableDescDto.setSysHbaseTagList(new ArrayList<>());
+                tableDescDto.setLastUpdateBy("admin");
+                tableDescDto.setLastUpdateTimestamp(0L);
+
+            } else {
+                tableDescDto.setStatus(tableProps.getOrDefault("status", HBaseTableStatus.ONLINE.getCode()));
+                tableDescDto.setRemark(tableProps.getOrDefault("remark", "暂无表备注"));
+                String tagIds = tableProps.getOrDefault("tagIds", "");
+
+                if (StringUtils.isBlank(tagIds)) {
+                    tableDescDto.setTagIds(new Long[]{});
+                } else {
+                    Long[] tagIdLongs = Convert.toLongArray(tagIds);
+                    tableDescDto.setTagIds(tagIdLongs);
+                }
+                tableDescDto.setLastUpdateBy(tableProps.getOrDefault("lastUpdateBy", "admin"));
+                tableDescDto.setLastUpdateTimestamp(Long.parseLong(tableProps.getOrDefault("lastUpdateTimestamp", "0").toString()));
+            }
+
+
             return tableDescDto;
         }
     }
@@ -203,6 +258,9 @@ public class TableDescDto {
     }
 
     public String getStatus() {
+        if (StringUtils.isBlank(this.status)) {
+            this.status = HBaseTableStatus.ONLINE.getCode();
+        }
         return status;
     }
 
@@ -299,7 +357,10 @@ public class TableDescDto {
     }
 
     public String getRemark() {
-        return remark;
+        if (StringUtils.isBlank(this.remark)) {
+            this.remark = "暂无表备注";
+        }
+        return this.remark;
     }
 
     public void setRemark(String remark) {
@@ -354,6 +415,29 @@ public class TableDescDto {
         this.preSplitKeys = preSplitKeys;
     }
 
+    public String getLastUpdateBy() {
+        if (StringUtils.isBlank(this.lastUpdateBy)) {
+            return "admin";
+        }
+        return this.lastUpdateBy;
+    }
+
+    public void setLastUpdateBy(String lastUpdateBy) {
+        this.lastUpdateBy = lastUpdateBy;
+    }
+
+    public Long getLastUpdateTimestamp() {
+        if (this.lastUpdateTimestamp == null) {
+            return 0L;
+        }
+        return this.lastUpdateTimestamp;
+    }
+
+    public void setLastUpdateTimestamp(Long lastUpdateTimestamp) {
+        this.lastUpdateTimestamp = lastUpdateTimestamp;
+    }
+
+
     @Override
     public String toString() {
         return "TableDescDto{" +
@@ -380,6 +464,8 @@ public class TableDescDto {
                 ", endKey='" + endKey + '\'' +
                 ", preSplitRegions=" + preSplitRegions +
                 ", preSplitKeys='" + preSplitKeys + '\'' +
+                ", lastUpdateBy='" + lastUpdateBy + '\'' +
+                ", lastUpdateTimestamp='" + lastUpdateTimestamp + '\'' +
                 '}';
     }
 }

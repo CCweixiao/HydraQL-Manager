@@ -94,7 +94,8 @@
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             queryParams: queryParams,
-            modalName: "HBase表信息",
+            modalName: "HBase Table",
+            sidePagination: 'client',
             columns: [{
                 checkbox: true
             },
@@ -164,10 +165,10 @@
                 {
                     field: 'remark',
                     title: '备注',
-                    formatter: function(value, row, index){
-                        if(value.length>10){
-                            return value.substr(0, 10)+"..."
-                        }else{
+                    formatter: function (value, row, index) {
+                        if (value.length > 10) {
+                            return value.substr(0, 10) + "..."
+                        } else {
                             return value;
                         }
                     }
@@ -177,16 +178,14 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push("<a class='btn btn-warning btn-xs " + detailFlag + "' href='javascript:void(0)' onclick='$.operate.detail(" + row.tableId + ")'><i class='fa fa-search'></i>查看详情</a> ")
-                        actions.push("<a class='btn btn-success btn-xs " + editFlag + "' href='javascript:void(0)' onclick='$.operate.edit(" + row.tableId + ")'><i class='fa fa-edit'></i>编辑</a> ");
-                        //actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.tableId + '\')"><i class="fa fa-search"></i>查看详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a> ');
 
-                        var more = [];
-                        //more.push("<a class='btn btn-default btn-xs " + detailFlag + "' href='javascript:void(0)' onclick='showHBaseDetail(" + row.tableId + ")'><i class='fa fa-search'></i>查看详情</a> ");
+                        //var more = [];
+                        //more.push("<a class='btn btn-default btn-xs " + editFlag + "' href='javascript:void(0)' onclick='setupOwner(\"" + row.tableId + "\")'><i class='fa fa-check-square-o'></i>分配用户</a>");
 
-                        more.push("<a class='btn btn-default btn-xs " + editFlag + "' href='javascript:void(0)' onclick='setupOwner(" + row.tableId + ")'><i class='fa fa-check-square-o'></i>分配用户</a>");
-                        more.push("<a class='btn btn-danger btn-xs " + removeFlag + "' href='javascript:void(0)' onclick='$.operate.remove(" + row.tableId + ")'><i class='fa fa-remove'></i>删除</a>");
-                        actions.push('<a tabindex="0" class="btn btn-info btn-xs" role="button" data-container="body" data-placement="left" data-toggle="popover" data-html="true" data-trigger="hover" data-content="' + more.join('') + '"><i class="fa fa-chevron-circle-right"></i>更多操作</a>');
+                        //actions.push('<a tabindex="0" class="btn btn-info btn-xs" role="button" data-container="body" data-placement="left" data-toggle="popover" data-html="true" data-trigger="hover" data-content="' + more.join('') + '"><i class="fa fa-chevron-circle-right"></i>更多操作</a>');
                         return actions.join('');
                     }
                 }]
@@ -222,14 +221,18 @@
     /* 表禁用状态管理-停用 */
     function disableTable(tableId) {
         $.modal.confirm("确认要禁用表吗？", function () {
-            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 2});
+            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 2},function (res) {
+                alert("23");
+            });
         })
     }
 
     /* 表禁用状态管理-启用 */
     function enableTable(tableId) {
         $.modal.confirm("确认要启用表吗？", function () {
-            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 0});
+            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 0}, function (res) {
+                $.table.refresh;
+            });
         })
     }
 
@@ -254,6 +257,11 @@
         console.log(tableId);
         var url = prefix + '/family/detail/' + tableId;
         $.modal.openTab("列簇数据", url);
+    }
+
+    /*删除HBase表*/
+    function removeHBase(tableId) {
+        $.operate.remove(tableId);
     }
 
 </script>

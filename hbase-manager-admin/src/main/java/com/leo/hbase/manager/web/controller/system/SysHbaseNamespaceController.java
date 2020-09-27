@@ -93,22 +93,25 @@ public class SysHbaseNamespaceController extends SysHbaseBaseController {
         String clusterCode = clusterCodeOfCurrentSession();
 
         final String name = namespaceDescDto.getNamespaceName();
+        if (name.contains(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)) {
+            return error("命名空间[" + name + "]中含有非法字符:");
+        }
         if (HMHBaseConstant.DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
-            return error("命名空间[" + name + "]不允许被创建！");
+            return error("命名空间[" + name + "]不允许被创建");
         }
         final List<String> listAllNamespaceName = multiHBaseAdminService.listAllNamespaceName(clusterCode);
 
         if (listAllNamespaceName.contains(namespaceDescDto.getNamespaceName())) {
-            return error("namespace[" + name + "]已经存在！");
+            return error("namespace[" + name + "]已经存在");
         }
         NamespaceDesc namespaceDesc = namespaceDescDto.convertTo();
         final boolean createdOrNot = multiHBaseAdminService.createNamespace(clusterCode, namespaceDesc);
 
         if (!createdOrNot) {
-            return error("namespace[" + name + "]创建失败！");
+            return error("namespace[" + name + "]创建失败");
         }
 
-        return success("namespace[" + name + "]创建成功！");
+        return success("namespace[" + name + "]创建成功");
     }
 
     /**

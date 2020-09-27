@@ -36,6 +36,14 @@ public interface SysHbaseTagMapper
     public List<SysHbaseTag> selectSysHbaseTagList(SysHbaseTag sysHbaseTag);
 
     /**
+     * 批量查询tag
+     *
+     * @param ids tag ids
+     * @return HBaseTag 列表
+     */
+    public List<SysHbaseTag> selectSysHbaseTagListByIds(Long[] ids);
+
+    /**
      * 根据table id 查询所有HBaseTag列表
      * @param tableId 表ID
      * @return HBaseTag集合
