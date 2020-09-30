@@ -30,6 +30,11 @@ public class QueryHBaseTableForm {
      */
     private String status;
 
+    /**
+     * 表标签筛选
+     */
+    private String queryHBaseTagIdStr;
+
     public String getTableId() {
         return tableId;
     }
@@ -68,5 +73,13 @@ public class QueryHBaseTableForm {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getQueryHBaseTagIdStr() {
+        return queryHBaseTagIdStr;
+    }
+
+    public void setQueryHBaseTagIdStr(String queryHBaseTagIdStr) {
+        this.queryHBaseTagIdStr = queryHBaseTagIdStr;
     }
 }

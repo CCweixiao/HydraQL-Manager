@@ -1,5 +1,6 @@
 package com.leo.hbase.manager.system.dto;
 
+import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.annotation.Excel;
@@ -87,8 +88,8 @@ public class FamilyDescDto {
     @Min(value = 1, message = "TTL不能小于1", groups = {Fourth.class})
     @Max(value = 2147483647, message = "TTL不能超过2147483647", groups = {Five.class})
     public Integer getTimeToLive() {
-        if (timeToLive == null) {
-            timeToLive = 2147483647;
+        if (timeToLive == null || timeToLive == 0) {
+            timeToLive = HMHBaseConstant.DEFAULT_TTL;
         }
         return timeToLive;
     }

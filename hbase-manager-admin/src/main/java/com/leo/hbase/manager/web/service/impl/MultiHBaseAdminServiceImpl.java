@@ -4,6 +4,8 @@ import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
+import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
+import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.springframework.stereotype.Service;
@@ -126,6 +128,8 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public boolean modifyTable(String clusterCode, TableDesc tableDesc) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        tableDesc.addProp(HBasePropertyConstants.LAST_UPDATE_BY, ShiroUtils.getLoginName());
+        tableDesc.addProp(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
         return hBaseTemplate.modifyTableProps(tableDesc);
     }
 }

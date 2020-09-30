@@ -76,7 +76,6 @@
 </div>
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: bootstrap-select-js"/>
-
 <script th:inline="javascript">
     var detailFlag = [[${@permission.hasPermi('system:table:detail')}]];
     var editFlag = [[${@permission.hasPermi('system:table:edit')}]];
@@ -195,10 +194,15 @@
 
     /*表禁用状态显示*/
     function disableOrEnableTools(row) {
-        if (row.disableFlag == 2) {
+        /*if (row.disableFlag == 2) {
             return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enableTable(\'' + row.tableId + '\')"></i> ';
         } else {
             return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disableTable(\'' + row.tableId + '\')"></i> ';
+        }*/
+        if (row.disableFlag == 2) {
+            return '<i class=\"fa fa-toggle-off text-info fa-2x\"></i> ';
+        } else {
+            return '<i class=\"fa fa-toggle-on text-info fa-2x\"></i> ';
         }
     }
 
@@ -222,7 +226,7 @@
     function disableTable(tableId) {
         $.modal.confirm("确认要禁用表吗？", function () {
             $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 2},function (res) {
-                alert("23");
+                $.modal.msg("该表已成功禁用")
             });
         })
     }
@@ -231,7 +235,7 @@
     function enableTable(tableId) {
         $.modal.confirm("确认要启用表吗？", function () {
             $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 0}, function (res) {
-                $.table.refresh;
+                $.modal.msg("该表已成功启用")
             });
         })
     }

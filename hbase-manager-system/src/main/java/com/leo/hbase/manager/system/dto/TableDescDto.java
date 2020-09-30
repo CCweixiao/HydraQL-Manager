@@ -1,9 +1,12 @@
 package com.leo.hbase.manager.system.dto;
 
+import com.github.CCweixiao.constant.HMHBaseConstant;
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.annotation.Excel;
+import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
 import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseMetaTableFlag;
@@ -11,10 +14,7 @@ import com.leo.hbase.manager.common.enums.HBaseTableStatus;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
-import com.leo.hbase.manager.system.valid.First;
-import com.leo.hbase.manager.system.valid.Fourth;
-import com.leo.hbase.manager.system.valid.Second;
-import com.leo.hbase.manager.system.valid.Third;
+import com.leo.hbase.manager.system.valid.*;
 
 import javax.validation.GroupSequence;
 import javax.validation.Valid;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * @author leojie 2020/9/10 10:27 下午
  */
-@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, TableDescDto.class})
+@GroupSequence(value = {First.class, Second.class, Third.class, Fourth.class, Five.class, TableDescDto.class})
 public class TableDescDto {
 
     @Excel(name = "命名空间名称")
@@ -36,10 +36,13 @@ public class TableDescDto {
     @Size(min = 1, max = 128, message = "HBase命名空间长度不能超过128个字符", groups = {Second.class})
     private String namespaceId;
 
+    private String namespaceName;
+
     private String tableId;
 
     @Excel(name = "HBase表名称")
-    @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Third.class})
+    @NotBlank(message = "HBase表名称不能为空", groups = {Third.class})
+    @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Fourth.class})
     private String tableName;
 
     @Excel(name = "禁用标志", readConverterExp = "0=代表启用表,2=代表禁用表")
@@ -50,7 +53,7 @@ public class TableDescDto {
     @Excel(name = "状态", readConverterExp = "0=线上表,1=待上线表,2=测试表,3=弃用表")
     private String status;
 
-    private Long[] tagIds;
+    private Integer[] tagIds;
 
     private String queryHBaseTagIdStr;
 
@@ -100,7 +103,7 @@ public class TableDescDto {
 
     private List<Property> propertyList;
 
-    @NotEmpty(message = "请为表至少指定一个列簇", groups = {Fourth.class})
+    @NotEmpty(message = "请为表至少指定一个列簇", groups = {Five.class})
     private List<@NotNull @Valid FamilyDescDto> families;
 
     /**
@@ -119,6 +122,16 @@ public class TableDescDto {
      * 以指定分区key的方式分区
      */
     private String preSplitKeys;
+
+    /**
+     * HBase表创建人
+     */
+    private String createBy;
+
+    /**
+     * HBase表的创建时间
+     */
+    private Long createTimestamp;
 
     /**
      * 最新修改人
@@ -146,34 +159,41 @@ public class TableDescDto {
         @Override
         protected TableDesc doForward(TableDescDto tableDescDto) {
             TableDesc tableDesc = new TableDesc();
+            // 设置命名空间和表名
             tableDesc.setNamespaceName(tableDescDto.getNamespaceId());
             tableDesc.setTableName(tableDescDto.getTableName());
+            // 设置创建表时候的预分区等信息
             tableDesc.setStartKey(tableDescDto.getStartKey());
             tableDesc.setEndKey(tableDescDto.getEndKey());
             tableDesc.setPreSplitRegions(tableDescDto.getPreSplitRegions());
             tableDesc.setPreSplitKeys(tableDescDto.getPreSplitKeys());
-
+            final String disableFlag = tableDescDto.getDisableFlag();
+            if (HBaseDisabledFlag.DISABLED.getCode().equals(disableFlag)) {
+                tableDesc.setDisabled(true);
+            } else if (HBaseDisabledFlag.ENABLED.getCode().equals(disableFlag)) {
+                tableDesc.setDisabled(false);
+            } else {
+                throw new HBaseOperationsException("HBase表的禁用状态，0启用，2禁用");
+            }
             List<Property> propertyList = tableDescDto.getPropertyList();
-            if (propertyList == null) {
-                propertyList = new ArrayList<>();
-            }
-            propertyList.add(new Property("status", tableDescDto.getStatus()));
-            propertyList.add(new Property("remark", tableDescDto.getRemark()));
-            String tagIdStr = "";
-            final Long[] tagIds = tableDescDto.getTagIds();
-            if (tagIds != null && tagIds.length > 0) {
-                tagIdStr = StringUtils.join(tagIds, ",");
-            }
-            propertyList.add(new Property("tagIds", tagIdStr));
-            propertyList.add(new Property("lastUpdateBy", tableDescDto.getLastUpdateBy()));
-            propertyList.add(new Property("lastUpdateTimestamp", tableDescDto.getLastUpdateTimestamp().toString()));
 
-            Map<String, String> props = new HashMap<>(propertyList.size());
-            propertyList.forEach(property -> props.put(property.getKey(), property.getValue()));
-            tableDesc.setTableProps(props);
+            propertyList.add(new Property(HBasePropertyConstants.STATUS, tableDescDto.getStatus()));
+            propertyList.add(new Property(HBasePropertyConstants.REMARK, tableDescDto.getRemark()));
+            String tagIdStr = "";
+            final Integer[] tagIds = tableDescDto.getTagIds();
+            if (tagIds != null && tagIds.length > 0) {
+                tagIdStr = StringUtils.join(tagIds, HBasePropertyConstants.HBASE_TABLE_PROP_SPLIT);
+            }
+            propertyList.add(new Property(HBasePropertyConstants.TAG_IDS, tagIdStr));
+            propertyList.add(new Property(HBasePropertyConstants.CREATE_BY, tableDescDto.getCreateBy()));
+            propertyList.add(new Property(HBasePropertyConstants.CREATE_TIMESTAMP, tableDescDto.getCreateTimestamp().toString()));
+            propertyList.add(new Property(HBasePropertyConstants.LAST_UPDATE_BY, tableDescDto.getLastUpdateBy()));
+            propertyList.add(new Property(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, tableDescDto.getLastUpdateTimestamp().toString()));
+            // 遍历添加属性
+            propertyList.forEach(property -> tableDesc.addProp(property.getKey(), property.getValue()));
 
             final List<FamilyDescDto> families = tableDescDto.getFamilies();
-            if(families!=null&&!families.isEmpty()){
+            if (families != null && !families.isEmpty()) {
                 final List<FamilyDesc> familyDescList = families.stream().map(FamilyDescDto::convertTo).collect(Collectors.toList());
                 tableDesc.setFamilyDescList(familyDescList);
             }
@@ -185,9 +205,10 @@ public class TableDescDto {
         protected TableDescDto doBackward(TableDesc tableDesc) {
             TableDescDto tableDescDto = new TableDescDto();
             tableDescDto.setNamespaceId(tableDesc.getNamespaceName());
+            tableDescDto.setNamespaceName(tableDesc.getNamespaceName());
             tableDescDto.setTableName(tableDesc.getTableName());
-            final String tableId = StrEnDeUtils.encrypt(tableDesc.getTableName());
-            tableDescDto.setTableId(tableId);
+            tableDescDto.setTableId(StrEnDeUtils.encrypt(tableDesc.getTableName()));
+
             String metaTable = tableDesc.isMetaTable() ? HBaseMetaTableFlag.META_TABLE.getCode() : HBaseMetaTableFlag.USER_TABLE.getCode();
             tableDescDto.setMetaTable(metaTable);
             String disableStatus = tableDesc.isDisabled() ? HBaseDisabledFlag.DISABLED.getCode() : HBaseDisabledFlag.ENABLED.getCode();
@@ -197,26 +218,31 @@ public class TableDescDto {
 
             final Map<String, String> tableProps = tableDesc.getTableProps();
             if (tableProps == null || tableProps.isEmpty()) {
+                // 初始化配置
                 tableDescDto.setStatus(HBaseTableStatus.ONLINE.getCode());
-                tableDescDto.setRemark("暂无表备注");
-                tableDescDto.setTagIds(new Long[]{});
+                tableDescDto.setRemark(HBasePropertyConstants.HBASE_TABLE_DEFAULT_REMARK);
+                tableDescDto.setTagIds(new Integer[]{});
                 tableDescDto.setSysHbaseTagList(new ArrayList<>());
-                tableDescDto.setLastUpdateBy("admin");
+                tableDescDto.setCreateBy(HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED);
+                tableDescDto.setCreateTimestamp(0L);
+                tableDescDto.setLastUpdateBy(HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED);
                 tableDescDto.setLastUpdateTimestamp(0L);
 
             } else {
-                tableDescDto.setStatus(tableProps.getOrDefault("status", HBaseTableStatus.ONLINE.getCode()));
-                tableDescDto.setRemark(tableProps.getOrDefault("remark", "暂无表备注"));
-                String tagIds = tableProps.getOrDefault("tagIds", "");
+                tableDescDto.setStatus(tableProps.getOrDefault(HBasePropertyConstants.STATUS, HBaseTableStatus.ONLINE.getCode()));
+                tableDescDto.setRemark(tableProps.getOrDefault(HBasePropertyConstants.REMARK, HBasePropertyConstants.HBASE_TABLE_DEFAULT_REMARK));
+                String tagIds = tableProps.getOrDefault(HBasePropertyConstants.TAG_IDS, "");
 
                 if (StringUtils.isBlank(tagIds)) {
-                    tableDescDto.setTagIds(new Long[]{});
+                    tableDescDto.setTagIds(new Integer[]{});
                 } else {
-                    Long[] tagIdLongs = Convert.toLongArray(tagIds);
+                    Integer[] tagIdLongs = Convert.toIntArray(tagIds);
                     tableDescDto.setTagIds(tagIdLongs);
                 }
-                tableDescDto.setLastUpdateBy(tableProps.getOrDefault("lastUpdateBy", "admin"));
-                tableDescDto.setLastUpdateTimestamp(Long.parseLong(tableProps.getOrDefault("lastUpdateTimestamp", "0").toString()));
+                tableDescDto.setCreateBy(tableProps.getOrDefault(HBasePropertyConstants.CREATE_BY, HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED));
+                tableDescDto.setCreateTimestamp(Long.parseLong(tableProps.getOrDefault(HBasePropertyConstants.CREATE_TIMESTAMP, "0")));
+                tableDescDto.setLastUpdateBy(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_BY, HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED));
+                tableDescDto.setLastUpdateTimestamp(Long.parseLong(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, "0")));
             }
 
 
@@ -232,6 +258,13 @@ public class TableDescDto {
         this.namespaceId = namespaceId;
     }
 
+    public String getNamespaceName() {
+        return namespaceName;
+    }
+
+    public void setNamespaceName(String namespaceName) {
+        this.namespaceName = namespaceName;
+    }
 
     public String getTableId() {
         return tableId;
@@ -258,6 +291,7 @@ public class TableDescDto {
     }
 
     public String getStatus() {
+        // 获取不到status，默认就是线上表
         if (StringUtils.isBlank(this.status)) {
             this.status = HBaseTableStatus.ONLINE.getCode();
         }
@@ -268,11 +302,11 @@ public class TableDescDto {
         this.status = status;
     }
 
-    public Long[] getTagIds() {
+    public Integer[] getTagIds() {
         return tagIds;
     }
 
-    public void setTagIds(Long[] tagIds) {
+    public void setTagIds(Integer[] tagIds) {
         this.tagIds = tagIds;
     }
 
@@ -357,8 +391,8 @@ public class TableDescDto {
     }
 
     public String getRemark() {
-        if (StringUtils.isBlank(this.remark)) {
-            this.remark = "暂无表备注";
+        if (StringUtils.isBlank(remark)) {
+            remark = HBasePropertyConstants.HBASE_TABLE_DEFAULT_REMARK;
         }
         return this.remark;
     }
@@ -368,6 +402,9 @@ public class TableDescDto {
     }
 
     public List<Property> getPropertyList() {
+        if (propertyList == null) {
+            propertyList = new ArrayList<>();
+        }
         return propertyList;
     }
 
@@ -415,11 +452,33 @@ public class TableDescDto {
         this.preSplitKeys = preSplitKeys;
     }
 
-    public String getLastUpdateBy() {
-        if (StringUtils.isBlank(this.lastUpdateBy)) {
-            return "admin";
+    public String getCreateBy() {
+        if (StringUtils.isBlank(createBy)) {
+            createBy = HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED;
         }
-        return this.lastUpdateBy;
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public Long getCreateTimestamp() {
+        if (createTimestamp == null) {
+            return 0L;
+        }
+        return createTimestamp;
+    }
+
+    public void setCreateTimestamp(Long createTimestamp) {
+        this.createTimestamp = createTimestamp;
+    }
+
+    public String getLastUpdateBy() {
+        if (StringUtils.isBlank(lastUpdateBy)) {
+            lastUpdateBy = HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED;
+        }
+        return lastUpdateBy;
     }
 
     public void setLastUpdateBy(String lastUpdateBy) {

@@ -4,11 +4,15 @@ import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.leo.hbase.manager.common.annotation.Log;
+import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.ArrUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
+import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.dto.NamespaceDescDto;
@@ -23,10 +27,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -100,13 +101,46 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
+        //TODO 表筛选
         final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
         final List<TableDescDto> tableDescDtoList = tableDescList.stream().map(tableDesc -> {
             final TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
-            final Long[] tagIds = tableDescDto.getTagIds();
+            final Integer[] tagIds = tableDescDto.getTagIds();
             tableDescDto.setSysHbaseTagList(getSysHbaseTagByLongIds(tagIds));
             return tableDescDto;
-        }).collect(Collectors.toList());
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getNamespaceName())) {
+                return tableDescDto.getNamespaceName().equals(queryHBaseTableForm.getNamespaceName());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getTableName())) {
+                return tableDescDto.getTableName().contains(queryHBaseTableForm.getTableName());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getDisableFlag())) {
+                return tableDescDto.getDisableFlag().equals(queryHBaseTableForm.getDisableFlag());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getStatus())) {
+                return tableDescDto.getStatus().equals(queryHBaseTableForm.getStatus());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getQueryHBaseTagIdStr())) {
+                final String tagIdStr = queryHBaseTableForm.getQueryHBaseTagIdStr();
+                Integer[] queryTagIds = Convert.toIntArray(tagIdStr);
+
+                if (tableDescDto.getTagIds() != null && tableDescDto.getTagIds().length > 0) {
+                    final int[] same = ArrUtils.intersection2(queryTagIds, tableDescDto.getTagIds());
+                    return same.length > 0;
+                }
+            }
+            return true;
+        })
+                .sorted(Comparator.comparing(TableDescDto::getLastUpdateTimestamp)).collect(Collectors.toList());
 
         return getDataTable(tableDescDtoList);
     }
@@ -150,14 +184,14 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         final String tableName = tableDescDto.getTableName();
 
         if (multiHBaseAdminService.tableIsExists(clusterCode, tableName)) {
-            return error("HBase表[" + tableName + "]已经存在！");
+            return error("HBase表[" + tableDescDto.getNamespaceId() + ":" + tableName + "]已经存在！");
         }
 
         TableDesc tableDesc = tableDescDto.convertTo();
         boolean createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc);
 
         if (!createTableRes) {
-            return error("系统异常，HBase表[" + tableName + "]创建失败！");
+            return error("系统异常，HBase表[" + tableDescDto.getNamespaceId() + ":" + tableName + "]创建失败！");
         }
         return success("HBase表[" + tableName + "]创建成功！");
     }
@@ -180,7 +214,6 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     }
 
 
-
     /**
      * 修改保存HBase
      */
@@ -193,6 +226,11 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         String tableName = StrEnDeUtils.decrypt(tableDescDto.getTableId());
         tableDescDto.setTableName(tableName);
         TableDesc tableDesc = tableDescDto.convertTo();
+        if (tableDesc.isDisabled()) {
+            multiHBaseAdminService.disableTable(clusterCode, tableName);
+        } else {
+            multiHBaseAdminService.enableTable(clusterCode, tableName);
+        }
         multiHBaseAdminService.modifyTable(clusterCode, tableDesc);
         return success();
     }
@@ -231,7 +269,6 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @ResponseBody
     public AjaxResult remove(String ids) {
         final String clusterCode = clusterCodeOfCurrentSession();
-
         final String tableName = StrEnDeUtils.decrypt(ids);
 
         if (!multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
@@ -251,12 +288,18 @@ public class SysHbaseTableController extends SysHbaseBaseController {
                 .collect(Collectors.toList());
     }
 
-    private List<SysHbaseTag> selectHBaseTagsByTable(TableDescDto tableDescDto){
+    /**
+     * 筛选表标签
+     *
+     * @param tableDescDto
+     * @return
+     */
+    private List<SysHbaseTag> selectHBaseTagsByTable(TableDescDto tableDescDto) {
         List<SysHbaseTag> hbaseTags = getSysHbaseTagByLongIds(tableDescDto.getTagIds());
         List<SysHbaseTag> tags = sysHbaseTagService.selectAllSysHbaseTagList();
         for (SysHbaseTag tag : tags) {
             for (SysHbaseTag hbaseTag : hbaseTags) {
-                if(tag.getTagId().longValue() == hbaseTag.getTagId().longValue()){
+                if (tag.getTagId().longValue() == hbaseTag.getTagId().longValue()) {
                     tag.setFlag(true);
                     break;
                 }
@@ -265,7 +308,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         return tags;
     }
 
-    private List<SysHbaseTag> getSysHbaseTagByLongIds(Long[] tagIds) {
+    private List<SysHbaseTag> getSysHbaseTagByLongIds(Integer[] tagIds) {
         if (tagIds == null || tagIds.length < 1) {
             return new ArrayList<>();
         }
