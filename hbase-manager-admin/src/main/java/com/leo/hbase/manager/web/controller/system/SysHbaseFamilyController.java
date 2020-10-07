@@ -7,9 +7,9 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.system.domain.SysHbaseTable;
+import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.system.dto.FamilyDescDto;
-import com.leo.hbase.manager.system.service.ISysHbaseTableService;
+import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +33,6 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     private String prefix = "system/family";
 
     @Autowired
-    private ISysHbaseTableService sysHbaseTableService;
-    @Autowired
     private IMultiHBaseAdminService multiHBaseAdminService;
 
     @RequiresPermissions("system:family:view")
@@ -49,14 +47,12 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @RequiresPermissions("system:family:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysHbaseTable sysHbaseTable) {
-        SysHbaseTable existsTable = sysHbaseTableService.selectSysHbaseTableById(sysHbaseTable.getTableId());
-
-
-        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), existsTable.getTableName());
+    public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
+        final String tableName = StrEnDeUtils.decrypt(queryHBaseTableForm.getTableId());
+        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), tableName);
         final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
             FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
-            familyDescDto.setTableName(existsTable.getTableName());
+            familyDescDto.setTableName(tableName);
             return familyDescDto;
         }).collect(Collectors.toList());
         return getDataTable(familyDescDtoList);
@@ -69,14 +65,13 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @Log(title = "HBase Family", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseTable sysHbaseTable) {
-        SysHbaseTable existsTable = sysHbaseTableService.selectSysHbaseTableById(sysHbaseTable.getTableId());
+    public AjaxResult export(QueryHBaseTableForm queryHBaseTableForm) {
+        final String tableName = StrEnDeUtils.decrypt(queryHBaseTableForm.getTableId());
 
-        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(),
-                existsTable.getTableName());
+        final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), tableName);
         final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
             FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
-            familyDescDto.setTableName(existsTable.getTableName());
+            familyDescDto.setTableName(tableName);
             return familyDescDto;
         }).collect(Collectors.toList());
         ExcelUtil<FamilyDescDto> util = new ExcelUtil<>(FamilyDescDto.class);

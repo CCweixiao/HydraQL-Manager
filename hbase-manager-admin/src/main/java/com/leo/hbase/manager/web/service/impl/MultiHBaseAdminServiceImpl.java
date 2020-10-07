@@ -4,6 +4,7 @@ import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
+import com.github.CCweixiao.util.SplitGoEnum;
 import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
@@ -68,7 +69,25 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public boolean createTable(String clusterCode, TableDesc tableDesc) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.createTable(tableDesc, false);
+        return hBaseTemplate.createTable(tableDesc);
+    }
+
+    @Override
+    public boolean createTable(String clusterCode, TableDesc tableDesc, String startKey, String endKey, int numRegions, boolean isAsync) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.createTable(tableDesc, startKey, endKey, numRegions, isAsync);
+    }
+
+    @Override
+    public boolean createTable(String clusterCode, TableDesc tableDesc, String[] splitKeys, boolean isAsync) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.createTable(tableDesc, splitKeys, isAsync);
+    }
+
+    @Override
+    public boolean createTable(String clusterCode, TableDesc tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.createTable(tableDesc, splitGoEnum, numRegions, isAsync);
     }
 
     @Override

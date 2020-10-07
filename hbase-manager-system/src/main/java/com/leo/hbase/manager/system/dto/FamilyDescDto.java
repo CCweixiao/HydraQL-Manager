@@ -34,7 +34,7 @@ public class FamilyDescDto {
     @Excel(name = "列簇压缩类型")
     private String compressionType;
 
-    @Excel(name = "replication标志", readConverterExp = "0, 1")
+    @Excel(name = "replication标志")
     private Integer replicationScope;
 
     public FamilyDesc convertTo() {

@@ -3,6 +3,7 @@ package com.leo.hbase.manager.web.service;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
+import com.github.CCweixiao.util.SplitGoEnum;
 
 import java.util.List;
 
@@ -89,6 +90,43 @@ public interface IMultiHBaseAdminService {
      * @return 创建表是否成功
      */
     boolean createTable(String clusterCode, TableDesc tableDesc);
+
+
+    /**
+     * 创建表，预分区
+     *
+     * @param clusterCode 集群code
+     * @param tableDesc   表的描述信息
+     * @param startKey    预分区开始的key
+     * @param endKey      预分区结束的key
+     * @param numRegions  需要的预分区个数
+     * @param isAsync     是否是异步的方式
+     * @return 表是否被创建成功
+     */
+    boolean createTable(String clusterCode, TableDesc tableDesc, String startKey, String endKey, int numRegions, boolean isAsync);
+
+    /**
+     * 创建表，预分区
+     *
+     * @param clusterCode 集群code
+     * @param tableDesc   表的描述信息
+     * @param splitKeys   需要划分的预分区key
+     * @param isAsync     是否是异步的方式
+     * @return 表是否被创建成功
+     */
+    boolean createTable(String clusterCode, TableDesc tableDesc, String[] splitKeys, boolean isAsync);
+
+    /**
+     * 创建表，预分区
+     *
+     * @param clusterCode 集群code
+     * @param tableDesc   表的描述信息
+     * @param splitGoEnum 预分区方式
+     * @param numRegions  需要的预分区个数
+     * @param isAsync     是否是异步的方式
+     * @return 表是否被创建成功
+     */
+    boolean createTable(String clusterCode, final TableDesc tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync);
 
     /**
      * 启用表

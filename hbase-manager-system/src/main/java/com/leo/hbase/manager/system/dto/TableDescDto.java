@@ -1,6 +1,5 @@
 package com.leo.hbase.manager.system.dto;
 
-import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.TableDesc;
@@ -22,7 +21,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -107,6 +109,11 @@ public class TableDescDto {
     private List<@NotNull @Valid FamilyDescDto> families;
 
     /**
+     * 预分区方式
+     */
+    private String splitWay;
+
+    /**
      * 预分区开始的key
      */
     private String startKey;
@@ -115,13 +122,23 @@ public class TableDescDto {
      */
     private String endKey;
     /**
-     * 分区数
+     * 分区数 对应预分区1
      */
     private Integer preSplitRegions;
     /**
-     * 以指定分区key的方式分区
+     * 以指定分区key的方式分区，对应预分区2
      */
     private String preSplitKeys;
+
+    /**
+     * 选择指定分区方式来进行预分区，对应预分区3
+     */
+    private String splitGo;
+
+    /**
+     * 预分区数
+     */
+    private Integer numRegions;
 
     /**
      * HBase表创建人
@@ -162,11 +179,6 @@ public class TableDescDto {
             // 设置命名空间和表名
             tableDesc.setNamespaceName(tableDescDto.getNamespaceId());
             tableDesc.setTableName(tableDescDto.getTableName());
-            // 设置创建表时候的预分区等信息
-            tableDesc.setStartKey(tableDescDto.getStartKey());
-            tableDesc.setEndKey(tableDescDto.getEndKey());
-            tableDesc.setPreSplitRegions(tableDescDto.getPreSplitRegions());
-            tableDesc.setPreSplitKeys(tableDescDto.getPreSplitKeys());
             final String disableFlag = tableDescDto.getDisableFlag();
             if (HBaseDisabledFlag.DISABLED.getCode().equals(disableFlag)) {
                 tableDesc.setDisabled(true);
@@ -244,7 +256,6 @@ public class TableDescDto {
                 tableDescDto.setLastUpdateBy(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_BY, HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED));
                 tableDescDto.setLastUpdateTimestamp(Long.parseLong(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, "0")));
             }
-
 
             return tableDescDto;
         }
@@ -437,6 +448,9 @@ public class TableDescDto {
     }
 
     public Integer getPreSplitRegions() {
+        if (null == preSplitRegions) {
+            return 0;
+        }
         return preSplitRegions;
     }
 
@@ -496,17 +510,44 @@ public class TableDescDto {
         this.lastUpdateTimestamp = lastUpdateTimestamp;
     }
 
+    public String getSplitGo() {
+        return splitGo;
+    }
+
+    public void setSplitGo(String splitGo) {
+        this.splitGo = splitGo;
+    }
+
+    public Integer getNumRegions() {
+        if (numRegions == null) {
+            return 0;
+        }
+        return numRegions;
+    }
+
+    public void setNumRegions(Integer numRegions) {
+        this.numRegions = numRegions;
+    }
+
+    public String getSplitWay() {
+        return splitWay;
+    }
+
+    public void setSplitWay(String splitWay) {
+        this.splitWay = splitWay;
+    }
 
     @Override
     public String toString() {
         return "TableDescDto{" +
-                "namespaceId='" + namespaceId + '\'' +
-                ", tableId='" + tableId + '\'' +
-                ", tableName='" + tableName + '\'' +
-                ", disableFlag='" + disableFlag + '\'' +
-                ", status='" + status + '\'' +
+                "namespaceId='" + getNamespaceId() + '\'' +
+                ", namespaceName='" + getNamespaceName() + '\'' +
+                ", tableId='" + getTableId() + '\'' +
+                ", tableName='" + getTableName() + '\'' +
+                ", disableFlag='" + getDisableFlag() + '\'' +
+                ", status='" + getStatus() + '\'' +
                 ", tagIds=" + Arrays.toString(tagIds) +
-                ", queryHBaseTagIdStr='" + queryHBaseTagIdStr + '\'' +
+                ", queryHBaseTagIdStr='" + getQueryHBaseTagIdStr() + '\'' +
                 ", queryHBaseTagIds=" + Arrays.toString(queryHBaseTagIds) +
                 ", sysHbaseTagList=" + sysHbaseTagList +
                 ", metaTable='" + metaTable + '\'' +
@@ -519,12 +560,17 @@ public class TableDescDto {
                 ", remark='" + remark + '\'' +
                 ", propertyList=" + propertyList +
                 ", families=" + families +
+                ", splitWay='" + splitWay + '\'' +
                 ", startKey='" + startKey + '\'' +
                 ", endKey='" + endKey + '\'' +
                 ", preSplitRegions=" + preSplitRegions +
                 ", preSplitKeys='" + preSplitKeys + '\'' +
+                ", splitGo='" + splitGo + '\'' +
+                ", numRegions=" + numRegions +
+                ", createBy='" + createBy + '\'' +
+                ", createTimestamp=" + createTimestamp +
                 ", lastUpdateBy='" + lastUpdateBy + '\'' +
-                ", lastUpdateTimestamp='" + lastUpdateTimestamp + '\'' +
+                ", lastUpdateTimestamp=" + lastUpdateTimestamp +
                 '}';
     }
 }

@@ -3,8 +3,10 @@ package com.leo.hbase.manager.web.controller.system;
 import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
+import com.github.CCweixiao.util.SplitGoEnum;
+import com.github.CCweixiao.util.StrUtil;
 import com.leo.hbase.manager.common.annotation.Log;
-import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
+import com.leo.hbase.manager.common.constant.HBaseManagerConstants;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.core.text.Convert;
@@ -13,7 +15,6 @@ import com.leo.hbase.manager.common.utils.ArrUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
-import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.dto.NamespaceDescDto;
 import com.leo.hbase.manager.system.dto.TableDescDto;
@@ -101,8 +102,9 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
-        //TODO 表筛选
+
         final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
+
         final List<TableDescDto> tableDescDtoList = tableDescList.stream().map(tableDesc -> {
             final TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
             final Integer[] tagIds = tableDescDto.getTagIds();
@@ -115,7 +117,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
             return true;
         }).filter(tableDescDto -> {
             if (StringUtils.isNotBlank(queryHBaseTableForm.getTableName())) {
-                return tableDescDto.getTableName().contains(queryHBaseTableForm.getTableName());
+                return tableDescDto.getTableName().toLowerCase().contains(queryHBaseTableForm.getTableName().toLowerCase());
             }
             return true;
         }).filter(tableDescDto -> {
@@ -136,11 +138,12 @@ public class SysHbaseTableController extends SysHbaseBaseController {
                 if (tableDescDto.getTagIds() != null && tableDescDto.getTagIds().length > 0) {
                     final int[] same = ArrUtils.intersection2(queryTagIds, tableDescDto.getTagIds());
                     return same.length > 0;
+                } else {
+                    return false;
                 }
             }
             return true;
-        })
-                .sorted(Comparator.comparing(TableDescDto::getLastUpdateTimestamp)).collect(Collectors.toList());
+        }).sorted(Comparator.comparing(TableDescDto::getLastUpdateTimestamp).reversed()).collect(Collectors.toList());
 
         return getDataTable(tableDescDtoList);
     }
@@ -152,7 +155,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @Log(title = "HBase", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SysHbaseTable sysHbaseTable) {
+    public AjaxResult export(QueryHBaseTableForm queryHBaseTableForm) {
         return error("暂时不支持列表导出");
        /* List<SysHbaseTable> list = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
         ExcelUtil<SysHbaseTable> util = new ExcelUtil<>(SysHbaseTable.class);
@@ -182,18 +185,56 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     public AjaxResult addSave(@Validated TableDescDto tableDescDto) {
         String clusterCode = clusterCodeOfCurrentSession();
         final String tableName = tableDescDto.getTableName();
+        final String fullTableName = HMHBaseConstant.getFullTableName(tableName);
 
-        if (multiHBaseAdminService.tableIsExists(clusterCode, tableName)) {
-            return error("HBase表[" + tableDescDto.getNamespaceId() + ":" + tableName + "]已经存在！");
+        if (multiHBaseAdminService.tableIsExists(clusterCode, fullTableName)) {
+            return error("HBase表[" + fullTableName + "]已经存在！");
         }
+
+        tableDescDto.setCreateBy(ShiroUtils.getLoginName());
+        tableDescDto.setCreateTimestamp(System.currentTimeMillis());
+        tableDescDto.setLastUpdateBy(ShiroUtils.getLoginName());
+        tableDescDto.setLastUpdateTimestamp(System.currentTimeMillis());
 
         TableDesc tableDesc = tableDescDto.convertTo();
-        boolean createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc);
+        boolean createTableRes = false;
+        if (StrUtil.isBlank(tableDescDto.getSplitWay())) {
+            createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc);
+        } else if (HBaseManagerConstants.SPLIT_1.equals(tableDescDto.getSplitWay())) {
+            if (StrUtil.isBlank(tableDescDto.getStartKey())) {
+                return error("预分区开始的key不能为空");
+            }
+            if (StrUtil.isBlank(tableDescDto.getEndKey())) {
+                return error("预分区结束的key不能为空");
+            }
+            if (tableDescDto.getPreSplitRegions() < 1) {
+                return error("预分区数不能为0");
+            }
+            createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc, tableDescDto.getStartKey(),
+                    tableDescDto.getEndKey(), tableDescDto.getPreSplitRegions(), false);
+
+        } else if (HBaseManagerConstants.SPLIT_2.equals(tableDescDto.getSplitWay())) {
+            String[] splitKeys = Convert.toStrArray(tableDescDto.getPreSplitKeys());
+            if (splitKeys.length < 1) {
+                return error("预分区的key不能为空");
+            }
+            createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc, splitKeys, false);
+        } else if (HBaseManagerConstants.SPLIT_3.equals(tableDescDto.getSplitWay())) {
+            final SplitGoEnum splitGoEnum = SplitGoEnum.getSplitGoEnum(tableDescDto.getSplitGo());
+            if (splitGoEnum == null) {
+                return error("预分区Key的分隔策略不能为空");
+            }
+            if (tableDescDto.getNumRegions() < 1) {
+                return error("预分区数不能为0");
+            }
+
+            createTableRes = multiHBaseAdminService.createTable(clusterCode, tableDesc, splitGoEnum, tableDescDto.getNumRegions(), false);
+        }
 
         if (!createTableRes) {
-            return error("系统异常，HBase表[" + tableDescDto.getNamespaceId() + ":" + tableName + "]创建失败！");
+            return error("系统异常，HBase表[" + fullTableName + "]创建失败！");
         }
-        return success("HBase表[" + tableName + "]创建成功！");
+        return success("HBase表[" + fullTableName + "]创建成功！");
     }
 
     /**
@@ -225,6 +266,12 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         String clusterCode = clusterCodeOfCurrentSession();
         String tableName = StrEnDeUtils.decrypt(tableDescDto.getTableId());
         tableDescDto.setTableName(tableName);
+
+        tableDescDto.setCreateBy(ShiroUtils.getLoginName());
+        tableDescDto.setCreateTimestamp(System.currentTimeMillis());
+        tableDescDto.setLastUpdateBy(ShiroUtils.getLoginName());
+        tableDescDto.setLastUpdateTimestamp(System.currentTimeMillis());
+
         TableDesc tableDesc = tableDescDto.convertTo();
         if (tableDesc.isDisabled()) {
             multiHBaseAdminService.disableTable(clusterCode, tableName);

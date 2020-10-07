@@ -1,266 +1,328 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<th:block th:include="include :: header('新增HBase表')" />
-    <th:block th:include="include :: datetimepicker-css" />
-    <th:block th:include="include :: select2-css" />
+    <th:block th:include="include :: header('新增HBase表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: select2-css"/>
 </head>
 <body class="gray-bg">
-    <div class="main-content">
-        <form id="form-table-add" class="form-horizontal">
-            <h4 class="form-header h4">HBase表信息</h4>
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">命名空间：</label>
-                        <div class="col-sm-8">
-                            <select name="namespaceId" class="form-control">
-                                <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}" th:text="${namespace.namespaceName}"></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            	<div class="col-sm-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">表名称：</label>
-                        <div class="col-sm-8">
-                            <input name="tableName" placeholder="请输入HBase表名称" class="form-control" type="text">
-                        </div>
+<div class="main-content">
+    <form id="form-table-add" class="form-horizontal">
+        <h4 class="form-header h4">HBase表信息</h4>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">命名空间：</label>
+                    <div class="col-sm-8">
+                        <select name="namespaceId" class="form-control">
+                            <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
+                                    th:text="${namespace.namespaceName}"></option>
+                        </select>
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">表标签：</label>
-                        <div class="col-sm-8">
-                            <select id="hbaseTag" class="form-control select2-multiple" multiple>
-                                <option th:each="tag:${tags}" th:value="${tag.tagId}" th:text="${tag.tagName}"></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="form-group">
-                       <!-- <label class="col-sm-4 control-label is-required">日期字段：</label>
-                        <div class="col-sm-8">
-                            <div class="input-group date">
-		                        <input name="birthday" class="form-control" placeholder="yyyy-MM-dd" type="text">
-		                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-		                    </div>
-                        </div>-->
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">表名称：</label>
+                    <div class="col-sm-8">
+                        <input name="tableName" placeholder="请输入HBase表名称" class="form-control" type="text">
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">状态：</label>
-                        <div class="col-sm-8">
-                            <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_table_status')}">
-                                <input type="radio" th:id="${dict.dictCode}" name="status" th:value="${dict.dictValue}"
-                                       th:checked="${dict.default}">
-                                <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">是否禁用：</label>
-                        <div class="col-sm-8">
-                            <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_table_disable')}">
-                                <input type="radio" th:id="${dict.dictCode}" name="disableFlag" th:value="${dict.dictValue}"
-                                       th:checked="${dict.default}">
-                                <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="col-xs-2 control-label">备注：</label>
-                        <div class="col-xs-10">
-                            <textarea name="remark" maxlength="500" class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <h4 class="form-header h4">列簇信息</h4>
-            <div class="row">
-                <div class="col-sm-12">
-                    <button type="button" class="btn btn-white btn-sm" onclick="addColumn()"><i class="fa fa-plus"> 增加</i></button>
-                    <button type="button" class="btn btn-white btn-sm" onclick="sub.delColumn()"><i class="fa fa-minus"> 删除</i></button>
-                    <div class="col-sm-12 select-table table-striped">
-					    <table id="bootstrap-table"></table>
-					</div>
-                </div>
-            </div>
-
-            <h4 class="form-header h4">HBase表预分区</h4>
-            <h5 class="form-header h5">预分区一</h5>
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">start key：</label>
-                        <div class="col-sm-8">
-                            <input name="startKey" placeholder="start key" class="form-control" type="text" maxlength="30">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">end key：</label>
-                        <div class="col-sm-8">
-                            <input name="endKey" placeholder="end key" class="form-control" type="text" maxlength="30">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">预分区数：</label>
-                        <div class="col-sm-8">
-                            <input name="preSplitRegions" placeholder="预分区数" class="form-control" type="text" maxlength="30">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <h5 class="form-header h5">预分区二</h5>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="col-xs-2 control-label">输入预分区Keys：</label>
-                        <div class="col-xs-10">
-                            <textarea name="preSplitKeys" maxlength="500"
-                                      placeholder="输入预分区的split-keys,多个key用,分隔；例如:A,D,F,G,I"
-                                      class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-      
-    <!--<div class="row">
-        <div class="col-sm-offset-5 col-sm-10">
-            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
-            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
         </div>
-    </div>-->
 
-    <th:block th:include="include :: footer" />
-    <th:block th:include="include :: select2-js" />
-    <th:block th:include="include :: datetimepicker-js" />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">表标签：</label>
+                    <div class="col-sm-8">
+                        <select id="hbaseTag" class="form-control select2-multiple" multiple>
+                            <option th:each="tag:${tags}" th:value="${tag.tagId}" th:text="${tag.tagName}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <input id="splitWay" name="splitWay" class="form-control" type="hidden">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <script th:src="@{/js/jquery.tmpl.js}"></script>
-	<script th:inline="javascript">
-	    $(function() {
-		    var options = {
-                pagination: false,
-		        showSearch: false,
-                showRefresh: false,
-                showToggle: false,
-                showColumns: false,
-                sidePagination: "client",
-		        columns: [{
-		            checkbox: true
-		        },
-		        {
-		            field: 'name',
-		            align: 'center',
-		            title: '列簇名称',
-		            formatter: function(value, row, index) {
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='输入列簇名称' name='families[%s].familyName' value='%s'>", index, value);
-		        		return html;
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">状态：</label>
+                    <div class="col-sm-8">
+                        <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_table_status')}">
+                            <input type="radio" th:id="${dict.dictCode}" name="status" th:value="${dict.dictValue}"
+                                   th:checked="${dict.default}">
+                            <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">是否禁用：</label>
+                    <div class="col-sm-8">
+                        <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_table_disable')}">
+                            <input type="radio" th:id="${dict.dictCode}" name="disableFlag" th:value="${dict.dictValue}"
+                                   th:checked="${dict.default}">
+                            <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4">指定列簇</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="button" class="btn btn-white btn-sm" onclick="addColumn()"><i class="fa fa-plus"> 增加</i>
+                </button>
+                <button type="button" class="btn btn-white btn-sm" onclick="sub.delColumn()"><i class="fa fa-minus">
+                    删除</i></button>
+                <div class="col-sm-12 select-table table-striped">
+                    <table id="bootstrap-table"></table>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4">为表预分区</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#no-split" onclick="selectSplitWay(0)"
+                                              aria-expanded="true"> 无需预分区</a>
+                        </li>
+                        <li class=""><a data-toggle="tab" href="#split-1" onclick="selectSplitWay(1)"
+                                        aria-expanded="true"> 预分区1</a>
+                        </li>
+                        <li class=""><a data-toggle="tab" href="#split-2" onclick="selectSplitWay(2)"
+                                        aria-expanded="false">预分区2</a>
+                        </li>
+                        <li class=""><a data-toggle="tab" href="#split-3" onclick="selectSplitWay(3)"
+                                        aria-expanded="false">预分区3</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="no-split" class="tab-pane active">
+                            <div class="panel-body">
+                                <div class="col-sm-12">
+                                    <strong>HBase表预分区的好处</strong>
+                                    <p>增加数据读写效率；负载均衡，防止数据倾斜，当一个table刚被创建的时候，HBase默认的分配一个region给table。
+                                        这个时候，所有的读写请求都会访问到同一个regionServer的同一个region中，这个时候就达不到负载均衡的效果了，集群中的其他regionServer就可能会处于比较空闲的状态.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="split-1" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 control-label">start key:</label>
+                                        <div class="col-sm-7">
+                                            <input name="startKey" placeholder="start key" class="form-control"
+                                                   type="text" maxlength="30">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 control-label">end key:</label>
+                                        <div class="col-sm-7">
+                                            <input name="endKey" placeholder="end key" class="form-control" type="text"
+                                                   maxlength="30">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 control-label">预分区数:</label>
+                                        <div class="col-sm-7">
+                                            <input name="preSplitRegions" placeholder="预分区数" class="form-control"
+                                                   type="text" maxlength="30">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="split-2" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label class="col-xs-2 control-label">输入预分区Keys：</label>
+                                        <div class="col-xs-10">
+                                            <textarea name="preSplitKeys" maxlength="500"
+                                                      placeholder="输入预分区的split-keys,多个key用,分隔；例如:A,D,F,G,I"
+                                                      class="form-control" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="split-3" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 control-label">选择分区方式:</label>
+                                        <div class="col-sm-7">
+                                            <select class='form-control' name='splitGo'>
+                                                <option value="HexStringSplit">HexStringSplit</option>
+                                                <option value="DecimalStringSplit">DecimalStringSplit</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-sm-5 control-label">预分区数:</label>
+                                        <div class="col-sm-7">
+                                            <input name="numRegions" placeholder="预分区数" class="form-control" type="text" maxlength="30">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4">输入备注</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <textarea name="remark" maxlength="500" class="form-control" placeholder="在这里写下你的特殊需求......" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+
+<script th:src="@{/js/jquery.tmpl.js}"></script>
+<script th:inline="javascript">
+    $(function () {
+        var options = {
+            pagination: false,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            sidePagination: "client",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'name',
+                    align: 'center',
+                    title: '列簇名称',
+                    formatter: function (value, row, index) {
+                        return $.common.sprintf("<input class='form-control' type='text' placeholder='输入列簇名称' name='families[%s].familyName' value='%s'>", index, value);
                     }
-		        },
-		        {
-		            field: 'maxVersions',
-		            align: 'center',
-		            title: '最大版本数',
-		            formatter: function(value, row, index) {
-		                if(value==""){
-		                    value = 1;
+                },
+                {
+                    field: 'maxVersions',
+                    align: 'center',
+                    title: '最大版本数',
+                    formatter: function (value, row, index) {
+                        if ("" === value) {
+                            value = 1;
                         }
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='最大版本数默认1' name='families[%s].maxVersions' value='%s'>", index, value);
-		        		return html;
+                        return $.common.sprintf("<input class='form-control' type='text' placeholder='最大版本数默认1' name='families[%s].maxVersions' value='%s'>", index, value);
                     }
-		        },
-		        {
-		            field: 'timeToLive',
-		            align: 'center',
-		            title: 'TTL',
-		            formatter: function(value, row, index) {
-		                if(value==+""){
-		                    value = "2147483647";
+                },
+                {
+                    field: 'timeToLive',
+                    align: 'center',
+                    title: 'TTL',
+                    formatter: function (value, row, index) {
+                        if ("" === value) {
+                            value = "2147483647";
                         }
-		            	var html = $.common.sprintf("<input class='form-control' type='text' placeholder='设置TTL默认FOREVER' name='families[%s].ttl' value='%s'>", index, value);
-		        		return html;
+                        return $.common.sprintf("<input class='form-control' type='text' placeholder='设置TTL默认FOREVER' name='families[%s].ttl' value='%s'>", index, value);
                     }
-		        },
-		        {
-		            field: 'compressionType',
-		            align: 'center',
-		            title: '压缩类型',
-		            formatter: function(value, row, index) {
-		        		var data = [{ index: index, compressionType: value }];
-		                return $("#compressionTypeTpl").tmpl(data).html();
+                },
+                {
+                    field: 'compressionType',
+                    align: 'center',
+                    title: '压缩类型',
+                    formatter: function (value, row, index) {
+                        var data = [{index: index, compressionType: value}];
+                        return $("#compressionTypeTpl").tmpl(data).html();
                     }
-		        }]
-		    };
-		    $.table.init(options);
-		});
-	    
-	    /* 主子表-提交 */
-        var prefix = ctx + "system/table"
-        $("#form-table-add").validate({
-            focusCleanup: true
-        });
+                }]
+        };
+        $.table.init(options);
+    });
 
-        function submitHandler() {
-            if ($.validate.form()) {
-                var data = $("#form-table-add").serializeArray();
-                var tagIds = $.form.selectSelects("hbaseTag");
-                data.push({"name": "tagIds", "value": tagIds});
+    /* 选择预分区方式 */
 
-                $.operate.save(prefix + "/add", data);
+    function selectSplitWay(wayId) {
+        if (wayId === 0) {
+            $('#splitWay').val("")
+        } else if (wayId === 1) {
+            $('#splitWay').val("split-1")
+        } else if (wayId === 2) {
+            $('#splitWay').val("split-2")
+        } else if (wayId === 3) {
+            $('#splitWay').val("split-3")
+        }
+    }
+
+    /* 主子表-提交 */
+    var prefix = ctx + "system/table"
+    $("#form-table-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var data = $("#form-table-add").serializeArray();
+            var tagIds = $.form.selectSelects("hbaseTag");
+            data.push({"name": "tagIds", "value": tagIds});
+            $.operate.save(prefix + "/add", data);
+        }
+    }
+
+    $("input[name='birthday']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    function addColumn() {
+        var count = $("#" + table.options.id).bootstrapTable('getData').length;
+        sub.editColumn();
+
+        $("#" + table.options.id).bootstrapTable('insertRow', {
+            index: count,
+            row: {
+                index: $.table.serialNumber(count),
+                name: "",
+                maxVersions: "",
+                timeToLive: "",
+                compressionType: "",
             }
-        }
-	    
-        $("input[name='birthday']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
         });
-        
-        function addColumn() {
-        	var count = $("#" + table.options.id).bootstrapTable('getData').length;
-        	sub.editColumn();
-        	
-        	$("#" + table.options.id).bootstrapTable('insertRow', {
-        		index: count,
-                row: {
-                	index: $.table.serialNumber(count),
-                	name: "",
-                    maxVersions: "",
-                    timeToLive: "",
-                    compressionType: "",
-                }
-        	});
-        }
+    }
 
-        $(function() {
-            $('#hbaseTag').select2({
-                placeholder: "请选择表标签",
-                allowClear: true
-            });
-        })
-    </script>
+    $(function () {
+        $('#hbaseTag').select2({
+            placeholder: "请选择表标签",
+            allowClear: true
+        });
+    })
+</script>
 </body>
 </html>
 
@@ -275,4 +337,8 @@
     <option value="LZ4" {{if compressionType==="LZ4"}}selected{{/if}}>LZ4</option>
 </select>
 </div>
+
+
+
+
 </script>

@@ -118,23 +118,28 @@
                 },
                 {
                     field: 'onlineRegions',
-                    title: 'online_regions'
+                    title: 'online_regions',
+                    visible: false
                 },
                 {
                     field: 'offlineRegions',
-                    title: 'offline_regions'
+                    title: 'offline_regions',
+                    visible: false
                 },
                 {
                     field: 'failedRegions',
-                    title: 'failed_regions'
+                    title: 'failed_regions',
+                    visible: false
                 },
                 {
                     field: 'splitRegions',
-                    title: 'split_regions'
+                    title: 'split_regions',
+                    visible: false
                 },
                 {
                     field: 'otherRegions',
-                    title: 'other_regions'
+                    title: 'other_regions',
+                    visible: false
                 },
                 {
                     field: 'sysHbaseTagVoList',
@@ -171,7 +176,34 @@
                             return value;
                         }
                     }
+
                 },
+                {
+                    field: 'createBy',
+                    title: '创建者',
+                    formatter: function (value, row, index) {
+                        return value;
+                    }
+                }, {
+                    field: 'createTimestamp',
+                    title: '创建时间',
+                    formatter: function (value, row, index) {
+                        return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
+                    }
+                }, {
+                    field: 'lastUpdateBy',
+                    title: '最近更新者',
+                    formatter: function (value, row, index) {
+                        return value;
+                    }
+                }, {
+                    field: 'lastUpdateTimestamp',
+                    title: '最新更新时间',
+                    formatter: function (value, row, index) {
+                        return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
+                    }
+                },
+
                 {
                     title: '操作',
                     align: 'center',
@@ -225,7 +257,7 @@
     /* 表禁用状态管理-停用 */
     function disableTable(tableId) {
         $.modal.confirm("确认要禁用表吗？", function () {
-            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 2},function (res) {
+            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": 2}, function (res) {
                 $.modal.msg("该表已成功禁用")
             });
         })

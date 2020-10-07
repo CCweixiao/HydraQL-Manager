@@ -1,9 +1,15 @@
 package com.leo.hbase.manager.web.controller.query;
 
+import java.io.Serializable;
+
 /**
+ * 表信息列表查询的条件表单数据模型
+ *
  * @author leojie 2020/9/26 7:47 下午
  */
-public class QueryHBaseTableForm {
+public class QueryHBaseTableForm implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
      * 表ID
      */
@@ -23,7 +29,6 @@ public class QueryHBaseTableForm {
      * 表的禁用状态
      */
     private String disableFlag;
-
 
     /**
      * 状态（0线上表 1测试表 2启用表）
@@ -81,5 +86,17 @@ public class QueryHBaseTableForm {
 
     public void setQueryHBaseTagIdStr(String queryHBaseTagIdStr) {
         this.queryHBaseTagIdStr = queryHBaseTagIdStr;
+    }
+
+    @Override
+    public String toString() {
+        return "QueryHBaseTableForm{" +
+                "tableId='" + tableId + '\'' +
+                ", namespaceName='" + namespaceName + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", disableFlag='" + disableFlag + '\'' +
+                ", status='" + status + '\'' +
+                ", queryHBaseTagIdStr='" + queryHBaseTagIdStr + '\'' +
+                '}';
     }
 }

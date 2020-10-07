@@ -6,9 +6,7 @@ import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.system.domain.SysHbaseTableTag;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
-import com.leo.hbase.manager.system.service.ISysHbaseTableTagService;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +29,6 @@ public class SysHbaseTagController extends BaseController {
 
     @Autowired
     private ISysHbaseTagService sysHbaseTagService;
-
-    @Autowired
-    private ISysHbaseTableTagService sysHbaseTableTagService;
 
     @RequiresPermissions("system:tag:view")
     @GetMapping()
@@ -136,13 +131,6 @@ public class SysHbaseTagController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(Long ids) {
-        //删除标签前先判断，标签下没有表
-        SysHbaseTableTag sysHbaseTableTag = new SysHbaseTableTag();
-        sysHbaseTableTag.setTagId(ids);
-        List<SysHbaseTableTag> hbaseTableTags = sysHbaseTableTagService.selectSysHbaseTableTagList(sysHbaseTableTag);
-        if (hbaseTableTags != null && !hbaseTableTags.isEmpty()) {
-            return error("待删除标签下绑定有表，不能被删除");
-        }
         return toAjax(sysHbaseTagService.deleteSysHbaseTagById(ids));
     }
 }

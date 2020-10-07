@@ -66,6 +66,12 @@
         <dependency>
             <groupId>com.leo</groupId>
             <artifactId>hbase-manager-framework</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jaxb-impl</artifactId>
+                    <groupId>com.sun.xml.bind</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- 定时任务-->
