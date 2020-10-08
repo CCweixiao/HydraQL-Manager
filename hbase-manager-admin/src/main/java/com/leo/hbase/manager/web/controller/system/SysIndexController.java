@@ -54,19 +54,21 @@ public class SysIndexController extends BaseController {
         mmap.put("demoEnabled", Global.isDemoEnabled());
         String sessionId = ShiroUtils.getSessionId();
         SysUserOnline online = userOnlineService.selectOnlineById(sessionId);
+        String defaultClusterCode = HBaseConfigUtils.getAllClusterAlias().get(0);
+
         String currentHBaseClusterCode;
         if (online == null) {
-            currentHBaseClusterCode = "未选择集群";
+            currentHBaseClusterCode = defaultClusterCode;
         } else {
             OnlineSession onlineSession = (OnlineSession) onlineSessionDAO.readSession(sessionId);
             if (onlineSession == null) {
-                currentHBaseClusterCode = "未选择集群";
+                currentHBaseClusterCode = defaultClusterCode;
             } else {
                 currentHBaseClusterCode = onlineSession.getCluster();
             }
         }
         if (StrUtil.isBlank(currentHBaseClusterCode)) {
-            currentHBaseClusterCode = "未选择集群";
+            currentHBaseClusterCode = defaultClusterCode;
         }
         mmap.put("currentHBaseClusterCode", currentHBaseClusterCode);
         return "index";

@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.alibaba.fastjson.JSON;
+import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.TableDesc;
@@ -47,32 +48,7 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     @RequiresPermissions("system:data:view")
     @GetMapping()
     public String data(ModelMap mmap) {
-        String clusterCode = clusterCodeOfCurrentSession();
-
-        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCode);
-        List<CxSelect> cxTableInfoList = new ArrayList<>(allTableNames.size());
-
-        for (String tableName : allTableNames) {
-            if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
-                continue;
-            }
-            TableDesc tableDesc = multiHBaseAdminService.getTableDesc(clusterCode, tableName);
-
-            CxSelect cxSelectTable = new CxSelect();
-            cxSelectTable.setN(tableName);
-            cxSelectTable.setV(tableName);
-
-            List<String> families = tableDesc.getFamilyDescList().stream().map(FamilyDesc::getFamilyName).collect(Collectors.toList());
-            List<CxSelect> tempFamilyList = new ArrayList<>();
-            for (String family : families) {
-                CxSelect cxSelectFamily = new CxSelect();
-                cxSelectFamily.setN(family);
-                cxSelectFamily.setV(family);
-                tempFamilyList.add(cxSelectFamily);
-            }
-            cxSelectTable.setS(tempFamilyList);
-            cxTableInfoList.add(cxSelectTable);
-        }
+        List<CxSelect> cxTableInfoList = getTableFamilyRelations();
         mmap.put("tableFamilyData", JSON.toJSON(cxTableInfoList));
 
         return prefix + "/data";
@@ -127,17 +103,20 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SysHbaseTableData sysHbaseTableData) {
-        //TODO 导出数据
-        List<SysHbaseTableData> list = new ArrayList<>();
+        return error("暂不支持数据导出");
+        /*List<SysHbaseTableData> list = new ArrayList<>();
         ExcelUtil<SysHbaseTableData> util = new ExcelUtil<>(SysHbaseTableData.class);
-        return util.exportExcel(list, "data");
+        return util.exportExcel(list, "data");*/
     }
 
     /**
      * 新增HBase
      */
     @GetMapping("/add")
-    public String add() {
+    public String add(ModelMap mmap) {
+        List<CxSelect> cxTableInfoList = getTableFamilyRelations();
+        mmap.put("tableFamilyData", JSON.toJSON(cxTableInfoList));
+
         return prefix + "/add";
     }
 
@@ -154,7 +133,8 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
             throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
         }
-        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
+        String familyName = sysHbaseTableData.getFamilyName() + HMHBaseConstant.TABLE_NAME_SPLIT_CHAR + sysHbaseTableData.getFieldName();
+        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), familyName, sysHbaseTableData.getValue());
         return success("数据新增成功！");
     }
 
@@ -203,6 +183,25 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         return success("数据删除成功！");
     }
 
+
+    /**
+     * 删除HBase数据
+     */
+    @RequiresPermissions("system:data:remove")
+    @Log(title = "HBase数据", businessType = BusinessType.DELETE)
+    @PostMapping("/truncatePreserveTable")
+    @ResponseBody
+    public AjaxResult truncatePreserveTable(String tableName) {
+        if (StrUtil.isBlank(tableName)) {
+            return error("请指定待清空数据的表名");
+        }
+        if (!multiHBaseAdminService.isTableDisabled(clusterCodeOfCurrentSession(), tableName)) {
+            return error("非禁用表不能直接被清空数据");
+        }
+        multiHBaseAdminService.truncatePreserve(clusterCodeOfCurrentSession(), tableName);
+        return success("表中数据清除成功");
+    }
+
     private SysHbaseTableData mapToHBaseTableData(String tableName, Map<String, Object> dataMap) {
         SysHbaseTableData hbaseTableData = new SysHbaseTableData();
         hbaseTableData.setTableName(tableName);
@@ -211,5 +210,35 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         hbaseTableData.setTimestamp(dataMap.get("timestamp").toString());
         hbaseTableData.setValue(dataMap.get("value").toString());
         return hbaseTableData;
+    }
+
+    private List<CxSelect> getTableFamilyRelations() {
+        String clusterCode = clusterCodeOfCurrentSession();
+
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCode);
+        List<CxSelect> cxTableInfoList = new ArrayList<>(allTableNames.size());
+
+        for (String tableName : allTableNames) {
+            if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
+                continue;
+            }
+            TableDesc tableDesc = multiHBaseAdminService.getTableDesc(clusterCode, tableName);
+
+            CxSelect cxSelectTable = new CxSelect();
+            cxSelectTable.setN(tableName);
+            cxSelectTable.setV(tableName);
+
+            List<String> families = tableDesc.getFamilyDescList().stream().map(FamilyDesc::getFamilyName).collect(Collectors.toList());
+            List<CxSelect> tempFamilyList = new ArrayList<>();
+            for (String family : families) {
+                CxSelect cxSelectFamily = new CxSelect();
+                cxSelectFamily.setN(family);
+                cxSelectFamily.setV(family);
+                tempFamilyList.add(cxSelectFamily);
+            }
+            cxSelectTable.setS(tempFamilyList);
+            cxTableInfoList.add(cxSelectTable);
+        }
+        return cxTableInfoList;
     }
 }

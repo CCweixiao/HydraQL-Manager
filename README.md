@@ -1,8 +1,8 @@
 ## 平台简介
 
-一直想做一款HBase表管理系统，不仅是为了从命令行下创建HBase表的琐碎工作之中解放出来。同时，也是为了更好地管理与维护HBase的表信息。 出于这些目的，看了很多优秀的开源项目，但是一直没有发现合适自己的。于是利用空闲时间，基于若依后台管理框架，开始写一套HBase的表管理系统。 如此便有了HBaseManager。
+一直想做一款HBase表管理系统，不仅是为了把自己从命令行下管理HBase表的琐碎工作之中解放出来。同时，也是为了更好地管理与维护HBase的表信息。 出于这些目的，看了很多优秀的开源项目，但是一直没有发现合适自己的。于是利用空闲时间，基于若依后台管理框架，开始写一套HBase的表管理系统。 如此便有了HBaseManager。
 
-目前，系统的功能还很初级，只有基本的namespace管理、HBase表的增删改查，以及HBase表的标签管理、基本的数据查询等功能。 当然，您也可以对他进行深度定制，以做出更强的系统。所有前端和后台的代码都是基于若依框架进行封装，十分的精简易上手，出错概率低。 同时支持移动客户端访问（若依框架的特性）。之后系统会陆续更新越来越多实用的功能。
+系统目前的功能已经比较丰富，包含多集群管理、namespace管理、HBase表的增删改查，以及HBase表的标签管理和基本的数据查询、增加和删除等功能。 当然，您也可以对他进行深度定制，以做出更强的系统。所有前端和后台的代码都是基于若依框架进行封装，十分的精简易上手，出错概率低。 同时支持移动客户端访问（若依框架的特性）。之后系统会陆续更新越来越多实用的功能。
 
 * 感谢 [ruoyi](https://ruoyi.vip/) 后台管理系统。
 
@@ -16,7 +16,7 @@
 2. HBase表管理：表创建（包括预分区建表等）、表信息登记维护、表删除、列簇管理等
 3. 标签管理：HBase表的一些标签管理等
 4. 数据管理：HBase表数据的查询（更新删除等操作）。
-5. 多集群管理：后续将支持多集群管理。
+5. 多集群管理：多集群管理。
 6. 监控功能：后续可能会考虑增加丰富的监控功能，以期待代替HBase本身的监控界面
 7. 更多功能：......
 
@@ -40,12 +40,8 @@
 16. 在线构建器：拖动表单元素生成相应的HTML代码。
 17. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
 
-## 在线体验
 
-[http://www.jielongping.com:9527/index](http://www.jielongping.com:9527/index)
-
-
-## 演示图
+## 系统功能截图
 
 ### 1. namespace管理
 
@@ -83,6 +79,21 @@
 **查询表数据**
 
 ![data-manager](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-09-08-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_39eb0382-0ce9-439e-91da-d84fa15857b1.png)
+
+### 4. 多集群管理
+
+hbase-manager 2.0.3 开始，新增了多集群管理，我们需要在配置集群中配置多个集群的连接信息，并在管理界面上手动进行集群切换。
+
+**配置多集群**
+
+![two-cluster-config](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-10-08-072141.jpg)
+
+
+**切换集群**
+
+![choose-cluster](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-10-08-073129.jpg)
+
+
 
 ## 快速体验
 
@@ -149,7 +160,7 @@ hbase-manager的目录结构：
 
 ![edit-datasource](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-101850.jpg)
 
-保证MySql可以连接，最好用MySql5.7，新建数据库hbase-manager，配置好你数据库的用户名密码，然后运行sql文件。sql文件在conf/sql文件夹下，分为hbase-manager.sql和quartz.sql，分别运行两个SQL文件，创建所需的表。
+保证MySql可以连接，最好用MySql5.7，新建数据库hbase-manager，配置好你数据库的用户名密码，然后运行sql文件。sql文件在conf/sql文件夹下，分为hbase-manager.sql（hbase-manager-latest.sql）和quartz.sql，分别运行两个SQL文件，创建所需的表。
 
 系统级别配置：
 
@@ -177,3 +188,31 @@ nohup java -jar  hbase-manager-admin-1.0.0.jar > /dev/null 2>&1 &
 
 ![find-me](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-24-145842.jpg)
 
+
+## 更新日志
+
+### v2.0.3 2020.10.08
+
+1. 增加多集群的切换功能
+2. HBase表信息数据不依赖MySQL存储
+3. 项目结构调整，代码优化，引用hbase-sdk 2.0.3
+4. 优化HBase表创建时的预分区选择功能
+5. HBase表数据新增功能实现
+6. 还有更多 ......
+
+### v2.0.1 2020.09.12
+
+1. 去除namespace定义的MySQL表
+2. 去除family定义的MySQL表
+3. 减少HBase table信息表的字段，初始化表数据更加方便
+4. HBase namespace管理
+5. HBase 表信息管理
+6. HBase 表标签管理
+7. HBase 表数据查询
+
+### v1.0.1 2020.08.31
+
+1. HBase项目开启
+2. HBase namespace管理
+3. HBase 表信息管理
+4. HBase 表标签管理

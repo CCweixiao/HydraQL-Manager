@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('修改HBase')" />
+    <th:block th:include="include :: header('修改HBase表数据')" />
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-data-edit" th:object="${sysHbaseTableData}">
             <input name="rowKey" th:field="*{rowKey}" type="hidden">
+
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">row key：</label>
                 <div class="col-sm-8">

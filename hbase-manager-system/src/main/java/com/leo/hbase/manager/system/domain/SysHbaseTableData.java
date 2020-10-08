@@ -31,6 +31,11 @@ public class SysHbaseTableData extends BaseEntity {
     private String rowKey;
 
     /**
+     * 字段名
+     */
+    private String fieldName;
+
+    /**
      * 列簇名称
      */
     @Excel(name = "列簇名称")
@@ -52,8 +57,8 @@ public class SysHbaseTableData extends BaseEntity {
     @Excel(name = "数据值")
     private String value;
 
-    @NotBlank(message = "HBase表名称不能为空", groups = {First.class})
-    @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Second.class})
+    @NotBlank(message = "HBase表名不能为空", groups = {First.class})
+    @Size(min = 1, max = 200, message = "HBase表名必须在1~200个字符之间", groups = {Second.class})
     public String getTableName() {
         return tableName;
     }
@@ -75,10 +80,20 @@ public class SysHbaseTableData extends BaseEntity {
         this.familyName = familyName;
     }
 
-    @NotBlank(message = "列簇名称不能为空", groups = {Fourth.class})
-    @Size(min = 1, max = 200, message = "列簇名称必须在1~200个字符之间", groups = {Five.class})
+    @NotBlank(message = "列簇名不能为空", groups = {Fourth.class})
+    @Size(min = 1, max = 200, message = "列簇名必须在1~200个字符之间", groups = {Five.class})
     public String getFamilyName() {
         return familyName;
+    }
+
+    @NotBlank(message = "字段名不能为空", groups = {Six.class})
+    @Size(min = 1, max = 200, message = "字段名必须在1~200个字符之间", groups = {Seventh.class})
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
     }
 
     public void setTimestamp(String timestamp) {
@@ -138,6 +153,7 @@ public class SysHbaseTableData extends BaseEntity {
                 .append("limit", getLimit())
                 .append("rowKey", getRowKey())
                 .append("familyName", getFamilyName())
+                .append("fieldName", getFieldName())
                 .append("timestamp", getTimestamp())
                 .append("startTimestamp", getStartTimestamp())
                 .append("endTimestamp", getEndTimestamp())

@@ -12,16 +12,12 @@
                 <div class="select-list" id="query-element">
                     <ul>
                         <li>
-                            筛选表名：<select id="tableName" name="tableName" class="type form-control m-b"
-                                         data-first-title="请选择表名">
-                            <option value="">请选择表名</option>
+                            筛选表名：<select id="tableName" name="tableName" class="type form-control m-b">
                         </select>
                         </li>
 
                         <li>
-                            筛选列簇：<select id="familyName" name="familyName" class="router form-control m-b"
-                                         data-first-title="请选择列簇">
-                            <option value="">请选择列簇</option>
+                            筛选列簇：<select id="familyName" name="familyName" class="router form-control m-b">
                         </select>
                         </li>
                         <li>
@@ -52,19 +48,18 @@
         </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:data:add" disabled>
+            <a class="btn btn-success" onclick="showAddPanel()" shiro:hasPermission="system:data:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
-            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
-               shiro:hasPermission="system:data:edit" disabled>
+            <!--<a class="btn btn-primary single" onclick="$.operate.edit()"
+               shiro:hasPermission="system:data:edit">
                 <i class="fa fa-edit"></i> 修改
-            </a>
-            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
-               shiro:hasPermission="system:data:remove" disabled>
-                <i class="fa fa-remove"></i> 删除
-            </a>
+            </a>-->
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:data:export">
                 <i class="fa fa-download"></i> 导出
+            </a>
+            <a class="btn btn-danger" onclick="clearTableData()" shiro:hasPermission="system:data:remove">
+                <i class="fa fa-remove"></i> 清空表
             </a>
         </div>
         <div class="col-sm-12 select-table table-striped">
@@ -81,6 +76,7 @@
     $('#query-element').cxSelect({
         selects: ['type', 'router'],
         jsonValue: 'v',
+        required: true,
         data: data
     });
 
@@ -120,10 +116,10 @@
                 {
                     field: 'value',
                     title: '数据值',
-                    formatter: function(value, row, index){
-                        if(value.length>20){
-                            return value.substr(0, 20)+"..."
-                        }else{
+                    formatter: function (value, row, index) {
+                        if (value.length > 20) {
+                            return value.substr(0, 20) + "..."
+                        } else {
                             return value;
                         }
                     }
@@ -141,6 +137,26 @@
         };
         $.table.init(options);
     });
+
+    function showAddPanel() {
+        $.operate.add();
+    }
+
+    /**
+     * 清空表
+     */
+    function clearTableData() {
+        var tableName = $('#tableName').val();
+        if (tableName === '') {
+            $.modal.alertError("选择需要清空的表名");
+            return
+        }
+        $.modal.confirm("确定需要清空表" + tableName + "的数据吗？", function () {
+            var url = prefix + "/truncatePreserveTable";
+            var data = {"tableName": tableName};
+            $.operate.submit(url, "post", "json", data);
+        });
+    }
 </script>
 </body>
 </html>

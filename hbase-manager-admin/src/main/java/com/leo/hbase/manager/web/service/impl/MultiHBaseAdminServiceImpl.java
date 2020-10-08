@@ -121,6 +121,12 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
+    public boolean truncatePreserve(String clusterCode, String tableName) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.truncateTable(tableName, true);
+    }
+
+    @Override
     public TableDesc getTableDesc(String clusterCode, String tableName) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.getTableDesc(tableName);

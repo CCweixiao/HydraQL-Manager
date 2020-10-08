@@ -175,6 +175,14 @@ public interface IMultiHBaseAdminService {
     boolean deleteTable(String clusterCode, String tableName);
 
     /**
+     * 清空表
+     *
+     * @param clusterCode 集群code
+     * @param tableName   表名
+     */
+    boolean truncatePreserve(String clusterCode, String tableName);
+
+    /**
      * get table descriptor.
      *
      * @param clusterCode 集群code

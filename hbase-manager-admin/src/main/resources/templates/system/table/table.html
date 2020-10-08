@@ -183,13 +183,15 @@
                     title: '创建者',
                     formatter: function (value, row, index) {
                         return value;
-                    }
+                    },
+                    visible: false
                 }, {
                     field: 'createTimestamp',
                     title: '创建时间',
                     formatter: function (value, row, index) {
                         return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
-                    }
+                    },
+                    visible: false
                 }, {
                     field: 'lastUpdateBy',
                     title: '最近更新者',
