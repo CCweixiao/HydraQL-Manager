@@ -4,6 +4,7 @@ import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.HBaseTemplate;
 import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +40,7 @@ public class HBaseClusterDSHolder {
     private synchronized void initAllHBaseTemplate() {
         List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
-            LOG.info("开始解析HBase集群:{}的配置......", cluster);
-            String quorum = HBaseConfigUtils.getProperty(cluster + ".hbase.quorum", "localhost");
-            String zkClientPort = HBaseConfigUtils.getProperty(cluster + ".hbase.zk.client.port", "2181");
-            String nodeParent = HBaseConfigUtils.getProperty(cluster + ".hbase.node.parent", "/hbase");
-            Properties properties = new Properties();
-            properties.setProperty("hbase.zookeeper.quorum", quorum);
-            properties.setProperty("hbase.zookeeper.property.clientPort", zkClientPort);
-            properties.setProperty("zookeeper.znode.parent", nodeParent);
-            HBaseTemplate hBaseTemplate = new HBaseTemplate(properties);
+            HBaseTemplate hBaseTemplate = new HBaseTemplate(getHBaseProperties(cluster));
             hBaseTemplateMap.put(cluster, hBaseTemplate);
         }
     }
@@ -55,15 +48,7 @@ public class HBaseClusterDSHolder {
     private synchronized void initAllHBaseAdminTemplate() {
         List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
-            LOG.info("开始解析HBase集群:{}的配置......", cluster);
-            String quorum = HBaseConfigUtils.getProperty(cluster + ".hbase.quorum", "localhost");
-            String zkClientPort = HBaseConfigUtils.getProperty(cluster + ".hbase.zk.client.port", "2181");
-            String nodeParent = HBaseConfigUtils.getProperty(cluster + ".hbase.node.parent", "/hbase");
-            Properties properties = new Properties();
-            properties.setProperty("hbase.zookeeper.quorum", quorum);
-            properties.setProperty("hbase.zookeeper.property.clientPort", zkClientPort);
-            properties.setProperty("zookeeper.znode.parent", nodeParent);
-            HBaseAdminTemplate hBaseAdminTemplate = new HBaseAdminTemplate(properties);
+            HBaseAdminTemplate hBaseAdminTemplate = new HBaseAdminTemplate(getHBaseProperties(cluster));
             hBaseAdminTemplateMap.put(cluster, hBaseAdminTemplate);
         }
     }
@@ -92,5 +77,26 @@ public class HBaseClusterDSHolder {
 
     private static class HBaseClusterDSHolderBuilder {
         private static final HBaseClusterDSHolder INSTANCE = new HBaseClusterDSHolder();
+    }
+
+    private Properties getHBaseProperties(String clusterCode) {
+        LOG.info("开始解析HBase集群:{}的配置......", clusterCode);
+        String quorum = HBaseConfigUtils.getProperty(clusterCode + ".hbase.quorum", "localhost");
+        String zkClientPort = HBaseConfigUtils.getProperty(clusterCode + ".hbase.zk.client.port", "2181");
+        String nodeParent = HBaseConfigUtils.getProperty(clusterCode + ".hbase.node.parent", "/hbase");
+        String otherProperties = HBaseConfigUtils.getProperty(clusterCode + ".hbase.client.properties", "");
+
+        Properties properties = new Properties();
+        properties.setProperty("hbase.zookeeper.quorum", quorum);
+        properties.setProperty("hbase.zookeeper.property.clientPort", zkClientPort);
+        properties.setProperty("zookeeper.znode.parent", nodeParent);
+
+        if (StringUtils.isNotBlank(otherProperties)) {
+            final Map<String, String> propertyMaps = StringUtils.parsePropertyToMapFromStr(otherProperties);
+            if (!propertyMaps.isEmpty()) {
+                propertyMaps.forEach(properties::setProperty);
+            }
+        }
+        return properties;
     }
 }

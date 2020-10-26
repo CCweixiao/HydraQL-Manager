@@ -1,17 +1,25 @@
 package com.leo.hbase.manager.web.service.impl;
 
 import com.github.CCweixiao.HBaseAdminTemplate;
+import com.github.CCweixiao.constant.HMHBaseConstant;
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
+import com.github.CCweixiao.util.StrUtil;
+import com.leo.hbase.manager.common.constant.HBaseManagerConstants;
 import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
+import com.leo.hbase.manager.common.exception.BusinessException;
+import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author leojie 2020/9/24 9:47 下午
@@ -20,24 +28,47 @@ import java.util.List;
 public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public NamespaceDesc getNamespaceDesc(String clusterCode, String namespaceName) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
+        if (StringUtils.isNotBlank(filterNamespacePrefix)) {
+            if (namespaceName.startsWith(filterNamespacePrefix)) {
+                throw new BusinessException("已配置过滤该命名空间的前缀");
+            }
+        }
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.getNamespaceDesc(namespaceName);
     }
 
     @Override
     public List<NamespaceDesc> listAllNamespaceDesc(String clusterCode) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listNamespaceDesc();
+        final List<NamespaceDesc> namespaceDescList = hBaseTemplate.listNamespaceDesc();
+        if (StringUtils.isNotBlank(filterNamespacePrefix)) {
+            return namespaceDescList.stream().filter(namespaceDesc -> !namespaceDesc.getNamespaceName().startsWith(filterNamespacePrefix)).collect(Collectors.toList());
+        }
+        return namespaceDescList;
     }
 
     @Override
     public List<String> listAllNamespaceName(String clusterCode) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listNamespaces();
+        final List<String> namespaces = hBaseTemplate.listNamespaces();
+
+        if (StringUtils.isNotBlank(filterNamespacePrefix)) {
+            return namespaces.stream().filter(namespace -> !namespace.startsWith(filterNamespacePrefix)).collect(Collectors.toList());
+        }
+        return namespaces;
     }
 
     @Override
     public List<String> listAllTableNamesByNamespaceName(String clusterCode, String namespaceName) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
+        if (StringUtils.isNotBlank(filterNamespacePrefix)) {
+            if (namespaceName.startsWith(filterNamespacePrefix)) {
+                throw new BusinessException("已配置过滤该命名空间的前缀");
+            }
+        }
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.listTableNamesByNamespace(namespaceName);
     }
@@ -56,14 +87,61 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
 
     @Override
     public List<String> listAllTableName(String clusterCode) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
+        final String filterTableNamePrefix = HBaseConfigUtils.getFilterTableNamePrefix(clusterCode);
+
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listTableNames();
+        final List<String> tableNames = hBaseTemplate.listTableNames();
+
+        if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
+            return tableNames.stream().filter(tableName -> {
+                final String namespaceName = HMHBaseConstant.getNamespaceName(tableName);
+                return !namespaceName.startsWith(filterNamespacePrefix);
+            }).filter(tableName -> {
+                String shortTableName = HMHBaseConstant.getFullTableName(tableName).split(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)[1];
+                return !shortTableName.startsWith(filterTableNamePrefix);
+            }).collect(Collectors.toList());
+
+        } else if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isBlank(filterTableNamePrefix)) {
+            return tableNames.stream().filter(tableName -> {
+                final String namespaceName = HMHBaseConstant.getNamespaceName(tableName);
+                return !namespaceName.startsWith(filterNamespacePrefix);
+            }).collect(Collectors.toList());
+
+        } else if (StringUtils.isBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
+            return tableNames.stream().filter(tableName -> {
+                String shortTableName = HMHBaseConstant.getFullTableName(tableName).split(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)[1];
+                return !shortTableName.startsWith(filterTableNamePrefix);
+            }).collect(Collectors.toList());
+        }
+        return tableNames;
     }
 
     @Override
     public List<TableDesc> listAllTableDesc(String clusterCode) {
+        final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
+        final String filterTableNamePrefix = HBaseConfigUtils.getFilterTableNamePrefix(clusterCode);
+
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listTableDesc();
+        final List<TableDesc> tableDescList = hBaseTemplate.listTableDesc();
+
+        if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
+            return tableDescList.stream().filter(tableDesc -> !tableDesc.getNamespaceName().startsWith(filterNamespacePrefix))
+                    .filter(tableDesc -> {
+                        String shortTableName = HMHBaseConstant.getFullTableName(tableDesc.getTableName()).split(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)[1];
+                        return !shortTableName.startsWith(filterTableNamePrefix);
+                    }).collect(Collectors.toList());
+
+        } else if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isBlank(filterTableNamePrefix)) {
+            return tableDescList.stream().filter(tableDesc -> !tableDesc.getNamespaceName().startsWith(filterNamespacePrefix)).collect(Collectors.toList());
+
+        } else if (StringUtils.isBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
+            return tableDescList.stream().filter(tableDesc -> {
+                String shortTableName = HMHBaseConstant.getFullTableName(tableDesc.getTableName()).split(HMHBaseConstant.TABLE_NAME_SPLIT_CHAR)[1];
+                return !shortTableName.startsWith(filterTableNamePrefix);
+            }).collect(Collectors.toList());
+        }
+        return tableDescList;
     }
 
     @Override

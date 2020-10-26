@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.common.utils;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.leo.hbase.manager.common.core.text.StrFormatter;
@@ -407,6 +408,26 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
 
         return string;
+    }
+
+    public static Map<String, String> parsePropertyToMapFromStr(String prop) {
+        if (isBlank(prop)) {
+            return new HashMap<>();
+        }
+        Map<String, String> property = new HashMap<>(4);
+        for (String p : prop.split(";")) {
+            if (isBlank(p)) {
+                continue;
+            }
+            if (!p.contains("=")) {
+                continue;
+            }
+            String[] p_s = p.split("=");
+            if (p_s.length == 2) {
+                property.put(p_s[0], p_s[1]);
+            }
+        }
+        return property;
     }
 
 

@@ -91,7 +91,7 @@ public class QueryHBaseTableForm implements Serializable {
     @Override
     public String toString() {
         return "QueryHBaseTableForm{" +
-                "tableId='" + tableId + '\'' +
+                ", tableId='" + tableId + '\'' +
                 ", namespaceName='" + namespaceName + '\'' +
                 ", tableName='" + tableName + '\'' +
                 ", disableFlag='" + disableFlag + '\'' +

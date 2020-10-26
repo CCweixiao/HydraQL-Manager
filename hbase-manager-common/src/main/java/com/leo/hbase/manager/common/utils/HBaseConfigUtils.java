@@ -272,11 +272,19 @@ public class HBaseConfigUtils {
     }
 
     public static List<String> getAllClusterAlias() {
-        List<String> clusterCodes = HBaseConfigUtils.getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
+        List<String> clusterCodes = getPropertyArrayList("hbase.manager.zk.cluster.alias", ",");
         if (clusterCodes.isEmpty()) {
             throw new BusinessException("请在hbase-manager.properties中配置需要管理的集群");
         }
         return clusterCodes;
+    }
+
+    public static String getFilterNamespacePrefix(String clusterCode){
+       return getProperty(clusterCode+".hbase.filter.namespace.prefix","");
+    }
+
+    public static String getFilterTableNamePrefix(String clusterCode){
+        return getProperty(clusterCode+".hbase.filter.tableName.prefix","");
     }
 
 }
