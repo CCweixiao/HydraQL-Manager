@@ -229,5 +229,37 @@ public interface IMultiHBaseAdminService {
      */
     boolean modifyTable(String clusterCode, TableDesc tableDesc);
 
+    /**
+     * 获取region server的数量
+     *
+     * @param clusterCode 集群ID
+     * @return region server的总数
+     */
+    int totalHRegionServerNum(String clusterCode);
+
+    /**
+     * 获取命名空间的数量
+     *
+     * @param clusterCode 集群ID
+     * @return 命名空间的总数
+     */
+    int totalNamespaceNum(String clusterCode);
+
+    /**
+     * 获取表的数量
+     *
+     * @param clusterCode 集群ID
+     * @return 表的总数
+     */
+    int totalTableNum(String clusterCode);
+
+    /**
+     * 获取快照的数量
+     *
+     * @param clusterCode 集群ID
+     * @return 快照的总数
+     */
+    int totalSnapshotNum(String clusterCode);
+
 
 }

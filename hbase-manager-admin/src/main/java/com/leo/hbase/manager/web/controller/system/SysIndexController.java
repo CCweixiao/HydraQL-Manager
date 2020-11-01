@@ -8,6 +8,7 @@ import com.leo.hbase.manager.framework.shiro.session.OnlineSession;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSessionDAO;
 import com.leo.hbase.manager.system.domain.SysUserOnline;
 import com.leo.hbase.manager.system.service.ISysUserOnlineService;
+import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -26,7 +27,7 @@ import com.leo.hbase.manager.system.service.ISysMenuService;
  * @author ruoyi
  */
 @Controller
-public class SysIndexController extends BaseController {
+public class SysIndexController extends SysHbaseBaseController {
     @Autowired
     private ISysMenuService menuService;
 
@@ -38,6 +39,9 @@ public class SysIndexController extends BaseController {
 
     @Autowired
     private OnlineSessionDAO onlineSessionDAO;
+
+    @Autowired
+    private IMultiHBaseAdminService hBaseAdminService;
 
     // 系统首页
     @GetMapping("/index")
@@ -88,10 +92,28 @@ public class SysIndexController extends BaseController {
         return "cluster";
     }
 
-    // 系统介绍
+    // HBaseManager主页
     @GetMapping("/system/main")
     public String main(ModelMap mmap) {
-        mmap.put("version", Global.getVersion());
+        String cluster = clusterCodeOfCurrentSession();
+        int hRegionServerNum = hBaseAdminService.totalHRegionServerNum(cluster);
+        int namespaceNum = hBaseAdminService.totalNamespaceNum(cluster);
+        int tableNum = hBaseAdminService.totalTableNum(cluster);
+        int snapshotNum = hBaseAdminService.totalSnapshotNum(cluster);
+
+        mmap.put("hRegionServerNum", hRegionServerNum);
+        mmap.put("namespaceNum", namespaceNum);
+        mmap.put("tableNum", tableNum);
+        mmap.put("snapshotNum", snapshotNum);
+
         return "main";
     }
+
+    //HBaseManager介绍
+    @GetMapping("/system/HBaseManager")
+    public String aboutHBaseManager(ModelMap mmap) {
+        mmap.put("version", Global.getVersion());
+        return "HBaseManager";
+    }
+
 }

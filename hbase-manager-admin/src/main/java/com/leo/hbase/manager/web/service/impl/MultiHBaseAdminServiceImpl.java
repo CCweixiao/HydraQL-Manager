@@ -2,13 +2,11 @@ package com.leo.hbase.manager.web.service.impl;
 
 import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.constant.HMHBaseConstant;
-import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
+import com.github.CCweixiao.model.SnapshotDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
-import com.github.CCweixiao.util.StrUtil;
-import com.leo.hbase.manager.common.constant.HBaseManagerConstants;
 import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
@@ -234,5 +232,35 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
         tableDesc.addProp(HBasePropertyConstants.LAST_UPDATE_BY, ShiroUtils.getLoginName());
         tableDesc.addProp(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
         return hBaseTemplate.modifyTableProps(tableDesc);
+    }
+
+    @Override
+    public int totalHRegionServerNum(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+
+        return 5;
+    }
+
+    @Override
+    public int totalNamespaceNum(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.listNamespaces().size();
+    }
+
+    @Override
+    public int totalTableNum(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.listTableNames().size();
+    }
+
+    @Override
+    public int totalSnapshotNum(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        final List<SnapshotDesc> snapshots = hBaseTemplate.listSnapshots();
+        if (snapshots == null || snapshots.isEmpty()) {
+            return 0;
+        } else {
+            return snapshots.size();
+        }
     }
 }
