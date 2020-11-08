@@ -1,9 +1,12 @@
 package com.leo.hbase.manager.web.controller.system;
 
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.util.StrUtil;
 import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
+import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.common.utils.spring.SpringUtils;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSession;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSessionDAO;
@@ -17,6 +20,14 @@ import javax.servlet.http.HttpSession;
  */
 public class SysHbaseBaseController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(SysHbaseBaseController.class);
+
+    public String parseTableNameFromTableId(String tableId) {
+        final String tableName = StrEnDeUtils.decrypt(tableId);
+        if (StringUtils.isBlank(tableName)) {
+            throw new HBaseOperationsException("从加密的tableId[" + tableId + "]中无法解析出表名称");
+        }
+        return tableName;
+    }
 
     public String clusterCodeOfCurrentSession() {
         HttpSession session = getSession();

@@ -183,25 +183,6 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         return success("数据删除成功！");
     }
 
-
-    /**
-     * 删除HBase数据
-     */
-    @RequiresPermissions("system:data:remove")
-    @Log(title = "HBase数据", businessType = BusinessType.DELETE)
-    @PostMapping("/truncatePreserveTable")
-    @ResponseBody
-    public AjaxResult truncatePreserveTable(String tableName) {
-        if (StrUtil.isBlank(tableName)) {
-            return error("请指定待清空数据的表名");
-        }
-        if (!multiHBaseAdminService.isTableDisabled(clusterCodeOfCurrentSession(), tableName)) {
-            return error("非禁用表不能直接被清空数据");
-        }
-        multiHBaseAdminService.truncatePreserve(clusterCodeOfCurrentSession(), tableName);
-        return success("表中数据清除成功");
-    }
-
     private SysHbaseTableData mapToHBaseTableData(String tableName, Map<String, Object> dataMap) {
         SysHbaseTableData hbaseTableData = new SysHbaseTableData();
         hbaseTableData.setTableName(tableName);

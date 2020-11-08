@@ -1,5 +1,6 @@
 package com.leo.hbase.manager.common.utils.security;
 
+import com.leo.hbase.manager.common.utils.StringUtils;
 import org.apache.commons.codec.binary.Hex;
 
 import javax.crypto.Cipher;
@@ -41,6 +42,9 @@ public class StrEnDeUtils {
     }
 
     public static String decrypt(String value) {
+        if (StringUtils.isBlank(value)) {
+            return "";
+        }
         String s = null;
 
         int mode = Cipher.DECRYPT_MODE;

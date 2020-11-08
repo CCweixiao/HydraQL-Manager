@@ -44,6 +44,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
 
     @Autowired
     private ISysHbaseTagService sysHbaseTagService;
+
     @Autowired
     private IMultiHBaseAdminService multiHBaseAdminService;
 
@@ -59,7 +60,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @RequiresPermissions("system:table:detail")
     @GetMapping("/detail/{tableId}")
     public String detail(@PathVariable("tableId") String tableId, ModelMap mmap) {
-        final String tableName = StrEnDeUtils.decrypt(tableId);
+        final String tableName = parseTableNameFromTableId(tableId);
         final TableDesc tableDesc = multiHBaseAdminService.getTableDesc(clusterCodeOfCurrentSession(), tableName);
         TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
         tableDescDto.setSysHbaseTagList(getSysHbaseTagByLongIds(tableDescDto.getTagIds()));
@@ -329,11 +330,33 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         return success();
     }
 
+
+    /**
+     * 清空HBase表的数据
+     */
+    @RequiresPermissions("system:table:clear")
+    @Log(title = "清空HBase表的数据", businessType = BusinessType.DELETE)
+    @PostMapping("/truncatePreserveTable")
+    @ResponseBody
+    public AjaxResult truncatePreserveTable(String tableId) {
+        final String tableName = parseTableNameFromTableId(tableId);
+        final String clusterCode = clusterCodeOfCurrentSession();
+
+        if (!multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
+            return error("非禁用表的数据不能被直接清空");
+        }
+
+        multiHBaseAdminService.truncatePreserve(clusterCode, tableName);
+        return success("HBase表[" + tableName + "]的数据已成功被清空");
+    }
+
+
     private List<NamespaceDescDto> getAllNamespaces() {
         return multiHBaseAdminService.listAllNamespaceDesc(clusterCodeOfCurrentSession())
                 .stream().map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc))
                 .collect(Collectors.toList());
     }
+
 
     /**
      * 筛选表标签

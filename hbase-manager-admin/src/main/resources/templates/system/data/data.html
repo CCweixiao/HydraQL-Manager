@@ -58,9 +58,6 @@
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:data:export">
                 <i class="fa fa-download"></i> 导出
             </a>
-            <a class="btn btn-danger" onclick="clearTableData()" shiro:hasPermission="system:data:remove">
-                <i class="fa fa-remove"></i> 清空表
-            </a>
         </div>
         <div class="col-sm-12 select-table table-striped">
             <table id="bootstrap-table"></table>
@@ -142,21 +139,6 @@
         $.operate.add();
     }
 
-    /**
-     * 清空表
-     */
-    function clearTableData() {
-        var tableName = $('#tableName').val();
-        if (tableName === '') {
-            $.modal.alertError("选择需要清空的表名");
-            return
-        }
-        $.modal.confirm("确定需要清空表" + tableName + "的数据吗？", function () {
-            var url = prefix + "/truncatePreserveTable";
-            var data = {"tableName": tableName};
-            $.operate.submit(url, "post", "json", data);
-        });
-    }
 </script>
 </body>
 </html>
