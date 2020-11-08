@@ -215,6 +215,24 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
+    public boolean addFamily(String clusterCode, String tableName, FamilyDesc familyDesc) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.addFamily(tableName, familyDesc);
+    }
+
+    @Override
+    public boolean deleteFamily(String clusterCode, String tableName, String familyName) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.deleteFamily(tableName, familyName);
+    }
+
+    @Override
+    public boolean modifyFamily(String clusterCode, String tableName, FamilyDesc familyDesc) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.modifyFamily(tableName, familyDesc);
+    }
+
+    @Override
     public boolean enableReplication(String clusterCode, String tableName, List<String> families) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.enableReplicationScope(tableName, families);

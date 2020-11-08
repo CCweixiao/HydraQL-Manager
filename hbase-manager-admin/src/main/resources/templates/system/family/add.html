@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('新增HBase Family')" />
+    <th:block th:include="include :: header('新增HBase列簇')" />
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-family-add">
             <div class="form-group">    
-                <label class="col-sm-3 control-label is-required">HBase表编号：</label>
+                <label class="col-sm-3 control-label is-required">HBase表名称：</label>
                 <div class="col-sm-8">
-                    <input name="tableId" class="form-control" type="text" required>
+                    <input name="tableName" th:value="${tableName}" class="form-control" type="text" readonly>
                 </div>
             </div>
             <div class="form-group">    
-                <label class="col-sm-3 control-label is-required">family名称：</label>
+                <label class="col-sm-3 control-label is-required">列簇名称：</label>
                 <div class="col-sm-8">
                     <input name="familyName" class="form-control" type="text" required>
                 </div>
@@ -21,24 +21,35 @@
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">最大版本号：</label>
                 <div class="col-sm-8">
-                    <input name="maxVersions" class="form-control" type="text" required>
+                    <input name="maxVersions" th:value="${maxVersions}" placeholder="最大版本数默认1" class="form-control" type="text" required>
                 </div>
             </div>
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">ttl：</label>
                 <div class="col-sm-8">
-                    <input name="ttl" class="form-control" type="text" required>
+                    <input name="timeToLive" th:value="${timeToLive}" class="form-control" placeholder='设置TTL默认FOREVER' type="text" required>
                 </div>
             </div>
             <div class="form-group">    
                 <label class="col-sm-3 control-label">列簇数据的压缩类型：</label>
                 <div class="col-sm-8">
-                    <select name="compressionType" class="form-control m-b">
-                        <option value="">所有</option>
+                    <select name="compressionType" class="form-control m-b" th:with="type=${@dict.getType('sys_hbase_family_compression_type')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
-                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">REPLICATION_SCOPE：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict : ${@dict.getType('sys_hbase_family_replication_scope')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="replicationScope" th:value="${dict.dictValue}"
+                               th:checked="${dict.default}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+
         </form>
     </div>
     <th:block th:include="include :: footer" />

@@ -432,7 +432,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 
     public static void main(String[] args) {
-        String db1 = substringNamespace("TEST:leo_user");
+        String  s = "TEST:USER:info";
+
+        System.out.println(s.substring(0, s.lastIndexOf(":")));
+        System.out.println(s.substring(s.lastIndexOf(":")+1));
+        /*String db1 = substringNamespace("TEST:leo_user");
         String table1 = substringTableName("TEST:leo_user");
         System.out.println(db1);
         System.out.println(table1);
@@ -442,7 +446,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         System.out.println(db2);
         System.out.println(table2);
         String desc = "'TEST:leo_test3', {NAME => 'INFO', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}";
-        System.out.println(getStringByEnter(110, desc));
+        System.out.println(getStringByEnter(110, desc));*/
     }
 
 }

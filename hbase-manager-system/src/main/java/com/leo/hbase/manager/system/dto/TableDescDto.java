@@ -1,6 +1,5 @@
 package com.leo.hbase.manager.system.dto;
 
-import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.google.common.base.Converter;
@@ -47,7 +46,7 @@ public class TableDescDto {
     @Size(min = 1, max = 200, message = "HBase表名称必须在1~200个字符之间", groups = {Fourth.class})
     private String tableName;
 
-    @Excel(name = "禁用标志", readConverterExp = "0=代表启用表,2=代表禁用表")
+    @Excel(name = "禁用标志", readConverterExp = "0=启用,2=禁用")
     private String disableFlag;
     /**
      * 状态（0线上表 1测试表 2启用表）
@@ -185,7 +184,7 @@ public class TableDescDto {
             } else if (HBaseDisabledFlag.ENABLED.getCode().equals(disableFlag)) {
                 tableDesc.setDisabled(false);
             } else {
-                throw new HBaseOperationsException("HBase表的禁用状态，0启用，2禁用");
+                tableDesc.setDisabled(false);
             }
             List<Property> propertyList = tableDescDto.getPropertyList();
 

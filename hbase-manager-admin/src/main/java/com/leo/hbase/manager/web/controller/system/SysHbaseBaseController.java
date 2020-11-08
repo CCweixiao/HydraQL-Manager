@@ -1,24 +1,39 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.github.CCweixiao.exception.HBaseOperationsException;
+import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.StrUtil;
 import com.leo.hbase.manager.common.core.controller.BaseController;
+import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.exception.BusinessException;
+import com.leo.hbase.manager.common.utils.ArrUtils;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.common.utils.spring.SpringUtils;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSession;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSessionDAO;
+import com.leo.hbase.manager.system.domain.SysHbaseTag;
+import com.leo.hbase.manager.system.dto.TableDescDto;
+import com.leo.hbase.manager.system.service.ISysHbaseTagService;
+import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author leojie 2020/9/26 4:19 下午
  */
 public class SysHbaseBaseController extends BaseController {
+    @Autowired
+    public ISysHbaseTagService sysHbaseTagService;
+
     private static final Logger LOG = LoggerFactory.getLogger(SysHbaseBaseController.class);
 
     public String parseTableNameFromTableId(String tableId) {
@@ -46,5 +61,61 @@ public class SysHbaseBaseController extends BaseController {
         }
         LOG.info("当前用户{},拥有的sessionID是{},操作的集群是{}", onlineSession.getLoginName(), sessionId, cluster);
         return cluster;
+    }
+
+    public List<TableDescDto> filterFamilyDescList(QueryHBaseTableForm queryHBaseTableForm, List<TableDesc> tableDescList) {
+        return tableDescList.stream().map(tableDesc -> {
+            final TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
+            final Integer[] tagIds = tableDescDto.getTagIds();
+            tableDescDto.setSysHbaseTagList(getSysHbaseTagByLongIds(tagIds));
+            return tableDescDto;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getNamespaceName())) {
+                return tableDescDto.getNamespaceName().equals(queryHBaseTableForm.getNamespaceName());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getTableName())) {
+                return tableDescDto.getTableName().toLowerCase().contains(queryHBaseTableForm.getTableName().toLowerCase());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getDisableFlag())) {
+                return tableDescDto.getDisableFlag().equals(queryHBaseTableForm.getDisableFlag());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getStatus())) {
+                return tableDescDto.getStatus().equals(queryHBaseTableForm.getStatus());
+            }
+            return true;
+        }).filter(tableDescDto -> {
+            if (StringUtils.isNotBlank(queryHBaseTableForm.getQueryHBaseTagIdStr())) {
+                final String tagIdStr = queryHBaseTableForm.getQueryHBaseTagIdStr();
+                Integer[] queryTagIds = Convert.toIntArray(tagIdStr);
+
+                if (tableDescDto.getTagIds() != null && tableDescDto.getTagIds().length > 0) {
+                    final int[] same = ArrUtils.intersection2(queryTagIds, tableDescDto.getTagIds());
+                    return same.length > 0;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }).sorted(Comparator.comparing(TableDescDto::getLastUpdateTimestamp).reversed()).collect(Collectors.toList());
+
+    }
+
+    public List<SysHbaseTag> getSysHbaseTagByLongIds(Integer[] tagIds) {
+        if (tagIds == null || tagIds.length < 1) {
+            return new ArrayList<>();
+        }
+        final String tagIdStr = StringUtils.join(tagIds, ",");
+        final List<SysHbaseTag> sysHbaseTags = sysHbaseTagService.selectSysHbaseTagListByIds(tagIdStr);
+        if (sysHbaseTags == null) {
+            return new ArrayList<>();
+        } else {
+            return sysHbaseTags;
+        }
     }
 }

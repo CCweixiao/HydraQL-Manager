@@ -34,10 +34,14 @@
         </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="showAddFamily()" shiro:hasPermission="system:family:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:family:export">
                 <i class="fa fa-download"></i> 导出
             </a>
         </div>
+
         <div class="col-sm-12 select-table table-striped">
             <table id="bootstrap-table"></table>
         </div>
@@ -58,12 +62,12 @@
     $(function () {
         var options = {
             url: prefix + "/list",
-            createUrl: prefix + "/add",
+            createUrl: prefix + "/add/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             queryParams: queryParams,
-            modalName: "HBase Family",
+            modalName: "HBase列簇",
             sidePagination: 'client',
             columns: [{
                 checkbox: true
@@ -134,6 +138,12 @@
         $.form.reset();
         $("#tableId").val($("#tableId").val()).trigger("change");
     }
+
+    function showAddFamily() {
+        var tableId = $('#tableId').val()
+        $.operate.add(tableId);
+    }
+
 </script>
 </body>
 </html>

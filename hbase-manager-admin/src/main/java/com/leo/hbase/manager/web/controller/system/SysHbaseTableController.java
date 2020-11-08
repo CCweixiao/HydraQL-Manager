@@ -11,14 +11,12 @@ import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.common.utils.ArrUtils;
-import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.dto.NamespaceDescDto;
 import com.leo.hbase.manager.system.dto.TableDescDto;
-import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -28,7 +26,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -41,9 +42,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/system/table")
 public class SysHbaseTableController extends SysHbaseBaseController {
     private String prefix = "system/table";
-
-    @Autowired
-    private ISysHbaseTagService sysHbaseTagService;
 
     @Autowired
     private IMultiHBaseAdminService multiHBaseAdminService;
@@ -103,49 +101,8 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
-
         final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
-
-        final List<TableDescDto> tableDescDtoList = tableDescList.stream().map(tableDesc -> {
-            final TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
-            final Integer[] tagIds = tableDescDto.getTagIds();
-            tableDescDto.setSysHbaseTagList(getSysHbaseTagByLongIds(tagIds));
-            return tableDescDto;
-        }).filter(tableDescDto -> {
-            if (StringUtils.isNotBlank(queryHBaseTableForm.getNamespaceName())) {
-                return tableDescDto.getNamespaceName().equals(queryHBaseTableForm.getNamespaceName());
-            }
-            return true;
-        }).filter(tableDescDto -> {
-            if (StringUtils.isNotBlank(queryHBaseTableForm.getTableName())) {
-                return tableDescDto.getTableName().toLowerCase().contains(queryHBaseTableForm.getTableName().toLowerCase());
-            }
-            return true;
-        }).filter(tableDescDto -> {
-            if (StringUtils.isNotBlank(queryHBaseTableForm.getDisableFlag())) {
-                return tableDescDto.getDisableFlag().equals(queryHBaseTableForm.getDisableFlag());
-            }
-            return true;
-        }).filter(tableDescDto -> {
-            if (StringUtils.isNotBlank(queryHBaseTableForm.getStatus())) {
-                return tableDescDto.getStatus().equals(queryHBaseTableForm.getStatus());
-            }
-            return true;
-        }).filter(tableDescDto -> {
-            if (StringUtils.isNotBlank(queryHBaseTableForm.getQueryHBaseTagIdStr())) {
-                final String tagIdStr = queryHBaseTableForm.getQueryHBaseTagIdStr();
-                Integer[] queryTagIds = Convert.toIntArray(tagIdStr);
-
-                if (tableDescDto.getTagIds() != null && tableDescDto.getTagIds().length > 0) {
-                    final int[] same = ArrUtils.intersection2(queryTagIds, tableDescDto.getTagIds());
-                    return same.length > 0;
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        }).sorted(Comparator.comparing(TableDescDto::getLastUpdateTimestamp).reversed()).collect(Collectors.toList());
-
+        final List<TableDescDto> tableDescDtoList = filterFamilyDescList(queryHBaseTableForm, tableDescList);
         return getDataTable(tableDescDtoList);
     }
 
@@ -157,10 +114,10 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(QueryHBaseTableForm queryHBaseTableForm) {
-        return error("暂时不支持列表导出");
-       /* List<SysHbaseTable> list = sysHbaseTableService.selectSysHbaseTableList(sysHbaseTable);
-        ExcelUtil<SysHbaseTable> util = new ExcelUtil<>(SysHbaseTable.class);
-        return util.exportExcel(list, "table");*/
+        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
+        final List<TableDescDto> tableDescDtoList = filterFamilyDescList(queryHBaseTableForm, tableDescList);
+        ExcelUtil<TableDescDto> util = new ExcelUtil<>(TableDescDto.class);
+        return util.exportExcel(tableDescDtoList, "table");
     }
 
     /**
@@ -361,8 +318,8 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     /**
      * 筛选表标签
      *
-     * @param tableDescDto
-     * @return
+     * @param tableDescDto 表的描述信息
+     * @return 表标签
      */
     private List<SysHbaseTag> selectHBaseTagsByTable(TableDescDto tableDescDto) {
         List<SysHbaseTag> hbaseTags = getSysHbaseTagByLongIds(tableDescDto.getTagIds());
@@ -378,16 +335,5 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         return tags;
     }
 
-    private List<SysHbaseTag> getSysHbaseTagByLongIds(Integer[] tagIds) {
-        if (tagIds == null || tagIds.length < 1) {
-            return new ArrayList<>();
-        }
-        final String tagIdStr = StringUtils.join(tagIds, ",");
-        final List<SysHbaseTag> sysHbaseTags = sysHbaseTagService.selectSysHbaseTagListByIds(tagIdStr);
-        if (sysHbaseTags == null) {
-            return new ArrayList<>();
-        } else {
-            return sysHbaseTags;
-        }
-    }
+
 }

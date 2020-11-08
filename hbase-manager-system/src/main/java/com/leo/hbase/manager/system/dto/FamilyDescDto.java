@@ -4,6 +4,7 @@ import com.github.CCweixiao.constant.HMHBaseConstant;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.annotation.Excel;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.valid.*;
 
 import javax.validation.GroupSequence;
@@ -76,7 +77,7 @@ public class FamilyDescDto {
     @Max(value = 999999, message = "最大版本数不能大于999999", groups = {Third.class})
     public Integer getMaxVersions() {
         if (maxVersions == null) {
-            maxVersions = 1;
+            maxVersions = HMHBaseConstant.DEFAULT_MAX_VERSIONS;
         }
         return maxVersions;
     }
@@ -99,6 +100,9 @@ public class FamilyDescDto {
     }
 
     public String getCompressionType() {
+        if(StringUtils.isBlank(compressionType)){
+            return HMHBaseConstant.DEFAULT_COMPRESSION_TYPE;
+        }
         return compressionType;
     }
 
@@ -107,6 +111,9 @@ public class FamilyDescDto {
     }
 
     public Integer getReplicationScope() {
+        if(replicationScope == null){
+            return HMHBaseConstant.DEFAULT_REPLICATION_SCOPE;
+        }
         return replicationScope;
     }
 

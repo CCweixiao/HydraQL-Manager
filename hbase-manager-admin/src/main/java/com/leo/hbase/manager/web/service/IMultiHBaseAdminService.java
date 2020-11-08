@@ -192,13 +192,43 @@ public interface IMultiHBaseAdminService {
     TableDesc getTableDesc(String clusterCode, String tableName);
 
     /**
-     * get all families by HBase table name.
+     * 获取某张表的所有列簇
      *
      * @param clusterCode 集群code
-     * @param tableName   the name of HBase table.
-     * @return families
+     * @param tableName   表名
+     * @return 列簇
      */
     List<FamilyDesc> getFamilyDesc(String clusterCode, String tableName);
+
+    /**
+     * 添加列簇
+     *
+     * @param clusterCode 集群code
+     * @param tableName   表名
+     * @param familyDesc  列簇信息
+     * @return 列簇是否添加成功
+     */
+    boolean addFamily(String clusterCode, String tableName, FamilyDesc familyDesc);
+
+    /**
+     * 列簇删除
+     *
+     * @param clusterCode 集群code
+     * @param tableName   表名
+     * @param familyName  列簇名
+     * @return 是否删除列簇成功
+     */
+    boolean deleteFamily(String clusterCode, String tableName, String familyName);
+
+    /**
+     * 修改列簇
+     *
+     * @param clusterCode 集群code
+     * @param tableName   表名
+     * @param familyDesc  列簇信息
+     * @return 列簇是否修改成功
+     */
+    boolean modifyFamily(String clusterCode, String tableName, FamilyDesc familyDesc);
 
     /**
      * 启用replication

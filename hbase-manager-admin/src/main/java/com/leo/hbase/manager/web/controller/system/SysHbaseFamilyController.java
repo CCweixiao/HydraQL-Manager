@@ -5,9 +5,8 @@ import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
-import com.leo.hbase.manager.common.enums.HBaseReplicationScopeFlag;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
-import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.system.dto.FamilyDescDto;
 import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,13 +46,9 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
-        final String tableName = StrEnDeUtils.decrypt(queryHBaseTableForm.getTableId());
+        final String tableName = parseTableNameFromTableId(queryHBaseTableForm.getTableId());
         final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), tableName);
-        final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
-            FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
-            familyDescDto.setTableName(tableName);
-            return familyDescDto;
-        }).collect(Collectors.toList());
+        List<FamilyDescDto> familyDescDtoList = filterFamilyList(tableName, familyDescList);
         return getDataTable(familyDescDtoList);
     }
 
@@ -66,24 +60,22 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(QueryHBaseTableForm queryHBaseTableForm) {
-        final String tableName = StrEnDeUtils.decrypt(queryHBaseTableForm.getTableId());
-
+        final String tableName = parseTableNameFromTableId(queryHBaseTableForm.getTableId());
         final List<FamilyDesc> familyDescList = multiHBaseAdminService.getFamilyDesc(clusterCodeOfCurrentSession(), tableName);
-        final List<FamilyDescDto> familyDescDtoList = familyDescList.stream().map(familyDesc -> {
-            FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
-            familyDescDto.setTableName(tableName);
-            return familyDescDto;
-        }).collect(Collectors.toList());
+        List<FamilyDescDto> familyDescDtoList = filterFamilyList(tableName, familyDescList);
         ExcelUtil<FamilyDescDto> util = new ExcelUtil<>(FamilyDescDto.class);
         return util.exportExcel(familyDescDtoList, "family");
-
     }
 
     /**
      * 新增HBase Family
      */
-    @GetMapping("/add")
-    public String add() {
+    @GetMapping("/add/{tableId}")
+    public String add(@PathVariable String tableId, ModelMap mm) {
+        String tableName = parseTableNameFromTableId(tableId);
+        mm.put("tableName", tableName);
+        mm.put("maxVersions", 1);
+        mm.put("timeToLive", 2147483647);
         return prefix + "/add";
     }
 
@@ -95,7 +87,12 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(FamilyDescDto familyDescDto) {
-        return error("暂不支持列簇的新增");
+        FamilyDesc familyDesc = familyDescDto.convertTo();
+        boolean res = multiHBaseAdminService.addFamily(clusterCodeOfCurrentSession(), familyDescDto.getTableName(), familyDesc);
+        if (res) {
+            return success("列簇[" + familyDesc.getFamilyName() + "]添加成功");
+        }
+        return error("列簇[" + familyDesc.getFamilyName() + "]添加失败");
     }
 
     /**
@@ -126,17 +123,12 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(FamilyDescDto familyDescDto) {
-        final Integer replicationScope = familyDescDto.getReplicationScope();
-        final String clusterCode = clusterCodeOfCurrentSession();
-
-        if (replicationScope.toString().equals(HBaseReplicationScopeFlag.CLOSE.getCode())) {
-            multiHBaseAdminService.disableReplication(clusterCode, familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
+        final FamilyDesc familyDesc = familyDescDto.convertTo();
+        boolean res = multiHBaseAdminService.modifyFamily(clusterCodeOfCurrentSession(), familyDescDto.getTableName(), familyDesc);
+        if (res) {
+            return success("列簇[" + familyDesc.getFamilyName() + "]更新成功");
         }
-
-        if (replicationScope.toString().equals(HBaseReplicationScopeFlag.OPEN.getCode())) {
-            multiHBaseAdminService.enableReplication(clusterCode, familyDescDto.getTableName(), Collections.singletonList(familyDescDto.getFamilyId()));
-        }
-        return success();
+        return success("列簇[" + familyDesc.getFamilyName() + "]更新失败");
     }
 
     /**
@@ -147,6 +139,23 @@ public class SysHbaseFamilyController extends SysHbaseBaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
-        return error("暂不支持列簇删除！");
+        if (StringUtils.isBlank(ids)) {
+            return error("待删除列簇ID不能为空");
+        }
+        final String tableName = ids.substring(0, ids.lastIndexOf(":"));
+        final String familyName = ids.substring(ids.lastIndexOf(":") + 1);
+        boolean res = multiHBaseAdminService.deleteFamily(clusterCodeOfCurrentSession(), tableName, familyName);
+        if (res) {
+            return success("列簇[" + familyName + "]删除成功");
+        }
+        return success("列簇[" + familyName + "]删除失败");
+    }
+
+    private List<FamilyDescDto> filterFamilyList(String tableName, List<FamilyDesc> familyDescList) {
+        return familyDescList.stream().map(familyDesc -> {
+            FamilyDescDto familyDescDto = new FamilyDescDto().convertFor(familyDesc);
+            familyDescDto.setTableName(tableName);
+            return familyDescDto;
+        }).collect(Collectors.toList());
     }
 }
