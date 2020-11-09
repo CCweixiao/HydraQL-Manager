@@ -120,6 +120,18 @@ public class SysHbaseBaseController extends BaseController {
         }
     }
 
+    public String[] parseFamilyAndQualifierName(String familyName) {
+        if (StringUtils.isBlank(familyName)) {
+            return null;
+        }
+        final String[] families = familyName.split(":");
+        if (families.length != 2) {
+            return null;
+        }
+        return families;
+    }
+
+
     public String[] parseTableFamilyRowFromStrId(String tableAndFamilyAndRow) {
         if (StringUtils.isBlank(tableAndFamilyAndRow)) {
             return null;

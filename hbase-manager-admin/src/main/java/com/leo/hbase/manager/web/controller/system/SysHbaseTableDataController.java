@@ -11,6 +11,7 @@ import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.domain.CxSelect;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.system.domain.SysHbaseTableData;
 import com.leo.hbase.manager.system.dto.TableDescDto;
@@ -97,14 +98,17 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     }
 
     @RequiresPermissions("system:data:detail")
-    @GetMapping("/detail/{tableAndFamilyAndRow}")
-    public String detail(@PathVariable("tableAndFamilyAndRow") String tableAndFamilyAndRow, ModelMap mmap) {
-        String[] tableAndFamilyAndRows = parseTableFamilyRowFromStrId(tableAndFamilyAndRow);
+    @GetMapping("/detail")
+    public String detail(@RequestParam String tableName,
+                         @RequestParam String familyName,
+                         @RequestParam String rowKey,
+                         ModelMap mmap) {
+        String[] familyAndQualifierName = parseFamilyAndQualifierName(familyName);
+
         SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
-        if (tableAndFamilyAndRows != null) {
-            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(),
-                    tableAndFamilyAndRows[0], tableAndFamilyAndRows[1], tableAndFamilyAndRows[2], tableAndFamilyAndRows[3]);
-            sysHbaseTableData = mapToHBaseTableData(tableAndFamilyAndRows[0], data);
+        if (familyAndQualifierName != null && StringUtils.isNotBlank(rowKey)) {
+            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
+            sysHbaseTableData = mapToHBaseTableData(tableName, data);
         }
         mmap.put("sysHbaseTableData", sysHbaseTableData);
         return prefix + "/detail";
@@ -125,13 +129,12 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     }
 
     /**
-     * 新增HBase
+     * 新增HBase数据
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
         List<CxSelect> cxTableInfoList = getTableFamilyRelations();
         mmap.put("tableFamilyData", JSON.toJSON(cxTableInfoList));
-
         return prefix + "/add";
     }
 
@@ -156,14 +159,15 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     /**
      * 修改HBase数据
      */
-    @GetMapping("/edit/{tableAndFamilyAndRow}")
-    public String edit(@PathVariable("tableAndFamilyAndRow") String tableAndFamilyAndRow, ModelMap mmap) {
-        String[] tableAndFamilyAndRows = parseTableFamilyRowFromStrId(tableAndFamilyAndRow);
+    @GetMapping("/edit")
+    public String edit(@RequestParam String tableName,
+                       @RequestParam String familyName,
+                       @RequestParam String rowKey, ModelMap mmap) {
+        String[] familyAndQualifierName = parseFamilyAndQualifierName(familyName);
         SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
-        if (tableAndFamilyAndRows != null) {
-            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(),
-                    tableAndFamilyAndRows[0], tableAndFamilyAndRows[1], tableAndFamilyAndRows[2], tableAndFamilyAndRows[3]);
-            sysHbaseTableData = mapToHBaseTableData(tableAndFamilyAndRows[0], data);
+        if (familyAndQualifierName != null && StringUtils.isNotBlank(rowKey)) {
+            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
+            sysHbaseTableData = mapToHBaseTableData(tableName, data);
         }
         mmap.put("sysHbaseTableData", sysHbaseTableData);
         return prefix + "/edit";
@@ -193,19 +197,9 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     @Log(title = "HBase数据", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids) {
-        if (StrUtil.isBlank(ids)) {
-            return error("待删除数据不能为空！");
-        }
-        String[] conditions = ids.split(",");
-        if (conditions.length != 3) {
-            return error("请传入有效的删除条件！");
-        }
-        String tableName = conditions[0];
-        String familyName = conditions[1].split(":")[0];
-        String qualifier = conditions[1].split(":")[1];
-        String rowKey = conditions[2];
-        multiHBaseService.delete(clusterCodeOfCurrentSession(), tableName, rowKey, familyName, qualifier);
+    public AjaxResult remove(@RequestParam String tableName, @RequestParam String familyName, @RequestParam String rowKey) {
+        String[] familyAndQualifierName = parseFamilyAndQualifierName(familyName);
+        multiHBaseService.delete(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
         return success("数据删除成功！");
     }
 

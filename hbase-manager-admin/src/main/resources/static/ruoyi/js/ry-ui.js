@@ -939,6 +939,29 @@ var table = {
             get: function (url, callback) {
                 $.operate.submit(url, "get", "json", "", callback);
             },
+            detailWithUrl: function (url, width, height) {
+                table.set();
+                var _url = url;
+                var _width = $.common.isEmpty(width) ? "800" : width;
+                var _height = $.common.isEmpty(height) ? ($(window).height() - 50) : height;
+                //如果是移动端，就使用自适应大小弹窗
+                if ($.common.isMobile()) {
+                    _width = 'auto';
+                    _height = 'auto';
+                }
+                var options = {
+                    title: table.options.modalName + "详细",
+                    width: _width,
+                    height: _height,
+                    url: _url,
+                    skin: 'layui-layer-gray',
+                    btn: ['关闭'],
+                    yes: function (index, layero) {
+                        layer.close(index);
+                    }
+                };
+                $.modal.openOptions(options);
+            },
             // 详细信息
             detail: function (id, width, height) {
                 table.set();
@@ -978,6 +1001,18 @@ var table = {
                 }
                 return url;
             },
+            // 删除信息，with url
+            removeWithUrl: function(url) {
+                table.set();
+                $.modal.confirm("确定删除该条" + table.options.modalName + "信息吗？", function () {
+                    if (table.options.type === table_type.bootstrapTreeTable) {
+                        $.operate.get(url);
+                    } else {
+                        var data = {"ids": "id"};
+                        $.operate.submit(url, "post", "json", data);
+                    }
+                });
+            },
             // 删除信息
             remove: function (id) {
                 table.set();
@@ -990,7 +1025,6 @@ var table = {
                         $.operate.submit(url, "post", "json", data);
                     }
                 });
-
             },
             // 批量删除信息
             removeAll: function () {
@@ -1034,6 +1068,11 @@ var table = {
             addUrl: function (id) {
                 var url = $.common.isEmpty(id) ? table.options.createUrl.replace("{id}", "") : table.options.createUrl.replace("{id}", id);
                 return url;
+            },
+            // 修改信息，带上url
+            editWithUrl: function(url){
+                table.set();
+                $.modal.open("修改" + table.options.modalName, url);
             },
             // 修改信息
             edit: function (id) {
