@@ -13,6 +13,7 @@ import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.system.domain.SysHbaseTableData;
+import com.leo.hbase.manager.system.dto.TableDescDto;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -95,6 +96,20 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         return getDataTable(list);
     }
 
+    @RequiresPermissions("system:data:detail")
+    @GetMapping("/detail/{tableAndFamilyAndRow}")
+    public String detail(@PathVariable("tableAndFamilyAndRow") String tableAndFamilyAndRow, ModelMap mmap) {
+        String[] tableAndFamilyAndRows = parseTableFamilyRowFromStrId(tableAndFamilyAndRow);
+        SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
+        if (tableAndFamilyAndRows != null) {
+            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(),
+                    tableAndFamilyAndRows[0], tableAndFamilyAndRows[1], tableAndFamilyAndRows[2], tableAndFamilyAndRows[3]);
+            sysHbaseTableData = mapToHBaseTableData(tableAndFamilyAndRows[0], data);
+        }
+        mmap.put("sysHbaseTableData", sysHbaseTableData);
+        return prefix + "/detail";
+    }
+
     /**
      * 导出HBase列表数据
      */
@@ -141,10 +156,15 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     /**
      * 修改HBase数据
      */
-    @GetMapping("/edit/{rowKey}")
-    public String edit(@PathVariable("rowKey") String rowKey, ModelMap mmap) {
-        //TODO 修改数据
+    @GetMapping("/edit/{tableAndFamilyAndRow}")
+    public String edit(@PathVariable("tableAndFamilyAndRow") String tableAndFamilyAndRow, ModelMap mmap) {
+        String[] tableAndFamilyAndRows = parseTableFamilyRowFromStrId(tableAndFamilyAndRow);
         SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
+        if (tableAndFamilyAndRows != null) {
+            Map<String, Object> data = multiHBaseService.get(clusterCodeOfCurrentSession(),
+                    tableAndFamilyAndRows[0], tableAndFamilyAndRows[1], tableAndFamilyAndRows[2], tableAndFamilyAndRows[3]);
+            sysHbaseTableData = mapToHBaseTableData(tableAndFamilyAndRows[0], data);
+        }
         mmap.put("sysHbaseTableData", sysHbaseTableData);
         return prefix + "/edit";
     }
@@ -157,7 +177,13 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SysHbaseTableData sysHbaseTableData) {
-        return error("暂不支持修改数据");
+        String clusterCode = clusterCodeOfCurrentSession();
+        String tableName = sysHbaseTableData.getTableName();
+        if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
+            throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
+        }
+        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
+        return success("数据修改成功");
     }
 
     /**
@@ -185,7 +211,7 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
 
     private SysHbaseTableData mapToHBaseTableData(String tableName, Map<String, Object> dataMap) {
         SysHbaseTableData hbaseTableData = new SysHbaseTableData();
-        hbaseTableData.setTableName(tableName);
+        hbaseTableData.setTableName(HMHBaseConstant.getFullTableName(tableName));
         hbaseTableData.setRowKey(dataMap.get("rowKey").toString());
         hbaseTableData.setFamilyName(dataMap.get("familyName").toString());
         hbaseTableData.setTimestamp(dataMap.get("timestamp").toString());

@@ -76,7 +76,7 @@
         required: true,
         data: data
     });
-
+    var detailFlag = [[${@permission.hasPermi('system:data:detail')}]];
     var editFlag = [[${@permission.hasPermi('system:data:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:data:remove')}]];
     var prefix = ctx + "system/data";
@@ -85,6 +85,7 @@
         var options = {
             url: prefix + "/list",
             createUrl: prefix + "/add",
+            detailUrl: prefix + "/detail/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
@@ -104,7 +105,7 @@
                 },
                 {
                     field: 'familyName',
-                    title: '列簇名称'
+                    title: '列名称'
                 },
                 {
                     field: 'timestamp',
@@ -114,8 +115,8 @@
                     field: 'value',
                     title: '数据值',
                     formatter: function (value, row, index) {
-                        if (value.length > 20) {
-                            return value.substr(0, 20) + "..."
+                        if (value.length > 80) {
+                            return value.substr(0, 80) + "..."
                         } else {
                             return value;
                         }
@@ -126,8 +127,9 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.rowKey + '\') disabled"><i class="fa fa-edit"></i>编辑</a> ');
-                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableName + ',' + row.familyName + "," + row.rowKey + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.tableName + ":" + row.familyName + ':' + row.rowKey + '\')"><i class="fa fa-search"></i>查看详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableName + ":" + row.familyName + ':' + row.rowKey + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableName + ',' + row.familyName + "," + row.rowKey + '\')"><i class="fa fa-remove"></i>删除</a> ');
                         return actions.join('');
                     }
                 }]

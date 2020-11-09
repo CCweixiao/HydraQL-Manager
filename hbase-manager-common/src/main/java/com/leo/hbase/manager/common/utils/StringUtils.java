@@ -432,10 +432,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 
     public static void main(String[] args) {
-        String  s = "TEST:USER:info";
+        String s = "TEST:USER:info:2344";
 
-        System.out.println(s.substring(0, s.lastIndexOf(":")));
-        System.out.println(s.substring(s.lastIndexOf(":")+1));
+        System.out.println(s.substring(0, s.lastIndexOf(":", 4)));
+        System.out.println(s.substring(s.lastIndexOf(":") + 1));
         /*String db1 = substringNamespace("TEST:leo_user");
         String table1 = substringTableName("TEST:leo_user");
         System.out.println(db1);

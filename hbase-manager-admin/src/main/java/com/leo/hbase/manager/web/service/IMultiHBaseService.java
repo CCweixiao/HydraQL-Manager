@@ -18,6 +18,18 @@ public interface IMultiHBaseService {
      */
     List<Map<String, Object>> get(String clusterCode, String tableName, String rowKey, String familyName);
 
+    /**
+     * 根据row key查找数据
+     *
+     * @param clusterCode 集群code
+     * @param tableName   表名
+     * @param rowKey      row key
+     * @param familyName  列簇名
+     * @param qualifier 字段名
+     * @return 查询数据
+     */
+    Map<String, Object> get(String clusterCode, String tableName, String rowKey, String familyName, String qualifier);
+
 
     /**
      * 查找数据

@@ -17,7 +17,14 @@ public class MultiHBaseServiceImpl implements IMultiHBaseService {
     @Override
     public List<Map<String, Object>> get(String clusterCode, String tableName, String rowKey, String familyName) {
         HBaseTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseTemplate(clusterCode);
+
         return hBaseTemplate.getToListMap(tableName, rowKey, familyName);
+    }
+
+    @Override
+    public Map<String, Object> get(String clusterCode, String tableName, String rowKey, String familyName, String qualifier) {
+        HBaseTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseTemplate(clusterCode);
+        return hBaseTemplate.getToMap(tableName, rowKey, familyName, qualifier);
     }
 
     @Override

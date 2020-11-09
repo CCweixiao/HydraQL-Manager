@@ -17,6 +17,7 @@ import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.dto.TableDescDto;
 import com.leo.hbase.manager.system.service.ISysHbaseTagService;
 import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
+import org.apache.commons.lang.text.StrBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +118,41 @@ public class SysHbaseBaseController extends BaseController {
         } else {
             return sysHbaseTags;
         }
+    }
+
+    public String[] parseTableFamilyRowFromStrId(String tableAndFamilyAndRow) {
+        if (StringUtils.isBlank(tableAndFamilyAndRow)) {
+            return null;
+        }
+        final String[] tableAndFamilyAndRows = tableAndFamilyAndRow.split(":");
+        String tableName = "";
+        String familyName = "";
+        String qualifier = "";
+        String rowName = "";
+
+        final int tableAndFamilyAndRowsLength = tableAndFamilyAndRows.length;
+
+        if (tableAndFamilyAndRowsLength < 5) {
+            return null;
+        } else if (tableAndFamilyAndRowsLength == 5) {
+            tableName = tableAndFamilyAndRows[0] + ":" + tableAndFamilyAndRows[1];
+            familyName = tableAndFamilyAndRows[2];
+            qualifier = tableAndFamilyAndRows[3];
+            rowName = tableAndFamilyAndRows[4];
+        } else {
+            tableName = tableAndFamilyAndRows[0] + ":" + tableAndFamilyAndRows[1];
+            familyName = tableAndFamilyAndRows[2];
+            qualifier = tableAndFamilyAndRows[3];
+            StrBuilder sb = new StrBuilder(rowName);
+            for (int i = 4; i < tableAndFamilyAndRowsLength; i++) {
+                sb.append(tableAndFamilyAndRows[i]);
+                if (i < tableAndFamilyAndRowsLength - 1) {
+                    sb.append(":");
+                }
+            }
+            rowName = sb.toString();
+        }
+
+        return new String[]{tableName, rowName, familyName, qualifier};
     }
 }
