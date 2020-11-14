@@ -5,6 +5,7 @@ import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +19,13 @@ public class MultiHBaseServiceImpl implements IMultiHBaseService {
     public List<Map<String, Object>> get(String clusterCode, String tableName, String rowKey, String familyName) {
         HBaseTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseTemplate(clusterCode);
 
-        return hBaseTemplate.getToListMap(tableName, rowKey, familyName);
+        return hBaseTemplate.getToListMapWithFamily(tableName, rowKey, familyName);
     }
 
     @Override
     public Map<String, Object> get(String clusterCode, String tableName, String rowKey, String familyName, String qualifier) {
         HBaseTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseTemplate(clusterCode);
-        return hBaseTemplate.getToMap(tableName, rowKey, familyName, qualifier);
+        return hBaseTemplate.getToMapWithFamilyAndQualifier(tableName, rowKey, familyName, Collections.singletonList(qualifier));
     }
 
     @Override

@@ -143,6 +143,12 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
+    public List<SnapshotDesc> listAllSnapshotDesc(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.listSnapshots();
+    }
+
+    @Override
     public boolean createTable(String clusterCode, TableDesc tableDesc) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.createTable(tableDesc);
@@ -158,6 +164,18 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     public boolean createTable(String clusterCode, TableDesc tableDesc, String[] splitKeys, boolean isAsync) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.createTable(tableDesc, splitKeys, isAsync);
+    }
+
+    @Override
+    public boolean createSnapshot(String clusterCode, SnapshotDesc snapshotDesc) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.snapshot(snapshotDesc);
+    }
+
+    @Override
+    public boolean removeSnapshot(String clusterCode, String snapshotName) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.deleteSnapshot(snapshotName);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.leo.hbase.manager.web.service;
 
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
+import com.github.CCweixiao.model.SnapshotDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
 
@@ -81,6 +82,14 @@ public interface IMultiHBaseAdminService {
      */
     List<TableDesc> listAllTableDesc(String clusterCode);
 
+    /**
+     * 获取所有快照
+     *
+     * @param clusterCode 集群ID
+     * @return 所有快照信息
+     */
+    List<SnapshotDesc> listAllSnapshotDesc(String clusterCode);
+
 
     /**
      * 创建表
@@ -115,6 +124,24 @@ public interface IMultiHBaseAdminService {
      * @return 表是否被创建成功
      */
     boolean createTable(String clusterCode, TableDesc tableDesc, String[] splitKeys, boolean isAsync);
+
+    /**
+     * 创建HBase表快照
+     *
+     * @param clusterCode  集群code
+     * @param snapshotDesc 快照描述信息
+     * @return 快照是否被创建成功
+     */
+    boolean createSnapshot(String clusterCode, SnapshotDesc snapshotDesc);
+
+    /**
+     * 删除快照
+     *
+     * @param clusterCode  集群code
+     * @param snapshotName 快照描述信息
+     * @return 快照是否被创建成功
+     */
+    boolean removeSnapshot(String clusterCode, String snapshotName);
 
     /**
      * 创建表，预分区

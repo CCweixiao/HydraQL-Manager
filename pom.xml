@@ -32,7 +32,7 @@
         <velocity.version>1.7</velocity.version>
         <hbase1.x.version>1.4.3</hbase1.x.version>
         <hbase2.x.version>2.1.0</hbase2.x.version>
-        <base.hbase.sdk.core.version>2.0.4</base.hbase.sdk.core.version>
+        <base.hbase.sdk.core.version>2.0.5</base.hbase.sdk.core.version>
     </properties>
 
     <licenses>
