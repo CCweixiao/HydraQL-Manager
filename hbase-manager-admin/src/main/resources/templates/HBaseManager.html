@@ -55,7 +55,7 @@
             <a class="btn btn-success btn-outline" href="https://github.com/CCweixiao/hbase-manager" target="_blank">
                 <i class="fa fa-cloud"> </i> 访问GitHub
             </a>
-            <a class="btn btn-white btn-bitbucket" href="http://www.jielongping.com" target="_blank">
+            <a class="btn btn-white btn-bitbucket" href="https://www.jielongping.com" target="_blank">
                 <i class="fa fa-home"></i> 访问个人主页
             </a>
         </p>
@@ -85,7 +85,7 @@
 
                 </div>
                 <div class="ibox-content">
-                    <p><i class="fa fa-send-o"></i> 官网：<a href="http://www.jielongping.com" target="_blank">http://www.jielongping.com</a>
+                    <p><i class="fa fa-send-o"></i> 官网：<a href="https://www.jielongping.com" target="_blank">http://www.jielongping.com</a>
                     </p>
                     <p id="wx-qrcode">
                         <a href="javascript:;"><img th:src="@{/img/wx-gongzhong.jpg}" width="50%" alt="扫描关注微信号">
@@ -111,11 +111,32 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v205">v2.0.5</a><code
+                                            class="pull-right">2020.11.14</code>
+                                    </h5>
+                                </div>
+                                <div id="v205" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>多集群切换功能完善</li>
+                                            <li>项目结构调整，代码优化，引用hbase-sdk 2.0.5</li>
+                                            <li>优化HBase表数据管理功能，完善表数据的增删改查</li>
+                                            <li>新增快照管理功能</li>
+                                            <li>HBase列簇管理功能完善，包括列簇新增、以及参数更新等功能</li>
+                                            <li>还有更多 ......</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
                                         <a data-toggle="collapse" data-parent="#version" href="#v203">v2.0.3</a><code
                                             class="pull-right">2020.10.08</code>
                                     </h5>
                                 </div>
-                                <div id="v203" class="panel-collapse collapse in">
+                                <div id="v203" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <ol>
                                             <li>增加多集群的切换功能</li>
