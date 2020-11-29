@@ -205,3 +205,19 @@
 <div th:fragment="bootstrap-table-print-js">
 	<script th:src="@{/ajax/libs/bootstrap-table/extensions/print/bootstrap-table-print.min.js?v=20200729}"></script>
 </div>
+
+<!-- sql 美化工具 -->
+<div th:fragment="codemirror-plugins">
+	<!--核心-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.css}"/>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.js}"></script>
+	<!--主题-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/theme/seti.css}">
+	<!--sql-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/addon/hint/show-hint.css}"/>
+
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/hint/show-hint.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/hint/sql-hint.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/mode/sql/sql.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/selection/active-line.js}"></script>
+</div>

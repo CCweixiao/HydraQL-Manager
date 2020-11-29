@@ -5,6 +5,7 @@ import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.SnapshotDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
+import com.leo.hbase.manager.common.core.domain.Ztree;
 
 import java.util.List;
 
@@ -46,6 +47,15 @@ public interface IMultiHBaseAdminService {
      * @return all tables
      */
     List<String> listAllTableNamesByNamespaceName(String clusterCode, String namespaceName);
+
+    /**
+     * 解析命名空间和表的树状结构
+     *
+     * @param clusterCode 集群code
+     * @param namespace   命名空间
+     * @return 树状结构
+     */
+    List<Ztree> listNamespaceTree(String clusterCode, String namespace);
 
     /**
      * create a namespace

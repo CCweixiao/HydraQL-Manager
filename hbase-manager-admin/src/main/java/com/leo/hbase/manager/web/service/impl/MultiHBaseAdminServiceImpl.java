@@ -8,6 +8,7 @@ import com.github.CCweixiao.model.SnapshotDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
 import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
+import com.leo.hbase.manager.common.core.domain.Ztree;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
@@ -16,6 +17,7 @@ import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +71,25 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
         }
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.listTableNamesByNamespace(namespaceName);
+    }
+
+    @Override
+    public List<Ztree> listNamespaceTree(String clusterCode, String namespaceName) {
+        List<String> namespaceList = new ArrayList<>();
+        if (StringUtils.isNotBlank(namespaceName)) {
+            namespaceList.add(namespaceName);
+        } else {
+            namespaceList = listAllNamespaceName(clusterCode);
+        }
+        for (String namespace : namespaceList) {
+            final List<String> tableList = listAllTableNamesByNamespaceName(clusterCode, namespace);
+            for (String table : tableList) {
+                Ztree ztree = new Ztree();
+                //ztree.setId();
+            }
+        }
+        //TODO 解析命名空间和表的结构
+        return null;
     }
 
     @Override
