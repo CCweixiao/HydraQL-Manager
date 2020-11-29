@@ -207,7 +207,7 @@
 </div>
 
 <!-- sql 美化工具 -->
-<div th:fragment="codemirror-plugins">
+<div th:fragment="codemirror-sql-plugins">
 	<!--核心-->
 	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.css}"/>
 	<script th:src="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.js}"></script>
@@ -220,4 +220,46 @@
 	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/hint/sql-hint.js}"></script>
 	<script th:src="@{/ajax/libs/codemirror-5.47.0/mode/sql/sql.js}"></script>
 	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/selection/active-line.js}"></script>
+</div>
+
+<!-- json 美化工具 -->
+<div th:fragment="codemirror-json-plugins">
+	<!--核心-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.css}"/>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/lib/codemirror.js}"></script>
+	<!--主题-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/theme/seti.css}">
+	<!--代码高亮必须引入-->
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/mode/javascript/javascript.js}"></script>
+
+	<!--引入js，绑定Vim-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/addon/dialog/dialog.css}">
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/keymap/vim.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/search/searchcursor.js}"></script>
+	<!--改善vim输入命令时的样式-->
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/dialog/dialog.js}"></script>
+
+	<!--支持代码折叠-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/addon/fold/foldgutter.css}"/>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/fold/foldcode.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/fold/foldgutter.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/fold/brace-fold.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/fold/comment-fold.js}"></script>
+
+	<!--括号匹配-->
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/edit/matchbrackets.js}"></script>
+
+	<!--自动补全-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/addon/hint/show-hint.css}">
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/hint/show-hint.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/hint/anyword-hint.js}"></script>
+	<!--行注释-->
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/comment/comment.js}"></script>
+
+	<!--代码检查错误-->
+	<link rel="stylesheet" th:href="@{/ajax/libs/codemirror-5.47.0/addon/lint/lint.css}">
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/lint/lint.js}"></script>
+	<script th:src="@{/ajax/libs/codemirror-5.47.0/addon/lint/json-lint.js}"></script>
+
+
 </div>

@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.service.impl;
 
 import com.github.CCweixiao.HBaseTemplate;
+import com.github.CCwexiao.dsl.client.HBaseCellResult;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.springframework.stereotype.Service;
@@ -46,5 +47,20 @@ public class MultiHBaseServiceImpl implements IMultiHBaseService {
         Map<String, Object> data = new HashMap<>(1);
         data.put(familyAndQualifierName, value);
         hBaseTemplate.save(tableName, rowKey, data);
+    }
+
+    @Override
+    public List<List<HBaseCellResult>> select(String clusterCode, String hql) {
+        return null;
+    }
+
+    @Override
+    public void insert(String clusterCode, String hql) {
+
+    }
+
+    @Override
+    public void delete(String clusterCode, String hql) {
+
     }
 }

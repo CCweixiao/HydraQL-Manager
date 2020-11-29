@@ -21,4 +21,5 @@ public class SysHbaseTableSqlController extends SysHbaseBaseController{
     }
 
 
+
 }

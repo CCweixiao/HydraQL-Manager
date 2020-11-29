@@ -1,5 +1,7 @@
 package com.leo.hbase.manager.web.service;
 
+import com.github.CCwexiao.dsl.client.HBaseCellResult;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ public interface IMultiHBaseService {
      * @param tableName   表名
      * @param rowKey      row key
      * @param familyName  列簇名
-     * @param qualifier 字段名
+     * @param qualifier   字段名
      * @return 查询数据
      */
     Map<String, Object> get(String clusterCode, String tableName, String rowKey, String familyName, String qualifier);
@@ -64,4 +66,29 @@ public interface IMultiHBaseService {
      * @param value                  值
      */
     void saveOrUpdate(String clusterCode, String tableName, String rowKey, String familyAndQualifierName, String value);
+
+    /**
+     * select
+     *
+     * @param clusterCode 集群编号
+     * @param hql         hql
+     * @return select 结果集
+     */
+    List<List<HBaseCellResult>> select(String clusterCode, String hql);
+
+    /**
+     * 数据插入
+     *
+     * @param clusterCode 集群编号
+     * @param hql         hql
+     */
+    void insert(String clusterCode, String hql);
+
+    /**
+     * 数据删除
+     *
+     * @param clusterCode 集群编号
+     * @param hql         hql
+     */
+    void delete(String clusterCode, String hql);
 }
