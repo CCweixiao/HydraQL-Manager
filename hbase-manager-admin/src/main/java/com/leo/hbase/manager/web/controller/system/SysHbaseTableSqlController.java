@@ -9,7 +9,6 @@ import com.github.CCwexiao.dsl.util.TreeUtil;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTableCellResult;
-import com.leo.hbase.manager.system.domain.SysHbaseTableData;
 import com.leo.hbase.manager.system.dto.QueryHBaseSqlDto;
 import com.leo.hbase.manager.system.dto.TableSchemaDto;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
@@ -23,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

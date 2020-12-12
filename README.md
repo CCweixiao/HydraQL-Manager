@@ -24,8 +24,9 @@
 5. 数据管理：HBase表数据的查询、新增、删除。
 6. 多集群管理：多集群切换。
 7. 监控功能：后续可能会考虑增加丰富的监控功能，以期待代替HBase本身的监控界面
-8. WebShell：基于Web的HBase Shell 
-9. 更多功能：......
+8. WebShell：基于Web的HBase Shell （规划中）
+9. HQL: 以SQL的方式读写HBase集群中的数据
+10. 更多功能：......
 
 ## 4. 若依系统本身功能
 
@@ -131,13 +132,48 @@ localhost.hbase.filter.namespace.prefix=SYSTEM
 localhost.hbase.filter.tableName.prefix=KYLIN
 ```
 
+**配置Kerberos认证**
+
+如果你的HBase集群是在Kerberos环境下，那么配置文件`hbase-manager.properties`中需要指定kerberos认证相关的配置。
+
+示例配置以及配置说明如下：
+
+```properties
+hbase.manager.zk.cluster.alias=node1_dev,localhost
+
+node1_online.hbase.quorum=node2.bigdata.leo.com,node1.bigdata.leo.com,node3.bigdata.leo.com
+node1_online.hbase.zk.client.port=2181
+node1_online.hbase.node.parent=/hbase
+node1_online.hbase.client.properties=hbase.client.retries.number=3
+node1_online.hbase.filter.namespace.prefix=SYSTEM
+node1_online.hbase.filter.tableName.prefix=KYLIN
+# Kerberos相关的配置信息，可以参考集群中的hbase-site.xml配置文件
+node1_online.hbase.hadoop.security.authentication=kerberos
+node1_online.hbase.hbase.security.authentication=kerberos
+# KDC客户端配置文件，主要为了指定KDC的服务地址
+node1_online.hbase.java.security.krb5.conf=/etc/krb5.conf
+# 需要登录用户的keytab文件
+node1_online.hbase.keytab.file=/home/hadoop/hadoop.keytab
+# 登录用户principal
+node1_online.hbase.kerberos.principal=hadoop@LEO.COM
+# master 和 regionserver的principal
+node1_online.hbase.master.kerberos.principal=hbase/_HOST@LEO.COM
+node1_online.hbase.regionserver.kerberos.principal=hbase/_HOST@LEO.COM
+
+##################################################################
+localhost.hbase.quorum=localhost
+localhost.hbase.zk.client.port=2181
+localhost.hbase.node.parent=/hbase
+localhost.hbase.client.properties=hbase.client.retries.number=3
+localhost.hbase.filter.namespace.prefix=SYSTEM
+localhost.hbase.filter.tableName.prefix=KYLIN
+```
 
 **切换集群**
 
 点击切换集群，就可以管理不同集群的数据。
 
 ![choose-cluster](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-10-08-073129.jpg)
-
 
 
 ## 6. 快速体验
@@ -268,7 +304,103 @@ https://weixiaotome.gitee.io/hbase-sdk/
 
 ![hbase-sdk-api](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-11-14-141959.jpg)
 
-## 8. 更新日志
+
+## 8. HQL
+
+### 8.1 创建HBase表的schema信息
+
+基于`hbase-sdk`的hql功能，你可以在hbase-manager平台之中稍作设置，就可以体验以类SQL的方式来读写集群中的数据。
+
+在体验SQL之前，你需要定义将要操作表的schema信息。
+
+主页->HBaseTableSchema->添加HBaseSchema
+
+![add-schema](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-12-12-141700.jpg)
+
+![schema-list](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-12-12-141737.jpg)
+
+schema信息需要遵循模板：
+
+```json
+{
+ "tableName":"TEST:USER",
+ "defaultFamily":"F",
+ "columnSchema":[
+  {
+   "family":"F",
+   "qualifier":"name",
+   "typeName":"string"
+  },
+  {
+   "family":"F",
+   "qualifier":"age",
+   "typeName":"int"
+  },
+  {
+   "family":"F",
+   "qualifier":"pay",
+   "typeName":"int"
+  },
+  {
+   "family":"F",
+   "qualifier":"address",
+   "typeName":"string"
+  }
+ ]
+}
+```
+编辑框提供了json编辑器以及格式化的工具。后续会考虑兼容表单填写schema的方式。
+
+### 8.2 insert 语句
+
+打开HBaseSQL，在SQL编辑框中输入SQL，针对SQL的一些特殊关键字有友好的高亮和提示。只是目前SQL语法对格式要求还比较严格，所以，
+编写SQL时需要注意空格。
+
+![insert-sql](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-12-12-142035.jpg)
+
+输入insert语法示例：
+
+```sql
+INSERT INTO TEST:USER ( name , age , pay , address ) VALUES ('leo', '17', '232424', 'shanghai') WHERE rowkey is stringkey ('1001') 
+```
+
+### 8.3 select 语句
+
+select 语法示例
+
+```sql
+-- 基本的select语句
+select * from TEST:USER where rowkey is stringkey ('1001')
+-- 查询起止rowKey的数据
+select * from TEST:USER where startKey is stringkey ( '1001' ) , endKey is stringkey ( '1003' ) limit 10
+-- 查询起止rowKey 以及年龄大于10且工资大于20000的数据
+select name , age , pay from TEST:USER where startKey is stringkey ( '1001' ) , endKey is stringkey ( '1003' ) ( age greater '10' and pay greater '20000' ) limit 10
+--  查询起止rowKey 以及年龄大于10且工资大于20000的数据，且版本号为1，时间戳在1607771640000~1607782440000直接的数据
+select name , age , pay from TEST:USER where startKey is stringkey ( '1001' ) , endKey is stringkey ( '1003' ) ( age greater '10' and pay greater '2000' ) ( maxversion is 1 ) ( startTS is '1607771687476' , endTS is '1607782947374' ) limit 10
+select name , age , pay from TEST:USER where startKey is stringkey ( '1001' ) , endKey is stringkey ( '1003' ) ( age greater '10' and pay greater '2000' ) ( maxversion is 1 ) ( startTS is '1' , endTS is '2' ) limit 10
+
+```
+
+### 8.4 delete语句
+
+delete语法示例
+
+delete语法中，rowKey以及filter条件与select语句类似
+
+
+```sql
+delete * from TEST:USER where rowkey is stringkey ( '1001' ) ( age greater '10' and pay greater '20000' )
+```
+
+关于更多的语法示例，随着系统功能的完善会一一添加的
+
+## 9. 更新日志
+
+### v2.0.6 2020.12.12
+
+1. 集成Kerberos环境下的HBase集群认证
+2. 新增HBase SQL查询功能（持续优化中）
+
 
 ### v2.0.5 2020.11.14
 
