@@ -143,7 +143,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     public AjaxResult addSave(@Validated TableDescDto tableDescDto) {
         String clusterCode = clusterCodeOfCurrentSession();
         final String tableName = tableDescDto.getTableName();
-        final String fullTableName = HMHBaseConstant.getFullTableName(tableName);
+        final String fullTableName = HMHBaseConstant.getFullTableName(tableDescDto.getNamespaceId(), tableName);
 
         if (multiHBaseAdminService.tableIsExists(clusterCode, fullTableName)) {
             return error("HBase表[" + fullTableName + "]已经存在！");

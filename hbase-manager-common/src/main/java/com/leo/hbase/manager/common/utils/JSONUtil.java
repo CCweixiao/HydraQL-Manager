@@ -9,7 +9,7 @@ import com.leo.hbase.manager.common.exception.BusinessException;
  */
 public class JSONUtil {
     public static void checkHasKey(JSONObject jsonObj, String key) {
-        if(jsonObj == null){
+        if (jsonObj == null) {
             throw new BusinessException("json obj is null.");
         }
 
@@ -18,12 +18,16 @@ public class JSONUtil {
         }
     }
 
-    public static String getStrV(JSONObject jsonObj, String key){
+    public static String getStrV(JSONObject jsonObj, String key) {
         checkHasKey(jsonObj, key);
         return jsonObj.getString(key);
     }
 
-    public static JSONArray getJsonArr(JSONObject jsonObj, String key){
+    public static String getStrVOr(JSONObject jsonObj, String key, String defaultValue) {
+        return (String) jsonObj.getOrDefault(key, defaultValue);
+    }
+
+    public static JSONArray getJsonArr(JSONObject jsonObj, String key) {
         checkHasKey(jsonObj, key);
         return jsonObj.getJSONArray(key);
     }

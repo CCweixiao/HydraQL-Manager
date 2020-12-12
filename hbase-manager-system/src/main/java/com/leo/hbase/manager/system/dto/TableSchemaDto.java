@@ -6,9 +6,9 @@ import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.model.TableDesc;
 import com.google.common.base.Converter;
 import com.leo.hbase.manager.common.utils.JSONUtil;
+import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.system.valid.First;
 import com.leo.hbase.manager.system.valid.Second;
-import com.leo.hbase.manager.system.valid.Third;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -21,7 +21,10 @@ import java.util.Map;
  */
 @GroupSequence(value = {First.class, Second.class, TableSchemaDto.class})
 public class TableSchemaDto {
-    @NotBlank(message = "HBaseTableSchema不能为空", groups = {Third.class})
+    private String tableId;
+    private String tableName;
+
+    @NotBlank(message = "HBaseTableSchema不能为空", groups = {First.class})
     @Size(min = 1, max = 200000, message = "HBaseTableSchema必须在200000个字符之间", groups = {Second.class})
     private String tableSchema;
 
@@ -57,9 +60,17 @@ public class TableSchemaDto {
 
         @Override
         protected TableSchemaDto doBackward(TableDesc tableDesc) {
-            final String tableSchema = tableDesc.getTableProps().getOrDefault("tableSchema", "");
+            final Map<String, String> tableProps = tableDesc.getTableProps();
+             String tableSchema;
+            if(tableProps==null|| tableProps.isEmpty()){
+                tableSchema = "";
+            }else{
+                tableSchema = tableProps.getOrDefault("tableSchema", "");
+            }
             TableSchemaDto tableSchemaDto = new TableSchemaDto();
             tableSchemaDto.setTableSchema(tableSchema);
+            tableSchemaDto.setTableName(tableDesc.getTableName());
+            tableSchemaDto.setTableId(StrEnDeUtils.encrypt(tableDesc.getTableName()));
             return tableSchemaDto;
         }
     }
@@ -70,5 +81,21 @@ public class TableSchemaDto {
 
     public void setTableSchema(String tableSchema) {
         this.tableSchema = tableSchema;
+    }
+
+    public String getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(String tableId) {
+        this.tableId = tableId;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 }

@@ -746,6 +746,49 @@ var table = {
                     callBack(true);
                 });
             },
+            // 弹出没有提交关闭按钮
+            openNoSubmitButton: function (title, url, width, height, callback) {
+                //如果是移动端，就使用自适应大小弹窗
+                if ($.common.isMobile()) {
+                    width = 'auto';
+                    height = 'auto';
+                }
+                if ($.common.isEmpty(title)) {
+                    title = false;
+                }
+                if ($.common.isEmpty(url)) {
+                    url = "/404.html";
+                }
+                if ($.common.isEmpty(width)) {
+                    width = 800;
+                }
+                if ($.common.isEmpty(height)) {
+                    height = ($(window).height() - 50);
+                }
+                if ($.common.isEmpty(callback)) {
+                    callback = function (index, layero) {
+                        var iframeWin = layero.find('iframe')[0];
+                        iframeWin.contentWindow.submitHandler(index, layero);
+                    }
+                }
+                layer.open({
+                    type: 2,
+                    area: [width + 'px', height + 'px'],
+                    fix: false,
+                    //不固定
+                    maxmin: true,
+                    shade: 0.3,
+                    title: title,
+                    content: url,
+                    //btn: ['确定', '关闭'],
+                    // 弹层外区域关闭
+                    shadeClose: true,
+                    yes: callback,
+                    cancel: function (index) {
+                        return true;
+                    }
+                });
+            },
             // 弹出层指定宽度
             open: function (title, url, width, height, callback) {
                 //如果是移动端，就使用自适应大小弹窗
@@ -1002,7 +1045,7 @@ var table = {
                 return url;
             },
             // 删除信息，with url
-            removeWithUrl: function(url) {
+            removeWithUrl: function (url) {
                 table.set();
                 $.modal.confirm("确定删除该条" + table.options.modalName + "信息吗？", function () {
                     if (table.options.type === table_type.bootstrapTreeTable) {
@@ -1048,6 +1091,11 @@ var table = {
                     $.operate.submit(url, "post", "json", "");
                 });
             },
+            // 添加信息，取消提交关闭按钮
+            addNoSubmitButton: function (id) {
+                table.set();
+                $.modal.openNoSubmitButton("添加" + table.options.modalName, $.operate.addUrl(id));
+            },
             // 添加信息
             add: function (id) {
                 table.set();
@@ -1070,7 +1118,7 @@ var table = {
                 return url;
             },
             // 修改信息，带上url
-            editWithUrl: function(url){
+            editWithUrl: function (url) {
                 table.set();
                 $.modal.open("修改" + table.options.modalName, url);
             },

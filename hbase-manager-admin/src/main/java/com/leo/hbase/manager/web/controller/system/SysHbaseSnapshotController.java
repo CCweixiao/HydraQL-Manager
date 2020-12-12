@@ -46,7 +46,7 @@ public class SysHbaseSnapshotController extends SysHbaseBaseController {
     }
 
     /**
-     * 查询HBaseNamespace列表
+     * 快照列表
      */
     @RequiresPermissions("system:snapshot:list")
     @PostMapping("/list")

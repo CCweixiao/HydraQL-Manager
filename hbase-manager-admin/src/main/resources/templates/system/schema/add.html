@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('新增HBase表的Schema')"/>
+    <th:block th:include="include :: layout-latest-css"/>
+    <th:block th:include="include :: codemirror-json-plugins"/>
+</head>
+<body class="gray-bg">
+
+<div class="ui-layout-center">
+    <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+
+                <div class="col-sm-12">
+                    <form id="sql-form">
+                        <div class="form-group">
+                            <label for="code">在这里定义你的HBaseTableSchema</label>
+                            <textarea id="code" name="code" class="form-control CodeMirror" rows="5"
+                                      placeholder="please input your table schema ......"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-sm-12">
+                    <a class="btn btn-primary btn-rounded btn-sm" onclick="submitTableSchema()"><i
+                            class="fa fa-search"></i>&nbsp;确定 </a>
+
+                    <a class="btn btn-warning btn-rounded btn-sm" onclick="clearJSON()"><i
+                            class="fa fa-refresh"></i>&nbsp;重置 </a>
+
+                    <a class="btn btn-primary btn-rounded btn-sm" onclick="formatJSON()"><i
+                            class="fa fa-code"></i>&nbsp;格式化 </a>
+
+                    <a class="btn btn-warning btn-rounded btn-sm" onclick="compressJSON()"><i
+                            class="fa fa-gavel"></i>&nbsp;压缩 </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: layout-latest-js"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "system/schema";
+
+    const mime = 'text/x-mysql';
+    const source = {"users": ["id", "name"], "dbs": ["id", "name"]};
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {//根据DOM元素的id构造出一个编辑器
+        mode: 'text/x-sql',
+        indentWithTabs: true,
+        smartIndent: true,
+        lineNumbers: false,
+        matchBrackets: true,
+        autofocus: true,
+        styleActiveLine: true,
+        hintOptions: {tables: source}
+    });
+    editor.setOption("mode", "text/x-mysql");
+    editor.setSize('100%', '300px');
+    editor.on("keyup", function (cm, event) {
+        if (!cm.state.completionActive
+            //所有的字母和'$','{','.'在键按下之后都将触发自动完成
+            && ((event.keyCode >= 65 && event.keyCode <= 90)
+                || event.keyCode === 52 || event.keyCode === 219
+                || event.keyCode === 190)) {
+            CodeMirror.commands.autocomplete(cm, null, {
+                completeSingle: false
+            });
+        }
+    });
+
+    function submitTableSchema() {
+        editor.save();
+        var schema = editor.getValue();
+        schema = format(schema, true);
+        if (schema === "") {
+            return;
+        }
+        var data = {"tableSchema": schema}
+        $.operate.save(prefix + "/add", data);
+    }
+
+    $(function () {
+        var panehHidden = false;
+        if ($(this).width() < 769) {
+            panehHidden = true;
+        }
+        $('body').layout({initClosed: panehHidden, west__size: 185});
+    });
+
+    function formatJSON() {
+        editor.save();
+        var schema = editor.getValue();
+        schema = format(schema, false);
+        editor.setValue(schema);
+        editor.save();
+    }
+
+    function compressJSON() {
+        editor.save();
+        var schema = editor.getValue();
+        schema = format(schema, true);
+        editor.setValue(schema);
+        editor.save();
+    }
+
+    function clearJSON() {
+        editor.setValue('');
+        editor.save();
+    }
+
+    function format(txt, compress/*是否为压缩模式*/) {/* 格式化JSON源码(对象转换为JSON文本) */
+        var indentChar = ' ';
+        if (/^\s*$/.test(txt)) {
+            $.modal.msg("HBase表的schema不能为空！", "error");
+            return "";
+        }
+        try {
+            var data = eval('(' + txt + ')');
+        } catch (e) {
+            $.modal.msg('输入的JSON语句有语法错误!', 'error');
+            return "";
+        }
+        ;
+        var draw = [], last = false, This = this, line = compress ? '' : '\n', nodeCount = 0, maxDepth = 0;
+
+        var notify = function (name, value, isLast, indent/*缩进*/, formObj) {
+            nodeCount++;/*节点计数*/
+            for (var i = 0, tab = ''; i < indent; i++) tab += indentChar;/* 缩进HTML */
+            tab = compress ? '' : tab;/*压缩模式忽略缩进*/
+            maxDepth = ++indent;/*缩进递增并记录*/
+            if (value && value.constructor === Array) {/*处理数组*/
+                draw.push(tab + (formObj ? ('"' + name + '":') : '') + '[' + line);/*缩进'[' 然后换行*/
+                for (var i = 0; i < value.length; i++)
+                    notify(i, value[i], i === value.length - 1, indent, false);
+                draw.push(tab + ']' + (isLast ? line : (',' + line)));/*缩进']'换行,若非尾元素则添加逗号*/
+            } else if (value && typeof value == 'object') {/*处理对象*/
+                draw.push(tab + (formObj ? ('"' + name + '":') : '') + '{' + line);/*缩进'{' 然后换行*/
+                var len = 0, i = 0;
+                for (var key in value) len++;
+                for (var key in value) notify(key, value[key], ++i == len, indent, true);
+                draw.push(tab + '}' + (isLast ? line : (',' + line)));/*缩进'}'换行,若非尾元素则添加逗号*/
+            } else {
+                if (typeof value == 'string') value = '"' + value + '"';
+                draw.push(tab + (formObj ? ('"' + name + '":') : '') + value + (isLast ? '' : ',') + line);
+            }
+            ;
+        };
+        var isLast = true, indent = 0;
+        notify('', data, isLast, indent, false);
+        return draw.join('');
+    }
+
+</script>
+</body>
+</html>

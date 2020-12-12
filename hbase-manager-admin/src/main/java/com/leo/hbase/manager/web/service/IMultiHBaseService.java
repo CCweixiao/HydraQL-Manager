@@ -1,6 +1,7 @@
 package com.leo.hbase.manager.web.service;
 
 import com.github.CCwexiao.dsl.client.HBaseCellResult;
+import com.github.CCwexiao.dsl.config.HBaseTableConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -70,25 +71,28 @@ public interface IMultiHBaseService {
     /**
      * select
      *
-     * @param clusterCode 集群编号
-     * @param hql         hql
+     * @param clusterCode      集群编号
+     * @param hBaseTableConfig hbase表的配置
+     * @param hql              hql
      * @return select 结果集
      */
-    List<List<HBaseCellResult>> select(String clusterCode, String hql);
+    List<List<HBaseCellResult>> select(String clusterCode, HBaseTableConfig hBaseTableConfig, String hql);
 
     /**
      * 数据插入
      *
-     * @param clusterCode 集群编号
-     * @param hql         hql
+     * @param clusterCode      集群编号
+     * @param hBaseTableConfig hbase表的配置
+     * @param hql              hql
      */
-    void insert(String clusterCode, String hql);
+    void insert(String clusterCode, HBaseTableConfig hBaseTableConfig, String hql);
 
     /**
      * 数据删除
      *
-     * @param clusterCode 集群编号
-     * @param hql         hql
+     * @param clusterCode      集群编号
+     * @param hBaseTableConfig hbase表的配置
+     * @param hql              hql
      */
-    void delete(String clusterCode, String hql);
+    void delete(String clusterCode, HBaseTableConfig hBaseTableConfig, String hql);
 }

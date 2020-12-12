@@ -1,8 +1,10 @@
 package com.leo.hbase.manager.web.hds;
 
 import com.github.CCweixiao.HBaseAdminTemplate;
+import com.github.CCweixiao.HBaseSqlTemplate;
 import com.github.CCweixiao.HBaseTemplate;
 import com.github.CCweixiao.exception.HBaseOperationsException;
+import com.github.CCwexiao.dsl.config.HBaseTableConfig;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ public class HBaseClusterDSHolder {
 
     private final Map<String, HBaseTemplate> hBaseTemplateMap = new HashMap<>();
     private final Map<String, HBaseAdminTemplate> hBaseAdminTemplateMap = new HashMap<>();
+    private final Map<String, HBaseSqlTemplate> hBaseSqlTemplateMap = new HashMap<>();
 
     private HBaseClusterDSHolder() {
 
@@ -37,7 +40,7 @@ public class HBaseClusterDSHolder {
      * cluster1.hbase.zk.client.port=2181
      * cluster1.hbase.node.parent=/hbase
      */
-    private synchronized void initAllHBaseTemplate() {
+    private void initAllHBaseTemplate() {
         List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
             HBaseTemplate hBaseTemplate = new HBaseTemplate(getHBaseProperties(cluster));
@@ -45,7 +48,15 @@ public class HBaseClusterDSHolder {
         }
     }
 
-    private synchronized void initAllHBaseAdminTemplate() {
+    private void initAllHBaseSqlTemplate(){
+        List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
+        for (String cluster : allClusters) {
+            HBaseSqlTemplate hBaseSqlTemplate = new HBaseSqlTemplate(getHBaseProperties(cluster));
+            hBaseSqlTemplateMap.put(cluster, hBaseSqlTemplate);
+        }
+    }
+
+    private void initAllHBaseAdminTemplate() {
         List<String> allClusters = HBaseConfigUtils.getAllClusterAlias();
         for (String cluster : allClusters) {
             HBaseAdminTemplate hBaseAdminTemplate = new HBaseAdminTemplate(getHBaseProperties(cluster));
@@ -60,6 +71,17 @@ public class HBaseClusterDSHolder {
         }
         if (hBaseTemplateMap.containsKey(clusterCode)) {
             return hBaseTemplateMap.get(clusterCode);
+        }
+        throw new HBaseOperationsException("获取集群[" + clusterCode + "]的连接对象失败，请检查配置！");
+    }
+
+    public synchronized HBaseSqlTemplate getHBaseSqlTemplate(String clusterCode){
+        LOG.info("当前获取集群:{}的HBaseSqlTemplate对象！", clusterCode);
+        if (hBaseSqlTemplateMap.isEmpty()) {
+            initAllHBaseSqlTemplate();
+        }
+        if (hBaseSqlTemplateMap.containsKey(clusterCode)) {
+            return hBaseSqlTemplateMap.get(clusterCode);
         }
         throw new HBaseOperationsException("获取集群[" + clusterCode + "]的连接对象失败，请检查配置！");
     }

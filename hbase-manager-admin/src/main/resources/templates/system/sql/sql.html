@@ -90,20 +90,57 @@
         }
     });
 
+
     function submitSql() {
         editor.save();
-        var sql = editor.getValue();
-        alert(sql)
+        var hql = editor.getValue();
+
+        $.ajax({
+            type: "post",
+            url: prefix + "/query",
+            data: {
+                "hql": hql
+            },
+            success: function (r) {
+                if (r.code === 500) {
+                    $.modal.msg(r.msg, "error");
+                } else {
+                    //console.log(r.rows)
+                    initTable(r.rows)
+                }
+            }
+        });
     }
 
-    $(function () {
-        var panehHidden = false;
-        if ($(this).width() < 769) {
-            panehHidden = true;
-        }
-        $('body').layout({initClosed: panehHidden, west__size: 185});
-        //queryUserList();
-    });
+    function initTable(rows) {
+        var options = {
+            // url: prefix + "/query",
+            modalName: "HBase表数据",
+            sidePagination: 'client',
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'rowKey',
+                    title: 'row key'
+                },
+                {
+                    field: 'columnName',
+                    title: '列名称'
+                },
+                {
+                    field: 'tsDate',
+                    title: '时间戳'
+                },
+                {
+                    field: 'value',
+                    title: '数据值'
+                }],
+            data: rows
+        };
+        $.table.destroy();
+        $.table.init(options);
+    }
 
 </script>
 </body>
