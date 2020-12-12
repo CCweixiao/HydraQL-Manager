@@ -84,12 +84,28 @@ public class HBaseClusterDSHolder {
         String quorum = HBaseConfigUtils.getProperty(clusterCode + ".hbase.quorum", "localhost");
         String zkClientPort = HBaseConfigUtils.getProperty(clusterCode + ".hbase.zk.client.port", "2181");
         String nodeParent = HBaseConfigUtils.getProperty(clusterCode + ".hbase.node.parent", "/hbase");
+
+        String hadoopAuthentication = HBaseConfigUtils.getProperty(clusterCode + ".hbase.hadoop.security.authentication", "");
+        String hbaseAuthentication = HBaseConfigUtils.getProperty(clusterCode + ".hbase.hbase.security.authentication", "");
+
+        String krb5Conf = HBaseConfigUtils.getProperty(clusterCode + ".hbase.java.security.krb5.conf", "");
+        String keytab = HBaseConfigUtils.getProperty(clusterCode + ".hbase.keytab.file", "");
+        String principal = HBaseConfigUtils.getProperty(clusterCode + ".hbase.kerberos.principal", "");
+        String masterKerberosPrincipal = HBaseConfigUtils.getProperty(clusterCode + ".hbase.master.kerberos.principal", "");
+        String regionServerKerberosPrincipal = HBaseConfigUtils.getProperty(clusterCode + ".hbase.regionserver.kerberos.principal", "");
         String otherProperties = HBaseConfigUtils.getProperty(clusterCode + ".hbase.client.properties", "");
 
         Properties properties = new Properties();
         properties.setProperty("hbase.zookeeper.quorum", quorum);
         properties.setProperty("hbase.zookeeper.property.clientPort", zkClientPort);
         properties.setProperty("zookeeper.znode.parent", nodeParent);
+        properties.setProperty("java.security.krb5.conf", krb5Conf);
+        properties.setProperty("hadoop.security.authentication", hadoopAuthentication);
+        properties.setProperty("hbase.security.authentication", hbaseAuthentication);
+        properties.setProperty("keytab.file", keytab);
+        properties.setProperty("kerberos.principal", principal);
+        properties.setProperty("hbase.master.kerberos.principal", masterKerberosPrincipal);
+        properties.setProperty("hbase.regionserver.kerberos.principal", regionServerKerberosPrincipal);
 
         if (StringUtils.isNotBlank(otherProperties)) {
             final Map<String, String> propertyMaps = StringUtils.parsePropertyToMapFromStr(otherProperties);
