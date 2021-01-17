@@ -87,7 +87,7 @@ public class SysHbaseClusterController extends SysHbaseBaseController {
         return AjaxResult.success(data);
     }
 
-    static class QueryRequestsParam {
+    public static class QueryRequestsParam {
         private String modeName;
 
         public String getModeName() {
