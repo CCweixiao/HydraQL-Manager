@@ -175,6 +175,14 @@ localhost.hbase.filter.tableName.prefix=KYLIN
 
 ![choose-cluster](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-10-08-073129.jpg)
 
+### 5.6 HBase集群指标图表展示
+
+进入首页，可以查看集群整体指标以及，HBase集群的读写请求，并支持RegionServer、Region、Namespace、Table级别的每秒读写请求量监控
+
+![metric](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2021-01-17-043748.jpg)
+
+![requests](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2021-01-17-043842.jpg)
+
 
 ## 6. 快速体验
 
@@ -395,6 +403,11 @@ delete * from TEST:USER where rowkey is stringkey ( '1001' ) ( age greater '10' 
 关于更多的语法示例，随着系统功能的完善会一一添加的
 
 ## 9. 更新日志
+
+### v2.0.7 2021.01.17
+
+1. HBase读写请求热点监控
+
 
 ### v2.0.6 2020.12.12
 
