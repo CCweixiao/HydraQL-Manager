@@ -55,6 +55,8 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         return prefix + "/table";
     }
 
+
+
     @RequiresPermissions("system:table:detail")
     @GetMapping("/detail/{tableId}")
     public String detail(@PathVariable("tableId") String tableId, ModelMap mmap) {

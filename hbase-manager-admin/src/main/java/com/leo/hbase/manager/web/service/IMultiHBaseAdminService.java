@@ -1,5 +1,10 @@
 package com.leo.hbase.manager.web.service;
 
+import com.github.CCweixiao.hbtop.Record;
+import com.github.CCweixiao.hbtop.RecordFilter;
+import com.github.CCweixiao.hbtop.Summary;
+import com.github.CCweixiao.hbtop.field.Field;
+import com.github.CCweixiao.hbtop.mode.Mode;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.SnapshotDesc;
@@ -327,6 +332,27 @@ public interface IMultiHBaseAdminService {
      * @return 快照的总数
      */
     int totalSnapshotNum(String clusterCode);
+
+    /**
+     * 刷新汇总指标
+     * @param clusterCode 集群ID
+     *
+     * @return 汇总指标
+     */
+    Summary refreshSummary(String clusterCode);
+
+    /**
+     * 获取集群的统计指标
+     *
+     * @param clusterCode 集群ID
+     * @param currentMode      当前模式
+     * @param filters          过滤器
+     * @param currentSortField 当前排序字段
+     * @param ascendingSort    是否升序排列
+     * @return 统计指标列表
+     */
+    List<Record> refreshRecords(String clusterCode, Mode currentMode, List<RecordFilter> filters, Field currentSortField, boolean ascendingSort);
+
 
 
 }

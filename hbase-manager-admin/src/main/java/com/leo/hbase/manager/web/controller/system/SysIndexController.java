@@ -106,7 +106,7 @@ public class SysIndexController extends SysHbaseBaseController {
         mmap.put("tableNum", tableNum);
         mmap.put("snapshotNum", snapshotNum);
 
-        return "main";
+        return "main2";
     }
 
     //HBaseManager介绍

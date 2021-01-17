@@ -2,6 +2,11 @@ package com.leo.hbase.manager.web.service.impl;
 
 import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.constant.HMHBaseConstant;
+import com.github.CCweixiao.hbtop.Record;
+import com.github.CCweixiao.hbtop.RecordFilter;
+import com.github.CCweixiao.hbtop.Summary;
+import com.github.CCweixiao.hbtop.field.Field;
+import com.github.CCweixiao.hbtop.mode.Mode;
 import com.github.CCweixiao.model.FamilyDesc;
 import com.github.CCweixiao.model.NamespaceDesc;
 import com.github.CCweixiao.model.SnapshotDesc;
@@ -320,4 +325,17 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
             return snapshots.size();
         }
     }
+
+    @Override
+    public Summary refreshSummary(String clusterCode) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.refreshSummary();
+    }
+
+    @Override
+    public List<Record> refreshRecords(String clusterCode, Mode currentMode, List<RecordFilter> filters, Field currentSortField, boolean ascendingSort) {
+        HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
+        return hBaseTemplate.refreshRecords(currentMode, filters, currentSortField, ascendingSort);
+    }
+
 }
