@@ -16,13 +16,11 @@
     <description>hbase-manager-system 系统模块</description>
 
     <dependencies>
-
         <!-- 通用工具-->
         <dependency>
             <groupId>com.leo</groupId>
             <artifactId>hbase-manager-common</artifactId>
         </dependency>
-
     </dependencies>
 
     <profiles>

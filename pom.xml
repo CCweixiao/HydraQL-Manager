@@ -30,9 +30,10 @@
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <poi.version>3.17</poi.version>
         <velocity.version>1.7</velocity.version>
+        <!-- hbase相关依赖 -->
         <hbase1.x.version>1.4.3</hbase1.x.version>
         <hbase2.x.version>2.1.0</hbase2.x.version>
-        <base.hbase.sdk.core.version>2.0.7</base.hbase.sdk.core.version>
+        <hbase.sdk.core.version>2.0.8</hbase.sdk.core.version>
     </properties>
 
     <licenses>
@@ -233,48 +234,6 @@
                 <artifactId>hbase-manager-common</artifactId>
                 <version>${hbase-manager.version}</version>
             </dependency>
-            <!-- HBase相关依赖-->
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-server</artifactId>
-                <version>${hbase.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>slf4j-api</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>slf4j-log4j12</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-client</artifactId>
-                <version>${hbase.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>slf4j-api</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>slf4j-log4j12</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-core_1.4</artifactId>
-                <version>${hbase.sdk.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-core_2.1</artifactId>
-                <version>${hbase.sdk.core.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -285,9 +244,6 @@
         <module>hbase-manager-quartz</module>
         <module>hbase-manager-generator</module>
         <module>hbase-manager-common</module>
-        <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
-        <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
-
     </modules>
 
     <packaging>pom</packaging>
@@ -361,16 +317,11 @@
     </pluginRepositories>
 
     <profiles>
-
         <profile>
             <id>hbase1.x</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <hbase.version>${hbase1.x.version}</hbase.version>
-                <hbase.sdk.core.version>${base.hbase.sdk.core.version}</hbase.sdk.core.version>
-            </properties>
             <modules>
                 <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
             </modules>
@@ -378,10 +329,6 @@
 
         <profile>
             <id>hbase2.x</id>
-            <properties>
-                <hbase.version>${hbase2.x.version}</hbase.version>
-                <hbase.sdk.core.version>${base.hbase.sdk.core.version}</hbase.sdk.core.version>
-            </properties>
             <modules>
                 <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
             </modules>

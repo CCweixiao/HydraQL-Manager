@@ -58,7 +58,7 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     public List<String> listAllNamespaceName(String clusterCode) {
         final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        final List<String> namespaces = hBaseTemplate.listNamespaces();
+        final List<String> namespaces = hBaseTemplate.listNamespaceNames();
 
         if (StringUtils.isNotBlank(filterNamespacePrefix)) {
             return namespaces.stream().filter(namespace -> !namespace.startsWith(filterNamespacePrefix)).collect(Collectors.toList());
@@ -306,7 +306,7 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public int totalNamespaceNum(String clusterCode) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listNamespaces().size();
+        return hBaseTemplate.listNamespaceNames().size();
     }
 
     @Override
