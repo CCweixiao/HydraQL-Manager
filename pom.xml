@@ -5,6 +5,8 @@
 
     <groupId>com.leo</groupId>
     <artifactId>hbase-manager</artifactId>
+    <packaging>pom</packaging>
+
     <version>2.0.7</version>
 
     <name>hbase-manager</name>
@@ -30,9 +32,7 @@
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <poi.version>3.17</poi.version>
         <velocity.version>1.7</velocity.version>
-        <!-- hbase相关依赖 -->
-        <hbase1.x.version>1.4.3</hbase1.x.version>
-        <hbase2.x.version>2.1.0</hbase2.x.version>
+        <!-- hbase-sdk相关依赖 -->
         <hbase.sdk.core.version>2.0.8</hbase.sdk.core.version>
     </properties>
 
@@ -246,12 +246,43 @@
         <module>hbase-manager-common</module>
     </modules>
 
-    <packaging>pom</packaging>
+    <profiles>
+        <profile>
+            <id>hbase-1.x</id>
+            <properties>
+                <profiles.active>hbase-1.x</profiles.active>
+                <hbase.version>1.4.3</hbase.version>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- HBase相关依赖-->
+                <dependency>
+                    <groupId>com.github.CCweixiao</groupId>
+                    <artifactId>hbase-sdk-core_1.4</artifactId>
+                    <version>${hbase.sdk.core.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
 
+        <profile>
+            <id>hbase-2.x</id>
+            <properties>
+                <profiles.active>hbase-2.x</profiles.active>
+                <hbase.version>2.1.0</hbase.version>
+            </properties>
 
-    <dependencies>
-
-    </dependencies>
+            <dependencies>
+                <!-- HBase相关依赖-->
+                <dependency>
+                    <groupId>com.github.CCweixiao</groupId>
+                    <artifactId>hbase-sdk-core_2.1</artifactId>
+                    <version>${hbase.sdk.core.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -315,25 +346,6 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-    <profiles>
-        <profile>
-            <id>hbase1.x</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>hbase-manager-hbase/hbase-manager-hbase-1.x</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>hbase2.x</id>
-            <modules>
-                <module>hbase-manager-hbase/hbase-manager-hbase-2.x</module>
-            </modules>
-        </profile>
-    </profiles>
 
 
 </project>

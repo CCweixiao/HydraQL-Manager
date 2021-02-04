@@ -89,7 +89,7 @@
     </dependencies>
 
     <build>
-        <finalName>hbase-manager-${project.version}</finalName>
+        <finalName>hbase-manager-${project.version}-${profiles.active}</finalName>
 
         <plugins>
             <plugin>
@@ -169,10 +169,7 @@
                     </archive>
                 </configuration>
             </plugin>
-
         </plugins>
-
-
     </build>
 
 </project>
