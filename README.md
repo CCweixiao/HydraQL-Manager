@@ -235,7 +235,6 @@ sh bin/build-hbase-2.x.sh
 安装包下载地址：
 链接:[https://pan.baidu.com/s/1Z51tELHpkhCpE1_vzzf__g](https://pan.baidu.com/s/1Z51tELHpkhCpE1_vzzf__g) 密码:jgo5
 
-上述链接可能失效或未及时上传最新的安装包，安装包可以在github项目主页release页面获取。
 
 ### 6.3 安装部署
 
