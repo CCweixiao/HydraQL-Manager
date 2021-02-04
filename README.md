@@ -26,7 +26,8 @@
 7. 监控功能：后续可能会考虑增加丰富的监控功能，以期待代替HBase本身的监控界面
 8. WebShell：基于Web的HBase Shell （规划中）
 9. HQL: 以SQL的方式读写HBase集群中的数据
-10. 更多功能：......
+10. 请求热点监控：集成hbase-hbtop的功能，图表展示RegionServer/Region/namespace/table的实时请求量
+11. 更多功能：......
 
 ## 4. 若依系统本身功能
 
@@ -65,7 +66,6 @@
 
 
 ![detail](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2020-08-23-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_135c9aa0-c6d7-4764-93d7-e9b3ebee22bb.png)
-
 
 
 **表信息列表**
@@ -207,14 +207,20 @@ hbase-manager由java开发，maven管理，项目编译十分方便：
 
 ```shell
 cd hbase-manager
-mvn clean package -Dmaven.test.skip=true -Phbase1.x or
-mvn clean package -Dmaven.test.skip=true -Phbase2.x
+mvn clean package -Dmaven.test.skip=true -Phbase-1.x or
+mvn clean package -Dmaven.test.skip=true -Phbase-2.x
+
+# 或者执行mvn脚本
+sh bin/build-hbase-1.x.sh or
+sh bin/build-hbase-2.x.sh
 ```
 
--Phbase1.x 默认加载hbase1.x的client api
--Phbase2.x 默认加载hbase2.x的client api
+-Phbase-1.x 默认加载hbase1.4.3的client api
+-Phbase-2.x 默认加载hbase2.1.0的client api
 
 其实，hbase1.4.3的客户端包同样可以操作2.1的集群，仅仅是有些API过时了而已。
+
+如果想完全适配自己集群版本的HBase，还请自行对`hbase-sdk`和`hbase-manager`两个项目中的HBase相关的版本号进行替换。
 
 打包成功后，在hbase-manager-admin/target/dist目录下找到我们打包的安装包。
 
@@ -226,19 +232,26 @@ mvn clean package -Dmaven.test.skip=true -Phbase2.x
 如果只是想抢鲜体验的话，这里提供编译好的安装包，整个系统配置简单，部署方便。
 默认提供安装包基于的HBase版本分别为1.4.3和2.1.0
 
-
 安装包下载地址：
 链接:[https://pan.baidu.com/s/1Z51tELHpkhCpE1_vzzf__g](https://pan.baidu.com/s/1Z51tELHpkhCpE1_vzzf__g) 密码:jgo5
 
+上述链接可能失效或未及时上传最新的安装包，安装包可以在github项目主页release页面获取。
 
 ### 6.3 安装部署
 
 示例命令：
 
 ```shell
-tar -zxvf hbase-manager-2.0.5.tar.gz
-rm -f hbase-manager-2.0.5.tar.gz
-cd /opt/hbase-manager-2.0.5
+tar -zxvf hbase-manager-2.0.7-hbase-2.x.tar.gz/hbase-manager-2.0.7-hbase-1.x.tar.gz
+cd hbase-manager-2.0.7-hbase-2.x/hbase-manager-2.0.7-hbase-1.x
+java -jar hbase-manager-admin-2.0.7.jar
+
+or 
+
+tar -zxvf hbase-manager-2.0.7-hbase-2.x.tar.gz/hbase-manager-2.0.7-hbase-1.x.tar.gz
+cd hbase-manager-2.0.7-hbase-2.x/hbase-manager-2.0.7-hbase-1.x
+sh bin/hbase-manager.sh start|stop|status|restart
+
 ```
 
 hbase-manager的目录结构：
@@ -402,11 +415,19 @@ delete * from TEST:USER where rowkey is stringkey ( '1001' ) ( age greater '10' 
 
 关于更多的语法示例，随着系统功能的完善会一一添加的
 
+
 ## 9. 更新日志
+
+### v2.0.8 2021.02
+
+1. hbase-client依赖替换为hbase-shade-client
+2. 支持hbase2.x的编译打包，hbase1.x 对应hbase1.4.3，hbase2.x对应hbase2.1.0
+3. 完善编译脚本以及系统的启动脚本
+
 
 ### v2.0.7 2021.01.17
 
-1. HBase读写请求热点监控
+1. 集成hbase-hbtop的代码，HBase读写请求热点监控
 
 
 ### v2.0.6 2020.12.12
