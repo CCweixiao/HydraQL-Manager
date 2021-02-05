@@ -274,9 +274,9 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @Log(title = "HBase", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids) {
+    public AjaxResult remove(String tableId) {
         final String clusterCode = clusterCodeOfCurrentSession();
-        final String tableName = StrEnDeUtils.decrypt(ids);
+        final String tableName = StrEnDeUtils.decrypt(tableId);
 
         if (!multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
             return error("非禁用状态的表不能被删除");
