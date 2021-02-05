@@ -30,6 +30,21 @@
 			<div class="form-control-static"><pre id="hbaseTableRemark"></pre></div>
 		</div>
 
+		<!--<div class="form-group">
+			<label class="col-sm-2 control-label">最近更新者：</label>
+			<div class="form-control-static"><pre id="lastUpdateBy"></pre></div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label">最近MajorCompact的时间：</label>
+			<div class="form-control-static"><pre id="lastUpdateTimestamp"></pre></div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label">最近MajorCompact的时间：</label>
+			<div class="form-control-static"><pre id="lastMajorCompactTimestamp"></pre></div>
+		</div>-->
+
 	</form>
     </div>
     <th:block th:include="include :: footer" />
@@ -42,7 +57,11 @@
 		$(function() {
 			var remark = [[${hbaseTable.remark}]];
 			$("#hbaseTableRemark").text(remark);
-		});
+		})
+		/*$(function (){
+			var lastMajorCompactTimestamp = [[${hbaseTable.lastMajorCompactTimestamp}]];
+			$('#lastMajorCompactTimestamp').text(lastMajorCompactTimestamp);
+		})*/
     </script>
 </body>
 </html>

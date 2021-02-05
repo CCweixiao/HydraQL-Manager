@@ -176,7 +176,8 @@
                         } else {
                             return value;
                         }
-                    }
+                    },
+                    visible: false
 
                 },
                 {
@@ -201,12 +202,18 @@
                     }
                 }, {
                     field: 'lastUpdateTimestamp',
-                    title: '最新更新时间',
+                    title: '最近更新时间',
                     formatter: function (value, row, index) {
                         return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
                     }
                 },
-
+                {
+                    field: 'lastMajorCompactTimestamp',
+                    title: '最近MajorCompact的时间',
+                    formatter: function (value, row, index) {
+                        return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
+                    }
+                },
                 {
                     title: '操作',
                     align: 'center',

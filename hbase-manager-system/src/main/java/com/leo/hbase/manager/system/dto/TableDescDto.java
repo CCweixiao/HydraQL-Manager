@@ -159,6 +159,11 @@ public class TableDescDto {
      */
     private Long lastUpdateTimestamp;
 
+    /**
+     * 表最近一次的合并时间
+     */
+    private long lastMajorCompactTimestamp;
+
     public TableDesc convertTo() {
         TableDescDto.TableDescDtoConvert convert = new TableDescDto.TableDescDtoConvert();
         return convert.convert(this);
@@ -254,6 +259,7 @@ public class TableDescDto {
                 tableDescDto.setCreateTimestamp(Long.parseLong(tableProps.getOrDefault(HBasePropertyConstants.CREATE_TIMESTAMP, "0")));
                 tableDescDto.setLastUpdateBy(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_BY, HBasePropertyConstants.HBASE_TABLE_DEFAULT_CREATED));
                 tableDescDto.setLastUpdateTimestamp(Long.parseLong(tableProps.getOrDefault(HBasePropertyConstants.LAST_UPDATE_TIMESTAMP, "0")));
+                tableDescDto.setLastMajorCompactTimestamp(tableDesc.getLastMajorCompactTimestamp());
             }
 
             return tableDescDto;
@@ -536,6 +542,14 @@ public class TableDescDto {
         this.splitWay = splitWay;
     }
 
+    public long getLastMajorCompactTimestamp() {
+        return lastMajorCompactTimestamp;
+    }
+
+    public void setLastMajorCompactTimestamp(long lastMajorCompactTimestamp) {
+        this.lastMajorCompactTimestamp = lastMajorCompactTimestamp;
+    }
+
     @Override
     public String toString() {
         return "TableDescDto{" +
@@ -570,6 +584,7 @@ public class TableDescDto {
                 ", createTimestamp=" + createTimestamp +
                 ", lastUpdateBy='" + lastUpdateBy + '\'' +
                 ", lastUpdateTimestamp=" + lastUpdateTimestamp +
+                ", lastMajorCompactTimestamp=" + lastMajorCompactTimestamp +
                 '}';
     }
 }
