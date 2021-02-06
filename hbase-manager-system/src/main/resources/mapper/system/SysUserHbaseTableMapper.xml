@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysUserHbaseTableMapper">
+    
+    <resultMap type="SysUserHbaseTable" id="SysUserHbaseTableResult">
+        <result property="userId"    column="user_id"    />
+        <result property="clusterAlias"    column="cluster_alias"    />
+        <result property="tableId"    column="table_id"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="namespaceName"    column="namespace_name"    />
+    </resultMap>
+
+    <sql id="selectSysUserHbaseTableVo">
+        select user_id, cluster_alias, table_id, table_name, namespace_name from sys_user_hbase_table
+    </sql>
+
+    <select id="selectSysUserHbaseTableList" parameterType="SysUserHbaseTable" resultMap="SysUserHbaseTableResult">
+        <include refid="selectSysUserHbaseTableVo"/>
+        <where>  
+            <if test="tableName != null  and tableName != ''"> and table_name like concat('%', #{tableName}, '%')</if>
+            <if test="namespaceName != null  and namespaceName != ''"> and namespace_name like concat('%', #{namespaceName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectSysUserHbaseTableListByUserAndClusterAlias" resultMap="SysUserHbaseTableResult">
+        <include refid="selectSysUserHbaseTableVo"/>
+        where user_id = #{userId} and cluster_alias = #{clusterAlias}
+    </select>
+    
+    <select id="selectSysUserHbaseTableById" parameterType="Long" resultMap="SysUserHbaseTableResult">
+        <include refid="selectSysUserHbaseTableVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertSysUserHbaseTable" parameterType="SysUserHbaseTable">
+        insert into sys_user_hbase_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="clusterAlias != null">cluster_alias,</if>
+            <if test="tableId != null">table_id,</if>
+            <if test="tableName != null and tableName != ''">table_name,</if>
+            <if test="namespaceName != null and namespaceName != ''">namespace_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="clusterAlias != null">#{clusterAlias},</if>
+            <if test="tableId != null">#{tableId},</if>
+            <if test="tableName != null and tableName != ''">#{tableName},</if>
+            <if test="namespaceName != null and namespaceName != ''">#{namespaceName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysUserHbaseTable" parameterType="SysUserHbaseTable">
+        update sys_user_hbase_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clusterAlias != null">cluster_alias = #{clusterAlias},</if>
+            <if test="tableId != null">table_id = #{tableId},</if>
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="namespaceName != null and namespaceName != ''">namespace_name = #{namespaceName},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+
+
+    <delete id="deleteSysUserHbaseTable" parameterType="SysUserHbaseTable">
+        delete from sys_user_hbase_table
+        <where>
+            <if test="userId != null">and user_id = #{userId} </if>
+            <if test="clusterAlias != null and clusterAlias != ''">and cluster_alias = #{clusterAlias} </if>
+            <if test="tableName != null  and tableName != ''"> and table_name = #{tableName}</if>
+        </where>
+    </delete>
+
+    <delete id="deleteSysUserHbaseTableById" parameterType="Long">
+        delete from sys_user_hbase_table where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteSysUserHbaseTableByIds" parameterType="String">
+        delete from sys_user_hbase_table where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+    <insert id="batchUserTable">
+        insert into sys_user_hbase_table(user_id, cluster_alias, table_id, table_name, namespace_name) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.userId},#{item.clusterAlias},#{item.tableId},#{item.tableName},#{item.namespaceName})
+        </foreach>
+    </insert>
+
+</mapper>

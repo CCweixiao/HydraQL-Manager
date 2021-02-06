@@ -216,7 +216,7 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     private List<CxSelect> getTableFamilyRelations() {
         String clusterCode = clusterCodeOfCurrentSession();
 
-        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCode);
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCode, true);
         List<CxSelect> cxTableInfoList = new ArrayList<>(allTableNames.size());
 
         for (String tableName : allTableNames) {

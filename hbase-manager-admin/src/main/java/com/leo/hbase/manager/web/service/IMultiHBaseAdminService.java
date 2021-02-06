@@ -85,17 +85,19 @@ public interface IMultiHBaseAdminService {
      * 获取所有的表名
      *
      * @param clusterCode 集群code
+     * @param checkAuth   是否检查授权
      * @return 所有表名
      */
-    List<String> listAllTableName(String clusterCode);
+    List<String> listAllTableName(String clusterCode, boolean checkAuth);
 
     /**
      * 获取所有的表信息
      *
      * @param clusterCode 集群ID
+     * @param checkAuth   是否检查授权
      * @return 所有表信息
      */
-    List<TableDesc> listAllTableDesc(String clusterCode);
+    List<TableDesc> listAllTableDesc(String clusterCode, boolean checkAuth);
 
     /**
      * 获取所有快照
@@ -335,8 +337,8 @@ public interface IMultiHBaseAdminService {
 
     /**
      * 刷新汇总指标
-     * @param clusterCode 集群ID
      *
+     * @param clusterCode 集群ID
      * @return 汇总指标
      */
     Summary refreshSummary(String clusterCode);
@@ -344,7 +346,7 @@ public interface IMultiHBaseAdminService {
     /**
      * 获取集群的统计指标
      *
-     * @param clusterCode 集群ID
+     * @param clusterCode      集群ID
      * @param currentMode      当前模式
      * @param filters          过滤器
      * @param currentSortField 当前排序字段
@@ -352,7 +354,6 @@ public interface IMultiHBaseAdminService {
      * @return 统计指标列表
      */
     List<Record> refreshRecords(String clusterCode, Mode currentMode, List<RecordFilter> filters, Field currentSortField, boolean ascendingSort);
-
 
 
 }

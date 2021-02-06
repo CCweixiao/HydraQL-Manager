@@ -17,6 +17,7 @@ import com.leo.hbase.manager.framework.util.ShiroUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 import com.leo.hbase.manager.system.dto.NamespaceDescDto;
 import com.leo.hbase.manager.system.dto.TableDescDto;
+import com.leo.hbase.manager.system.service.ISysUserHbaseTableService;
 import com.leo.hbase.manager.web.controller.query.QueryHBaseTableForm;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -56,7 +57,6 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     }
 
 
-
     @RequiresPermissions("system:table:detail")
     @GetMapping("/detail/{tableId}")
     public String detail(@PathVariable("tableId") String tableId, ModelMap mmap) {
@@ -79,7 +79,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
         TableDescDto tableDescDto = new TableDescDto().convertFor(tableDesc);
         mmap.put("tableObj", tableDescDto);
 
-        final List<String> listAllTableName = multiHBaseAdminService.listAllTableName(clusterCode);
+        final List<String> listAllTableName = multiHBaseAdminService.listAllTableName(clusterCode, true);
 
         if (listAllTableName == null || listAllTableName.isEmpty()) {
             mmap.put("tableMapList", new ArrayList<>());
@@ -103,7 +103,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(QueryHBaseTableForm queryHBaseTableForm) {
-        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
+        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession(), true);
         final List<TableDescDto> tableDescDtoList = filterFamilyDescList(queryHBaseTableForm, tableDescList);
         return getDataTable(tableDescDtoList);
     }
@@ -116,7 +116,7 @@ public class SysHbaseTableController extends SysHbaseBaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(QueryHBaseTableForm queryHBaseTableForm) {
-        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession());
+        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(clusterCodeOfCurrentSession(), true);
         final List<TableDescDto> tableDescDtoList = filterFamilyDescList(queryHBaseTableForm, tableDescList);
         ExcelUtil<TableDescDto> util = new ExcelUtil<>(TableDescDto.class);
         return util.exportExcel(tableDescDtoList, "table");

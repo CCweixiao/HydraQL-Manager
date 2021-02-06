@@ -2,6 +2,7 @@ package com.leo.hbase.manager.web.service.impl;
 
 import com.github.CCweixiao.HBaseAdminTemplate;
 import com.github.CCweixiao.constant.HMHBaseConstant;
+import com.github.CCweixiao.exception.HBaseOperationsException;
 import com.github.CCweixiao.hbtop.Record;
 import com.github.CCweixiao.hbtop.RecordFilter;
 import com.github.CCweixiao.hbtop.Summary;
@@ -17,10 +18,15 @@ import com.leo.hbase.manager.common.core.domain.Ztree;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.common.utils.security.StrEnDeUtils;
 import com.leo.hbase.manager.framework.util.ShiroUtils;
+import com.leo.hbase.manager.system.domain.SysUserHbaseTable;
+import com.leo.hbase.manager.system.mapper.SysUserHbaseTableMapper;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSHolder;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +37,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
+    @Autowired
+    private SysUserHbaseTableMapper userHbaseTableMapper;
+
     @Override
     public NamespaceDesc getNamespaceDesc(String clusterCode, String namespaceName) {
         final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
@@ -110,12 +119,22 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
-    public List<String> listAllTableName(String clusterCode) {
+    public List<String> listAllTableName(String clusterCode, boolean checkAuth) {
         final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
         final String filterTableNamePrefix = HBaseConfigUtils.getFilterTableNamePrefix(clusterCode);
 
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        final List<String> tableNames = hBaseTemplate.listTableNames();
+        List<String> tableNames = hBaseTemplate.listTableNames();
+
+        if (checkAuth) {
+            Long userId = ShiroUtils.getUserId();
+            final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
+            if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
+                final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+                tableNames = tableNames.stream().filter(tableName -> authTableNames.contains(HMHBaseConstant.getFullTableName(tableName)))
+                        .collect(Collectors.toList());
+            }
+        }
 
         if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
             return tableNames.stream().filter(tableName -> {
@@ -142,12 +161,22 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
-    public List<TableDesc> listAllTableDesc(String clusterCode) {
+    public List<TableDesc> listAllTableDesc(String clusterCode, boolean checkAuth) {
         final String filterNamespacePrefix = HBaseConfigUtils.getFilterNamespacePrefix(clusterCode);
         final String filterTableNamePrefix = HBaseConfigUtils.getFilterTableNamePrefix(clusterCode);
 
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        final List<TableDesc> tableDescList = hBaseTemplate.listTableDesc();
+        List<TableDesc> tableDescList = hBaseTemplate.listTableDesc();
+
+        if (checkAuth) {
+            Long userId = ShiroUtils.getUserId();
+            final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
+            if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
+                final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+                tableDescList = tableDescList.stream().filter(tableDesc -> authTableNames.contains(tableDesc.getFullTableName()))
+                        .collect(Collectors.toList());
+            }
+        }
 
         if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
             return tableDescList.stream().filter(tableDesc -> !tableDesc.getNamespaceName().startsWith(filterNamespacePrefix))
@@ -171,25 +200,40 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public List<SnapshotDesc> listAllSnapshotDesc(String clusterCode) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.listSnapshots();
+        List<SnapshotDesc> snapshotDescList = hBaseTemplate.listSnapshots();
+
+        Long userId = ShiroUtils.getUserId();
+        final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
+        if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
+            final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+            snapshotDescList = snapshotDescList.stream().filter(snapshotDesc -> authTableNames.contains(HMHBaseConstant.getFullTableName(snapshotDesc.getTableName())))
+                    .collect(Collectors.toList());
+        }
+        return snapshotDescList;
     }
 
     @Override
     public boolean createTable(String clusterCode, TableDesc tableDesc) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.createTable(tableDesc);
+        boolean res = hBaseTemplate.createTable(tableDesc);
+        addUserTableRelation(tableDesc, clusterCode);
+        return res;
     }
 
     @Override
     public boolean createTable(String clusterCode, TableDesc tableDesc, String startKey, String endKey, int numRegions, boolean isAsync) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.createTable(tableDesc, startKey, endKey, numRegions, isAsync);
+        boolean res = hBaseTemplate.createTable(tableDesc, startKey, endKey, numRegions, isAsync);
+        addUserTableRelation(tableDesc, clusterCode);
+        return res;
     }
 
     @Override
     public boolean createTable(String clusterCode, TableDesc tableDesc, String[] splitKeys, boolean isAsync) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.createTable(tableDesc, splitKeys, isAsync);
+        boolean res = hBaseTemplate.createTable(tableDesc, splitKeys, isAsync);
+        addUserTableRelation(tableDesc, clusterCode);
+        return res;
     }
 
     @Override
@@ -237,7 +281,10 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     @Override
     public boolean deleteTable(String clusterCode, String tableName) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
-        return hBaseTemplate.deleteTable(tableName);
+
+        boolean res = hBaseTemplate.deleteTable(tableName);
+        deleteUserTableRelation(tableName, clusterCode);
+        return res;
     }
 
     @Override
@@ -336,6 +383,29 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     public List<Record> refreshRecords(String clusterCode, Mode currentMode, List<RecordFilter> filters, Field currentSortField, boolean ascendingSort) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.refreshRecords(currentMode, filters, currentSortField, ascendingSort);
+    }
+
+
+    @Transactional(rollbackFor = HBaseOperationsException.class)
+    public void addUserTableRelation(TableDesc tableDesc, String clusterCode) {
+        SysUserHbaseTable sysUserHbaseTable = new SysUserHbaseTable();
+        sysUserHbaseTable.setUserId(ShiroUtils.getUserId());
+        sysUserHbaseTable.setTableName(tableDesc.getFullTableName());
+        sysUserHbaseTable.setTableId(StrEnDeUtils.encrypt(tableDesc.getFullTableName()));
+        sysUserHbaseTable.setClusterAlias(clusterCode);
+        sysUserHbaseTable.setNamespaceName(tableDesc.getNamespaceName());
+        userHbaseTableMapper.insertSysUserHbaseTable(sysUserHbaseTable);
+    }
+
+    @Transactional(rollbackFor = HBaseOperationsException.class)
+    public void deleteUserTableRelation(String tableName, String clusterCode) {
+        tableName = HMHBaseConstant.getFullTableName(tableName);
+        SysUserHbaseTable sysUserHbaseTable = new SysUserHbaseTable();
+        sysUserHbaseTable.setUserId(ShiroUtils.getUserId());
+        sysUserHbaseTable.setTableName(tableName);
+        sysUserHbaseTable.setTableId(StrEnDeUtils.encrypt(tableName));
+        sysUserHbaseTable.setClusterAlias(clusterCode);
+        userHbaseTableMapper.deleteSysUserHbaseTable(sysUserHbaseTable);
     }
 
 }

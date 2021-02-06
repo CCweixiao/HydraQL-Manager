@@ -39,7 +39,7 @@ public class SysHbaseTableSchemaController extends SysHbaseBaseController {
     @RequiresPermissions("system:schema:view")
     @GetMapping()
     public String schema(ModelMap mmap) {
-        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession());
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession(), true);
         mmap.put("allTableNames", allTableNames);
         return prefix + "/schema";
     }
@@ -96,7 +96,7 @@ public class SysHbaseTableSchemaController extends SysHbaseBaseController {
     public TableDataInfo list(TableSchemaDto tableSchemaDto) {
         String currentCluster = clusterCodeOfCurrentSession();
 
-        final List<TableSchemaDto> tableSchemaDtoList = multiHBaseAdminService.listAllTableDesc(currentCluster)
+        final List<TableSchemaDto> tableSchemaDtoList = multiHBaseAdminService.listAllTableDesc(currentCluster, true)
                 .stream().filter(tableDesc -> {
                     if (StringUtils.isBlank(tableSchemaDto.getTableName())) {
                         return true;

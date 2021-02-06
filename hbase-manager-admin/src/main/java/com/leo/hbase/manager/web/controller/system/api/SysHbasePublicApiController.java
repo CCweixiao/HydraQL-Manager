@@ -39,7 +39,7 @@ public class SysHbasePublicApiController {
     @PostMapping("/onlineTables")
     public AjaxResult list(@Validated QueryOnlineHBaseTableForm queryOnlineHBaseTableForm) {
 
-        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(queryOnlineHBaseTableForm.getCluster());
+        final List<TableDesc> tableDescList = multiHBaseAdminService.listAllTableDesc(queryOnlineHBaseTableForm.getCluster(), false);
 
         final List<TableDescDto> tableDescDtoList = tableDescList.stream().map(tableDesc -> new TableDescDto().convertFor(tableDesc)).filter(tableDescDto -> {
             if (StringUtils.isNotBlank(queryOnlineHBaseTableForm.getNamespaceName())) {
@@ -69,7 +69,7 @@ public class SysHbasePublicApiController {
 
 }
 
-@GroupSequence(value = {First.class,Second.class, QueryOnlineHBaseTableForm.class})
+@GroupSequence(value = {First.class, Second.class, QueryOnlineHBaseTableForm.class})
 @ApiModel("查询线上表参数实体")
 class QueryOnlineHBaseTableForm {
     /**

@@ -40,7 +40,7 @@ public class SysHbaseSnapshotController extends SysHbaseBaseController {
     @RequiresPermissions("system:snapshot:view")
     @GetMapping()
     public String snapshot(ModelMap mmap) {
-        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession());
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession(),true);
         mmap.put("allTableNames", allTableNames);
         return prefix + "/snapshot";
     }
@@ -73,7 +73,7 @@ public class SysHbaseSnapshotController extends SysHbaseBaseController {
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
-        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession());
+        final List<String> allTableNames = multiHBaseAdminService.listAllTableName(clusterCodeOfCurrentSession(), true);
         mmap.put("allTableNames", allTableNames);
         return prefix + "/add";
     }

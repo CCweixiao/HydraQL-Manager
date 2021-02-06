@@ -226,7 +226,7 @@
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a> ');*/
 
                         var more = [];
-                        more.push("<a class='btn btn-default btn-xs " + setupUserForTableFlag + "' href='javascript:void(0)' onclick=setupOwner(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-check-square-o'></i>分配用户</a> ");
+                        //more.push("<a class='btn btn-default btn-xs " + setupUserForTableFlag + "' href='javascript:void(0)' onclick=setupOwner(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-check-square-o'></i>分配用户</a> ");
                         more.push("<a class='btn btn-warning btn-xs " + clearHBaseTableFlag + "' href='javascript:void(0)' onclick=clearTableData(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-trash'></i>清空表</a> ");
                         more.push("<a class='btn btn-danger btn-xs " + removeFlag + "' href='javascript:void(0)' onclick=removeHBaseTable(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-remove'></i>删除表</a> ");
                         actions.push('<a tabindex="0" class="btn btn-info btn-xs" role="button" data-container="body" data-placement="left" data-toggle="popover" data-html="true" data-trigger="hover" data-content="' + more.join('') + '"><i class="fa fa-chevron-circle-right"></i>更多操作</a>');

@@ -93,6 +93,7 @@
 		var editFlag = [[${@permission.hasPermi('system:user:edit')}]];
 		var removeFlag = [[${@permission.hasPermi('system:user:remove')}]];
 		var resetPwdFlag = [[${@permission.hasPermi('system:user:resetPwd')}]];
+		var authTableFlag = [[${@permission.hasPermi('system:user:auth_table')}]];
 		var prefix = ctx + "system/user";
 
 		$(function() {
@@ -147,7 +148,7 @@
 		            title: '手机'
 		        },
 		        {
-		        	visible: editFlag == 'hidden' ? false : true,
+		        	visible: editFlag === 'hidden' ? false : true,
 		        	title: '用户状态',
 		        	align: 'center',
 		        	formatter: function (value, row, index) {
@@ -164,6 +165,7 @@
 		            align: 'center',
 		            formatter: function(value, row, index) {
 		                var actions = [];
+						actions.push('<a class="btn btn-success btn-xs ' + authTableFlag + '" href="javascript:void(0)" onclick="authTable(\'' + row.userId + '\')"><i class="fa fa-check-square-o"></i>分配表</a> ');
 		                actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.userId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
 		                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.userId + '\')"><i class="fa fa-remove"></i>删除</a> ');
 		                var more = [];
@@ -227,10 +229,17 @@
 		    var url = prefix + '/authRole/' + userId;
 		    $.modal.openTab("用户分配角色", url);
 		}
+
+		/* 用户管理-分配表 */
+		function authTable(userId) {
+			var url = prefix + '/authTable/' + userId;
+			//$.modal.openTab("用户分配表", url);
+			$.operate.editWithUrl(url)
+		}
 		
 		/* 用户状态显示 */
 		function statusTools(row) {
-		    if (row.status == 1) {
+		    if (row.status === 1) {
     			return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enable(\'' + row.userId + '\')"></i> ';
     		} else {
     			return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disable(\'' + row.userId + '\')"></i> ';

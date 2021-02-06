@@ -183,6 +183,18 @@ localhost.hbase.filter.tableName.prefix=KYLIN
 
 ![requests](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2021-01-17-043842.jpg)
 
+### 5.7 为用户分配HBase表
+
+往往以业务域划分的HBase表，可能分属于不同的部门或用户。HBase本身的ACL机制可以控制对HBase表资源的管理，但是，不开启ACL的时候，
+在HBaseManager中也有一套丰富的用户、表权限管理工具。
+
+用管理员账号登录系统，进入用户管理页面，可以为用户分配表
+
+![auth-table](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2021-02-06-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_7673456d-ddf4-46e3-8086-9d36bb9bb213.png)
+
+![auth-table-operation](https://leo-jie-pic.oss-cn-beijing.aliyuncs.com/leo_blog/2021-02-06-%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_0d30182e-c66f-4c26-8fb0-2347360aa198.png)
+
+为用户分配表之后，该用户才能操作被分配的表资源，否则，该用户下无法操作任何表
 
 ## 6. 快速体验
 
@@ -417,11 +429,12 @@ delete * from TEST:USER where rowkey is stringkey ( '1001' ) ( age greater '10' 
 
 ## 9. 更新日志
 
-### v2.0.8 2021.02
+### v2.0.8 2021.02.06
 
 1. hbase-client依赖替换为hbase-shade-client
 2. 支持hbase2.x的编译打包，hbase1.x 对应hbase1.4.3，hbase2.x对应hbase2.1.0
 3. 完善编译脚本以及系统的启动脚本
+4. 新增为用户分配表的功能
 
 
 ### v2.0.7 2021.01.17
