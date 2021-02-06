@@ -14,7 +14,6 @@ import com.github.CCweixiao.model.SnapshotDesc;
 import com.github.CCweixiao.model.TableDesc;
 import com.github.CCweixiao.util.SplitGoEnum;
 import com.leo.hbase.manager.common.constant.HBasePropertyConstants;
-import com.leo.hbase.manager.common.core.domain.Ztree;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.HBaseConfigUtils;
 import com.leo.hbase.manager.common.utils.StringUtils;
@@ -88,25 +87,6 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
     }
 
     @Override
-    public List<Ztree> listNamespaceTree(String clusterCode, String namespaceName) {
-        List<String> namespaceList = new ArrayList<>();
-        if (StringUtils.isNotBlank(namespaceName)) {
-            namespaceList.add(namespaceName);
-        } else {
-            namespaceList = listAllNamespaceName(clusterCode);
-        }
-        for (String namespace : namespaceList) {
-            final List<String> tableList = listAllTableNamesByNamespaceName(clusterCode, namespace);
-            for (String table : tableList) {
-                Ztree ztree = new Ztree();
-                //ztree.setId();
-            }
-        }
-        //TODO 解析命名空间和表的结构
-        return null;
-    }
-
-    @Override
     public boolean createNamespace(String clusterCode, NamespaceDesc namespace) {
         HBaseAdminTemplate hBaseTemplate = HBaseClusterDSHolder.instance().getHBaseAdminTemplate(clusterCode);
         return hBaseTemplate.createNamespace(namespace);
@@ -129,11 +109,14 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
         if (checkAuth) {
             Long userId = ShiroUtils.getUserId();
             final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
-            if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
-                final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
-                tableNames = tableNames.stream().filter(tableName -> authTableNames.contains(HMHBaseConstant.getFullTableName(tableName)))
-                        .collect(Collectors.toList());
+            if (sysUserHbaseTables == null || sysUserHbaseTables.isEmpty()) {
+                return new ArrayList<>();
             }
+
+            final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+            tableNames = tableNames.stream().filter(tableName -> authTableNames.contains(HMHBaseConstant.getFullTableName(tableName)))
+                    .collect(Collectors.toList());
+
         }
 
         if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
@@ -171,11 +154,14 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
         if (checkAuth) {
             Long userId = ShiroUtils.getUserId();
             final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
-            if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
-                final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
-                tableDescList = tableDescList.stream().filter(tableDesc -> authTableNames.contains(tableDesc.getFullTableName()))
-                        .collect(Collectors.toList());
+            if (sysUserHbaseTables == null || sysUserHbaseTables.isEmpty()) {
+                return new ArrayList<>();
             }
+
+            final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+            tableDescList = tableDescList.stream().filter(tableDesc -> authTableNames.contains(tableDesc.getFullTableName()))
+                    .collect(Collectors.toList());
+
         }
 
         if (StringUtils.isNotBlank(filterNamespacePrefix) && StringUtils.isNotBlank(filterTableNamePrefix)) {
@@ -204,11 +190,15 @@ public class MultiHBaseAdminServiceImpl implements IMultiHBaseAdminService {
 
         Long userId = ShiroUtils.getUserId();
         final List<SysUserHbaseTable> sysUserHbaseTables = userHbaseTableMapper.selectSysUserHbaseTableListByUserAndClusterAlias(userId, clusterCode);
-        if (sysUserHbaseTables != null && !sysUserHbaseTables.isEmpty()) {
-            final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
-            snapshotDescList = snapshotDescList.stream().filter(snapshotDesc -> authTableNames.contains(HMHBaseConstant.getFullTableName(snapshotDesc.getTableName())))
-                    .collect(Collectors.toList());
+
+        if (sysUserHbaseTables == null || sysUserHbaseTables.isEmpty()) {
+            return new ArrayList<>();
         }
+
+        final List<String> authTableNames = sysUserHbaseTables.stream().map(SysUserHbaseTable::getTableName).collect(Collectors.toList());
+        snapshotDescList = snapshotDescList.stream().filter(snapshotDesc -> authTableNames.contains(HMHBaseConstant.getFullTableName(snapshotDesc.getTableName())))
+                .collect(Collectors.toList());
+
         return snapshotDescList;
     }
 
