@@ -14,9 +14,9 @@ import org.jline.console.Printer;
 import org.jline.reader.impl.completer.SystemCompleter;
 import org.jline.utils.InfoCmp;
 
+import com.hydraql.console.util.HShellCommandUtils;
 import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.template.HydraqlTemplate;
-import com.hydraql.shell.HBaseShellCommands;
 
 /**
  * @author leojie 2023/7/29 21:15
@@ -30,7 +30,7 @@ public class HShellCommands extends BaseCommands {
     public HShellCommands(Printer printer) {
         super(printer);
         try {
-            Set<String> allCommands = HBaseShellCommands.getAllCommands();
+            Set<String> allCommands = HShellCommandUtils.getAllCommands();
             allCommands.add("desc");
             for (String commandName : allCommands) {
                 commandExecute.put(commandName, new CommandMethods(this::execShellCommand, this::defaultCompleter));

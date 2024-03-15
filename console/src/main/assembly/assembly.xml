@@ -3,7 +3,7 @@
     <formats>
         <format>tar.gz</format><!--打包格式-->
     </formats>
-    <baseDirectory>hydraql-manager-console-${project.version}</baseDirectory>
+    <baseDirectory>hydraql-manager-console-${project.version}-release</baseDirectory>
     <!--如果为false，不会额外产生根目录，否则，在tar.gz包中会产生以pom.xml中artifactId和version命名的根目录-->
     <includeBaseDirectory>true</includeBaseDirectory>
     <!--是对依赖包的设置-->
@@ -70,6 +70,15 @@
             <excludes>
                 <exclude>*-sources.jar</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- 把插件目录打包进zip的根目录 -->
+        <fileSet>
+            <directory>${hydraql.plugins.dir}</directory>
+            <outputDirectory>plugins</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
         </fileSet>
     </fileSets>
 </assembly>

@@ -1,13 +1,13 @@
 package com.hydraql.console;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jline.console.CommandInput;
 import org.jline.console.Printer;
 import org.jline.console.impl.JlineCommandRegistry;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.conf.PropertyKey;
@@ -66,6 +66,9 @@ public abstract class BaseCommands extends JlineCommandRegistry {
 
     protected HydraqlTemplate getHydraqlTemplate(Map<String, String> properties) {
         HydraqlHBaseConfiguration conf = new HydraqlHBaseConfiguration();
+        if (!properties.containsKey(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR.getName())) {
+            conf.set(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR, HqlConsoleEnv.getHqlConsolePluginsHome());
+        }
         properties.forEach((k, v) -> conf.set(PropertyKey.fromString(k), v));
         return HydraqlTemplate.Factory.create(conf);
     }

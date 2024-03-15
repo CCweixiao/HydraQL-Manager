@@ -19,6 +19,7 @@ import org.jline.console.CommandMethods;
 import org.jline.console.Printer;
 import org.jline.reader.impl.completer.SystemCompleter;
 
+import com.hydraql.console.util.StringUtil;
 import com.hydraql.manager.core.template.HydraqlTemplate;
 
 /**

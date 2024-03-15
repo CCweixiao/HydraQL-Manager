@@ -30,7 +30,7 @@
             <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>hbase-shaded-client</artifactId>
+                    <artifactId>*</artifactId>
                     <groupId>org.apache.hbase</groupId>
                 </exclusion>
             </exclusions>

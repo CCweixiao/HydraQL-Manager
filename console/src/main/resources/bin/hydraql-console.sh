@@ -1,7 +1,7 @@
 #!/bin/bash
 
-hydraqlConsoleBasePath=$(cd `dirname $0`; cd ..; pwd)
-hydraqlConsoleBasePath="$hydraqlConsoleBasePath/lib"
+hydraqlConsoleHome=$(cd `dirname $0`; cd ..; pwd)
+hydraqlConsoleBasePath="$hydraqlConsoleHome/lib"
 jarFile=$(ls "$hydraqlConsoleBasePath" | grep 'hydraql-manager-console' | grep -v 'sources.jar' | grep -v 'javadoc.jar')
 
 if [ "$jarFile" = "" ];
@@ -16,6 +16,6 @@ DEFAULT_OPTS="-XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=20 -XX:+CMSClassUnlo
 
 
 #JVM参数
-JVM_OPTS="-Dname=HydraQLConsole -Duser.timezone=Asia/Shanghai $DEFAULT_OPTS -Xmx2g -Xms2g -Xmn768m -XX:CMSInitiatingOccupancyFraction=65 -XX:MaxGCPauseMillis=100"
+JVM_OPTS="-Dname=HydraQLConsole -Dhydraql_console_home=$hydraqlConsoleHome -Duser.timezone=Asia/Shanghai $DEFAULT_OPTS -Xmx2g -Xms2g -Xmn768m -XX:CMSInitiatingOccupancyFraction=65 -XX:MaxGCPauseMillis=100"
 
 java -jar  $JVM_OPTS $appName

@@ -24,6 +24,8 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
 import org.jline.widget.AutosuggestionWidgets;
 
+import com.hydraql.console.util.StringUtil;
+
 /**
  * @author leojie 2023/7/29 20:18
  */

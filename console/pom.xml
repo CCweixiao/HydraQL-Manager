@@ -14,6 +14,7 @@
     <artifactId>hydraql-manager-console</artifactId>
 
     <properties>
+        <hydraql.plugins.dir>${parent.basedir}/build/plugins</hydraql.plugins.dir>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -26,11 +27,6 @@
         <dependency>
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-manager-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hydraql</groupId>
-            <artifactId>hydraql-shell_${hydraql.hbase.adapter.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

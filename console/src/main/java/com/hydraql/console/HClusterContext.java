@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.hydraql.console.util.StringUtil;
+
 /**
  * @author leojie 2023/7/30 10:48
  */
@@ -68,7 +70,7 @@ public class HClusterContext {
 
     private Map<String, String> readConf(String clusterName) {
         Map<String, String> p = new HashMap<>();
-        String clusterConfDirPath = getClusterConfigDirPath();
+        String clusterConfDirPath = HqlConsoleEnv.getHqlConsoleClusterConfDir();
         File clusterConfFile = new File(clusterConfDirPath.concat(File.separator).concat(clusterName)
                 .concat(".properties"));
         if (!clusterConfFile.exists()) {
@@ -87,7 +89,7 @@ public class HClusterContext {
     }
 
     public File getClusterConfDirFile() {
-        String clusterConfDirPath = getClusterConfigDirPath();
+        String clusterConfDirPath = HqlConsoleEnv.getHqlConsoleClusterConfDir();
         File clusterConfDirFile = new File(clusterConfDirPath);
         if (!clusterConfDirFile.exists()) {
             clusterConfDirFile.mkdirs();
@@ -97,10 +99,5 @@ public class HClusterContext {
                     " configuration file is a folder.");
         }
         return clusterConfDirFile;
-    }
-
-    private String getClusterConfigDirPath() {
-        File userDirFile = new File(System.getProperty("user.dir"));
-        return userDirFile.getAbsolutePath().concat(File.separator).concat("cluster_info_conf");
     }
 }

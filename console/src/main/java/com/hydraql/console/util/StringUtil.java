@@ -1,4 +1,4 @@
-package com.hydraql.console;
+package com.hydraql.console.util;
 
 import java.util.HashMap;
 import java.util.Map;
