@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>HBaseManager介绍</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+</head>
+
+<body class="gray-bg">
+<div class="row  border-bottom white-bg dashboard-header">
+    <div class="col-sm-12">
+        <!--<blockquote class="text-warning" style="font-size:14px">
+                                       领取阿里云通用云产品1888优惠券
+            <br><a target="_blank" href="https://www.aliyun.com/minisite/goods?userCode=brki8iof">https://www.aliyun.com/minisite/goods?userCode=brki8iof</a><br>
+                                       领取腾讯云通用云产品2860优惠券
+            <br><a target="_blank" href="https://cloud.tencent.com/redirect.php?redirect=1025&cps_key=198c8df2ed259157187173bc7f4f32fd&from=console">https://cloud.tencent.com/redirect.php?redirect=1025&cps_key=198c8df2ed259157187173bc7f4f32fd&from=console</a><br>
+            <h4 class="text-danger">云产品通用红包，可叠加官网常规优惠使用。(仅限新用户)</h4>
+        </blockquote>-->
+
+        <hr>
+    </div>
+    <div class="col-sm-3">
+        <h2>Hello,Guest</h2>
+        <small>移动设备访问请扫描以下二维码：</small>
+        <br>
+        <br>
+        <img th:src="@{/img/hbase-manager-code.png}" width="100%" style="max-width:264px;">
+        <br>
+    </div>
+    <div class="col-sm-5">
+        <h2>HBase表管理系统</h2>
+        <p>一直想做一款HBase表管理系统，不仅为了从命令行下创建HBase表的琐碎工作之中解放出来。同时，也是为了更好地管理与维护HBase的表信息。
+            出于这些目的，看了很多优秀的开源项目，但是一直没有发现合适自己的。于是利用空闲时间，基于若依后台管理框架，开始写一套HBase表管理系统。
+            如此便有了HBaseManager。目前，系统的功能还很初级，只有基本的namespace管理、HBase表的增删改查，以及HBase表的标签管理等功能。
+            当然，您也可以对他进行深度定制，以做出更强的系统。所有前端后台代码基于若依框架进行封装过后十分精简易上手，出错概率低。
+            同时支持移动客户端访问。系统会陆续更新一些实用功能。</p>
+        <p>
+            <b>当前版本：</b><span>v[[${version}]]</span>
+        </p>
+        <p>
+            <span class="label label-warning">&yen;免费开源</span>
+        </p>
+        <br>
+        <p>
+            <a class="btn btn-success btn-outline" href="https://gitee.com/weixiaotome/hbase-manager" target="_blank">
+                <i class="fa fa-cloud"> </i> 访问码云
+            </a>
+
+            <a class="btn btn-success btn-outline" href="https://github.com/CCweixiao/hbase-manager" target="_blank">
+                <i class="fa fa-cloud"> </i> 访问GitHub
+            </a>
+            <a class="btn btn-white btn-bitbucket" href="https://www.jielongping.com" target="_blank">
+                <i class="fa fa-home"></i> 访问个人主页
+            </a>
+        </p>
+    </div>
+    <div class="col-sm-4">
+        <h4>技术选型：</h4>
+        <ol>
+            <li>核心框架：Spring Boot。</li>
+            <li>安全框架：Apache Shiro。</li>
+            <li>模板引擎：Thymeleaf。</li>
+            <li>持久层框架：MyBatis。</li>
+            <li>定时任务:Quartz。</li>
+            <li>数据库连接池：Druid。</li>
+            <li>工具类：Fastjson。</li>
+            <li>更多……</li>
+        </ol>
+    </div>
+
+</div>
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-4">
+
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>联系信息</h5>
+
+                </div>
+                <div class="ibox-content">
+                    <p><i class="fa fa-send-o"></i> 官网：<a href="https://www.jielongping.com" target="_blank">http://www.jielongping.com</a>
+                    </p>
+                    <p id="wx-qrcode">
+                        <a href="javascript:;"><img th:src="@{/img/wx-gongzhong.jpg}" width="50%" alt="扫描关注微信号">
+                        </a>
+                    </p>
+                    <!--  <p><i class="fa fa-qq"></i> QQ群：<s>满1389287</s> <s>满1679294</s> <s>满1529866</s> <s>满1772718</s> <s>满1366522</s> <s>满1382251</s> <s>满1145125</s> <s>满86752435</s> <s>满134072510</s> <s>满210336300</s> <a href="https://jq.qq.com/?_wv=1027&k=5omzbKc" target="_blank">339522636</a>
+                      </p>-->
+                    <!--<p><i class="fa fa-weixin"></i> 微信：<a href="javascript:;">long2326130720</a>
+                    </p>
+                    <p><i class="fa fa-credit-card"></i> 支付宝：<a href="javascript:;" class="支付宝信息">/ *若依</a>
+                    </p>-->
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>更新日志</h5>
+                </div>
+                <div class="ibox-content no-padding">
+                    <div class="panel-body">
+                        <div class="panel-group" id="version">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v209">v2.0.9</a><code
+                                            class="pull-right">2022.01.09</code>
+                                    </h5>
+                                </div>
+                                <div id="v209" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>完善类的不兼容性问题</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v208">v2.0.8</a><code
+                                            class="pull-right">2021.02.06</code>
+                                    </h5>
+                                </div>
+                                <div id="v208" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>hbase-client依赖替换为hbase-shade-client</li>
+                                            <li>支持hbase2.x的编译打包，hbase1.x 对应hbase1.4.3，hbase2.x对应hbase2.1.0</li>
+                                            <li>完善编译脚本以及系统的启动脚本</li>
+                                            <li>新增为用户分配表的功能</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v207">v2.0.7</a><code
+                                            class="pull-right">2021.01.17</code>
+                                    </h5>
+                                </div>
+                                <div id="v207" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>HBase读写请求量图表展示</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v206">v2.0.6</a><code
+                                            class="pull-right">2020.12.12</code>
+                                    </h5>
+                                </div>
+                                <div id="v206" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>集成Kerberos环境下的HBase集群认证</li>
+                                            <li>新增HBase SQL查询功能（持续优化中）</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v205">v2.0.5</a><code
+                                            class="pull-right">2020.11.14</code>
+                                    </h5>
+                                </div>
+                                <div id="v205" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>多集群切换功能完善</li>
+                                            <li>项目结构调整，代码优化，引用hbase-sdk 2.0.5</li>
+                                            <li>优化HBase表数据管理功能，完善表数据的增删改查</li>
+                                            <li>新增快照管理功能</li>
+                                            <li>HBase列簇管理功能完善，包括列簇新增、以及参数更新等功能</li>
+                                            <li>还有更多 ......</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v203">v2.0.3</a><code
+                                            class="pull-right">2020.10.08</code>
+                                    </h5>
+                                </div>
+                                <div id="v203" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>增加多集群的切换功能</li>
+                                            <li>HBase表信息数据不依赖MySQL存储</li>
+                                            <li>项目结构调整，代码优化，引用hbase-sdk 2.0.3</li>
+                                            <li>优化HBase表创建的预分区功能</li>
+                                            <li>HBase表数据新增功能实现</li>
+                                            <li>HBase列簇更新</li>
+                                            <li>还有更多 ......</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v201">v2.0.1</a><code
+                                            class="pull-right">2020.09.12</code>
+                                    </h5>
+                                </div>
+                                <div id="v201" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>去除namespace定义的MySQL表</li>
+                                            <li>去除family定义的MySQL表</li>
+                                            <li>减少HBase table信息表的字段，初始化表数据更加方便</li>
+                                            <li>HBase namespace管理</li>
+                                            <li>HBase 表信息管理</li>
+                                            <li>HBase 表标签管理</li>
+                                            <li>HBase 表数据查询</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#version" href="#v101">v1.0.1</a><code
+                                            class="pull-right">2020.08.31</code>
+                                    </h5>
+                                </div>
+                                <div id="v101" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <ol>
+                                            <li>HBase项目开启</li>
+                                            <li>HBase namespace管理</li>
+                                            <li>HBase 表信息管理</li>
+                                            <li>HBase 表标签管理</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>捐赠</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="alert alert-warning">
+                        请作者喝杯咖啡（点击图片放大）
+                    </div>
+                    <p id="pay-qrcode">
+                        <a href="javascript:;"><img th:src="@{/img/weixin.png}" width="100%" alt="请使用手机微信扫码支付">
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script type="text/javascript">
+    $('#pay-qrcode').click(function () {
+        var html = $(this).html();
+        parent.layer.open({
+            title: false,
+            type: 1,
+            closeBtn: false,
+            shadeClose: true,
+            area: ['600px', 'auto'],
+            content: html
+        });
+    });
+</script>
+</body>
+</html>

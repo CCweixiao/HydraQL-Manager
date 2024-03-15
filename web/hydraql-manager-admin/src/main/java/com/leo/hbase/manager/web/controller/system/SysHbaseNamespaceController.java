@@ -1,0 +1,165 @@
+package com.leo.hbase.manager.web.controller.system;
+
+import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
+import com.hydraql.manager.core.util.HConstants;
+import com.leo.hbase.manager.common.annotation.Log;
+import com.leo.hbase.manager.common.core.domain.AjaxResult;
+import com.leo.hbase.manager.common.core.page.TableDataInfo;
+import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.utils.StringUtils;
+import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
+import com.leo.hbase.manager.system.dto.NamespaceDescDto;
+import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * HBaseNamespaceController
+ *
+ * @author leojie
+ * @date 2020-08-16
+ */
+@Controller
+@RequestMapping("/system/namespace")
+public class SysHbaseNamespaceController extends SysHbaseBaseController {
+    private String prefix = "system/namespace";
+
+
+    @Autowired
+    private IMultiHBaseAdminService multiHBaseAdminService;
+
+    @RequiresPermissions("hbase:namespace:view")
+    @GetMapping()
+    public String namespace() {
+        return prefix + "/namespace";
+    }
+
+    /**
+     * 查询HBaseNamespace列表
+     */
+    @RequiresPermissions("hbase:namespace:list")
+    @PostMapping("/list")
+    @ResponseBody
+    public TableDataInfo list(NamespaceDescDto namespaceDescDto) {
+        List<NamespaceDescDto> list = getAllNamespaces();
+
+        if (StringUtils.isNotBlank(namespaceDescDto.getNamespaceName())) {
+            list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
+                    .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
+        }
+        return getDataTable(list);
+    }
+
+    /**
+     * 导出HBaseNamespace列表
+     */
+    @RequiresPermissions("hbase:namespace:export")
+    @Log(title = "HBase命名空间导出", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(NamespaceDescDto namespaceDescDto) {
+        List<NamespaceDescDto> list = getAllNamespaces();
+        if (StringUtils.isNotBlank(namespaceDescDto.getNamespaceName())) {
+            list = list.stream().filter(ns -> ns.getNamespaceName().toLowerCase()
+                    .contains(namespaceDescDto.getNamespaceName().toLowerCase())).collect(Collectors.toList());
+        }
+        ExcelUtil<NamespaceDescDto> util = new ExcelUtil<>(NamespaceDescDto.class);
+        return util.exportExcel(list, "namespace");
+    }
+
+    /**
+     * 新增HBaseNamespace
+     */
+    @GetMapping("/add")
+    public String add() {
+        return prefix + "/add";
+    }
+
+    /**
+     * 新增保存HBaseNamespace
+     */
+    @RequiresPermissions("hbase:namespace:add")
+    @Log(title = "HBase命名空间新增", businessType = BusinessType.INSERT)
+    @PostMapping("/add")
+    @ResponseBody
+    public AjaxResult addSave(@Validated NamespaceDescDto namespaceDescDto) {
+        String clusterCode = clusterCodeOfCurrentSession();
+
+        final String name = namespaceDescDto.getNamespaceName();
+        if (name.contains(HConstants.TABLE_NAME_SPLIT_CHAR)) {
+            return error("命名空间[" + name + "]中含有非法字符:");
+        }
+        if (HConstants.DEFAULT_SYS_TABLE_NAMESPACE.equals(name.toLowerCase())) {
+            return error("命名空间[" + name + "]不允许被创建");
+        }
+        final List<String> listAllNamespaceName = multiHBaseAdminService.listAllNamespaceName(clusterCode);
+
+        if (listAllNamespaceName.contains(namespaceDescDto.getNamespaceName())) {
+            return error("namespace[" + name + "]已经存在");
+        }
+        NamespaceDesc namespaceDesc = namespaceDescDto.convertTo();
+        final boolean createdOrNot = multiHBaseAdminService.createNamespace(clusterCode, namespaceDesc);
+
+        if (!createdOrNot) {
+            return error("namespace[" + name + "]创建失败");
+        }
+
+        return success("namespace[" + name + "]创建成功");
+    }
+
+    /**
+     * 修改HBaseNamespace
+     */
+    @GetMapping("/edit/{namespaceId}")
+    public String edit(@PathVariable("namespaceId") String namespaceId, ModelMap mmap) {
+        NamespaceDesc namespaceDesc = multiHBaseAdminService.getNamespaceDesc(clusterCodeOfCurrentSession(), namespaceId);
+        mmap.put("namespaceDesc", new NamespaceDescDto().convertFor(namespaceDesc));
+        return prefix + "/edit";
+    }
+
+    /**
+     * 修改保存HBaseNamespace
+     */
+    @RequiresPermissions("hbase:namespace:edit")
+    @Log(title = "HBase命名空间更新", businessType = BusinessType.UPDATE)
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult editSave(@Validated NamespaceDescDto namespaceDescDto) {
+        return error("暂不支持对namespace的重命名");
+    }
+
+    /**
+     * 删除HBaseNamespace
+     */
+    @RequiresPermissions("hbase:namespace:remove")
+    @Log(title = "HBase命名空间移除", businessType = BusinessType.DELETE)
+    @PostMapping("/remove")
+    @ResponseBody
+    public AjaxResult remove(String ids) {
+        String clusterCode = clusterCodeOfCurrentSession();
+
+        List<String> tableNames = multiHBaseAdminService.listAllTableNamesByNamespaceName(clusterCode, ids);
+        if (tableNames != null && !tableNames.isEmpty()) {
+            return error("namespace[" + ids + "]包含表，删除失败！");
+        }
+
+        final boolean deletedOrNot = multiHBaseAdminService.deleteNamespace(clusterCode, ids);
+        if (!deletedOrNot) {
+            return error("namespace[" + ids + "]删除失败！");
+        }
+        return success("namespace[" + ids + "]删除成功！");
+    }
+
+    private List<NamespaceDescDto> getAllNamespaces() {
+        return multiHBaseAdminService.listAllNamespaceDesc(clusterCodeOfCurrentSession())
+                .stream().map(namespaceDesc -> new NamespaceDescDto().convertFor(namespaceDesc))
+                .collect(Collectors.toList());
+    }
+}

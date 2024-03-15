@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseClusterMapper">
+
+    <resultMap type="SysHbaseCluster" id="SysHbaseClusterResult">
+        <id     property="id"         column="id"  />
+        <result property="clusterId" column="cluster_id"/>
+        <result property="clusterVersion" column="cluster_version"/>
+        <result property="clusterName" column="cluster_name"/>
+        <result property="clusterDesc" column="cluster_desc"/>
+        <result property="clusterConfig" column="cluster_config"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="selectSysHbaseClusterVo">
+        select id, cluster_id, cluster_version, cluster_name, cluster_desc, cluster_config, state from sys_hbase_cluster
+    </sql>
+
+    <select id="selectSysHbaseClusterById" parameterType="Integer" resultMap="SysHbaseClusterResult">
+        <include refid="selectSysHbaseClusterVo"/>
+        where id = #{clusterId}
+    </select>
+
+    <select id="selectSysHbaseClusterByClusterId" parameterType="String" resultMap="SysHbaseClusterResult">
+        <include refid="selectSysHbaseClusterVo"/>
+        <where>
+            cluster_id = #{clusterId}
+        </where>
+    </select>
+
+    <select id="selectSysHbaseClusterList" parameterType="String" resultMap="SysHbaseClusterResult">
+        <include refid="selectSysHbaseClusterVo"/>
+        <where>
+            <if test="state != null and state != ''">`state` = #{state}</if>
+        </where>
+    </select>
+
+
+    <insert id="insertSysHbaseCluster" parameterType="SysHbaseCluster" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_hbase_cluster
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">cluster_id,</if>
+            <if test="clusterVersion != null and clusterVersion != ''">cluster_version,</if>
+            <if test="clusterName != null and clusterName != ''">cluster_name,</if>
+            <if test="clusterDesc != null and clusterDesc != ''">cluster_desc,</if>
+            <if test="clusterConfig != null and clusterConfig != ''">cluster_config,</if>
+            <if test="state != null and state != ''">`state`,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">#{clusterId},</if>
+            <if test="clusterVersion != null and clusterVersion != ''">#{clusterVersion},</if>
+            <if test="clusterName != null and clusterName != ''">#{clusterName},</if>
+            <if test="clusterDesc != null and clusterDesc != ''">#{clusterDesc},</if>
+            <if test="clusterConfig != null and clusterConfig != ''">#{clusterConfig},</if>
+            <if test="state != null and state != ''">#{state},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysHbaseCluster" parameterType="SysHbaseCluster">
+        update sys_hbase_cluster
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">cluster_id = #{clusterId},</if>
+            <if test="clusterVersion != null and clusterVersion != ''">cluster_version = #{clusterVersion},</if>
+            <if test="clusterName != null and clusterName != ''">cluster_name = #{clusterName},</if>
+            <if test="clusterDesc != null and clusterDesc != ''">cluster_desc = #{clusterDesc},</if>
+            <if test="clusterConfig != null and clusterConfig != ''">cluster_config = #{clusterConfig},</if>
+            <if test="state != null and state != ''">`state` = #{state},</if>
+        </trim>
+        <where>
+            <if test="id != null and id > 0">OR `id` = #{id}</if>
+            <if test="clusterId != null and clusterId != 'clusterId'">OR `cluster_id` = #{clusterId}</if>
+        </where>
+
+    </update>
+
+    <delete id="deleteSysHbaseClusterById" parameterType="Integer">
+        delete
+        from sys_hbase_cluster
+        where id = #{clusterId}
+    </delete>
+
+
+</mapper>

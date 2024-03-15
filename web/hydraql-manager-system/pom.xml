@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.hydraql</groupId>
+        <artifactId>hydraql-manager</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+    <artifactId>hydraql-manager-web-system</artifactId>
+
+    <url>https://www.jielongping.com</url>
+    <name>hydraql-manager-web-system</name>
+    <description>hydraql-manager-web-system 系统模块</description>
+
+    <dependencies>
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.hydraql</groupId>
+            <artifactId>hydraql-manager-web-common</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBase表信息列表')"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            命名空间：<select name="namespaceName">
+                            <option value="">所有</option>
+                            <option th:each="namespace:${namespaces}" th:value="${namespace.namespaceId}"
+                                    th:text="${namespace.namespaceName}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            表名：<input type="text" name="tableName"/>
+                        </li>
+                        <li>
+                            是否禁用：<select name="disableFlag" th:with="type=${@dict.getType('sys_hbase_table_disable')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                        </select>
+                        </li>
+                        <li>
+                            状态：<select name="status" th:with="type=${@dict.getType('sys_hbase_table_status')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                        </select>
+                        </li>
+
+                        <li class="select-selectpicker">
+                            <label>标签： </label><select id="queryHBaseTagIdStr" class="selectpicker"
+                                                        data-none-selected-text="标签筛选" multiple>
+                            <option th:each="tag:${tags}" th:text="${tag.tagName}" th:value="${tag.tagId}"></option>
+                        </select>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchPre()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="resetPre()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="hbase:table:add">
+                <i class="fa fa-plus"></i> 新建表
+            </a>
+            <a class="btn btn-danger single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="hbase:table:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="hbase:table:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+            <a class="btn btn-primary" onclick="fetchTableFromCluster()" shiro:hasPermission="hbase:table:fetchTable">
+                <i class="fa fa-refresh"></i> 同步表元数据
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-select-js"/>
+<script th:inline="javascript">
+    var detailFlag = [[${@permission.hasPermi('hbase:table:detail')}]];
+    var editFlag = [[${@permission.hasPermi('hbase:table:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('hbase:table:remove')}]];
+    var clearHBaseTableFlag = [[${@permission.hasPermi('hbase:table:clear')}]];
+    var setupUserForTableFlag = [[${@permission.hasPermi('hbase:table:setup_user')}]];
+    var datas = [[${@dict.getType('sys_hbase_table_status')}]];
+    var datas2 = [[${@dict.getType('sys_hbase_table_disable')}]];
+    var prefix = ctx + "system/table";
+
+    $(function () {
+        var options;
+        options = {
+            url: prefix + "/list",
+            detailUrl: prefix + "/detail/{id}",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            queryParams: queryParams,
+            modalName: "HBase Table",
+            sidePagination: 'client',
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'tableId',
+                    title: 'HBase表编号',
+                    visible: false
+                },
+                {
+                    field: 'namespaceName',
+                    title: 'Namespace'
+                },
+                {
+                    field: 'tableName',
+                    title: 'TableName',
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        return '<a href="javascript:void(0)" onclick="familyDetail(\'' + row.tableId + '\')">' + value + '</a>';
+                    }
+                },
+                {
+                    field: 'onlineRegions',
+                    title: 'online_regions',
+                    visible: false
+                },
+                {
+                    field: 'offlineRegions',
+                    title: 'offline_regions',
+                    visible: false
+                },
+                {
+                    field: 'failedRegions',
+                    title: 'failed_regions',
+                    visible: false
+                },
+                {
+                    field: 'splitRegions',
+                    title: 'split_regions',
+                    visible: false
+                },
+                {
+                    field: 'otherRegions',
+                    title: 'other_regions',
+                    visible: false
+                },
+                {
+                    field: 'sysHbaseTagVoList',
+                    title: '表标签',
+                    align: "center",
+                    formatter: function (value, row, index) {
+                        return showHBaseTableTags(row);
+                    }
+                },
+                {
+                    visible: true,
+                    title: '是否禁用',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return disableOrEnableTools(row);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'remark',
+                    title: '备注',
+                    formatter: function (value, row, index) {
+                        if (value.length > 10) {
+                            return value.substr(0, 10) + "..."
+                        } else {
+                            return value;
+                        }
+                    },
+                    visible: false
+
+                },
+                {
+                    field: 'createBy',
+                    title: '创建者',
+                    formatter: function (value, row, index) {
+                        return value;
+                    },
+                    visible: false
+                }, {
+                    field: 'createTime',
+                    title: '创建时间',
+                    formatter: function (value, row, index) {
+                        return value;
+                    },
+                    visible: false
+                }, {
+                    field: 'updateBy',
+                    title: '最近更新者',
+                    formatter: function (value, row, index) {
+                        return value;
+                    }
+                }, {
+                    field: 'updateTime',
+                    title: '最近更新时间',
+                    formatter: function (value, row, index) {
+                        // return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
+                        return value;
+                    }
+                },
+                {
+                    field: 'lastMajorCompactTimestamp',
+                    title: '最近MajorCompact的时间',
+                    formatter: function (value, row, index) {
+                        return formatterTimestampToDateStr("yyyy-MM-dd hh:mm:ss", value);
+                    },
+                    visible: false
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.tableId + '\')"><i class="fa fa-search"></i>查看详情</a> ');
+                        actions.push('<a class="btn btn-warning btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="viewTableData(\'' + row.tableId + '\')"><i class="fa fa-server"></i>浏览数据</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>更新信息</a> ');
+                        /*actions.push('<a class="btn btn-warning btn-xs ' + clearHBaseTableFlag + '" href="javascript:void(0)" onclick="clearTableData(\'' + row.tableId + '\')"><i class="fa fa-trash"></i>清空表</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a> ');*/
+
+                        var more = [];
+                        //more.push("<a class='btn btn-default btn-xs " + setupUserForTableFlag + "' href='javascript:void(0)' onclick=setupOwner(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-check-square-o'></i>分配用户</a> ");
+                        more.push("<a class='btn btn-warning btn-xs " + clearHBaseTableFlag + "' href='javascript:void(0)' onclick=clearTableData(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-trash'></i>清空表</a> ");
+                        more.push("<a class='btn btn-danger btn-xs " + removeFlag + "' href='javascript:void(0)' onclick=removeHBaseTable(" + "\'" + row.tableId + "\'" + ")><i class='fa fa-remove'></i>删除表</a> ");
+                        actions.push('<a tabindex="0" class="btn btn-info btn-xs" role="button" data-container="body" data-placement="left" data-toggle="popover" data-html="true" data-trigger="hover" data-content="' + more.join('') + '"><i class="fa fa-chevron-circle-right"></i>更多操作</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    /*表禁用状态显示*/
+    function disableOrEnableTools(row) {
+        console.log(row);
+       if (row.disableFlag === '2') {
+            return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enableTable(\'' + row.tableId + '\')"></i> ';
+        } else {
+            return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disableTable(\'' + row.tableId + '\')"></i> ';
+        }
+
+    }
+
+    /**展示表信息**/
+    function setupOwner(id) {
+        alert(id)
+    }
+
+    /**表标签信息显示*/
+    function showHBaseTableTags(row) {
+        var tagNames = []
+        var tags = row.tags;
+        console.log(tags);
+        $.each(tags, function (index, tag) {
+            tagNames.push(tag.tagName)
+        });
+        return $.table.selectShowLabels(tagNames);
+    }
+
+    /* 表禁用状态管理-停用 */
+    function disableTable(tableId) {
+        $.modal.confirm("确认要禁用表吗？", function () {
+            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": "2"}, function (res) {
+                $.modal.msg("该表已成功禁用")
+            });
+        })
+    }
+
+    /* 表禁用状态管理-启用 */
+    function enableTable(tableId) {
+        $.modal.confirm("确认要启用表吗？", function () {
+            $.operate.post(prefix + "/changeDisableStatus", {"tableId": tableId, "disableFlag": "0"}, function (res) {
+                $.modal.msg("该表已成功启用")
+            });
+        })
+    }
+
+    function queryParams(params) {
+        var search = $.table.queryParams(params);
+        search.queryHBaseTagIdStr = $.common.join($('#queryHBaseTagIdStr').selectpicker('val'));
+        return search;
+    }
+
+    function searchPre() {
+        $.table.search('formId', 'bootstrap-table');
+    }
+
+    function resetPre() {
+        $("#formId")[0].reset();
+        $("#queryHBaseTagIdStr").selectpicker('refresh');
+        $.table.search('formId', 'bootstrap-table');
+    }
+
+    /*某一张HBase表的-列簇详情*/
+    function familyDetail(tableId) {
+        console.log(tableId);
+        var url = prefix + '/family/detail/' + tableId;
+        $.modal.openTab("列簇数据", url);
+    }
+
+    /*删除HBase表*/
+    function removeHBaseTable(tableId) {
+        $.modal.confirm("确定需要删除该表吗？", function () {
+            var url = prefix + "/remove";
+            var data = {"tableId": tableId};
+            $.operate.submit(url, "post", "json", data);
+        });
+    }
+
+    /**
+     * 清空表
+     */
+    function clearTableData(tableId) {
+        $.modal.confirm("确定需要清空该表的数据吗？", function () {
+            var url = prefix + "/truncatePreserveTable";
+            var data = {"tableId": tableId};
+            $.operate.submit(url, "post", "json", data);
+        });
+    }
+
+    /**
+     * 浏览表数据
+     * @param tableId
+     */
+    function viewTableData(tableId) {
+        console.log(tableId);
+        var url = prefix + '/data/' + tableId;
+        $.modal.openTab("HBase表数据", url);
+    }
+
+    function fetchTableFromCluster() {
+         $.modal.confirm("确定需要重新同步表的元数据信息？", function () {
+         var url = prefix + "/fetchTableFromCluster";
+         var data = {"operation": "fetchTable"};
+         $.operate.submit(url, "post", "json", data);
+       });
+    }
+</script>
+</body>
+</html>

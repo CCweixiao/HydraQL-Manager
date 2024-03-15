@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBaseSql')"/>
+    <th:block th:include="include :: layout-latest-css"/>
+    <th:block th:include="include :: ztree-css"/>
+    <th:block th:include="include :: codemirror-sql-plugins"/>
+</head>
+<body class="gray-bg">
+<!--<div class="ui-layout-west">
+    <div class="box box-main">
+        <div class="box-header">
+            <div class="box-title">
+                <i class="fa icon-grid"></i> HBase数据表
+            </div>
+            <div class="box-tools pull-right">
+                <a type="button" class="btn btn-box-tool" href="#" onclick="dept()" title="管理部门"><i class="fa fa-edit"></i></a>
+                <button type="button" class="btn btn-box-tool" id="btnExpand" title="展开" style="display:none;"><i class="fa fa-chevron-up"></i></button>
+                <button type="button" class="btn btn-box-tool" id="btnCollapse" title="折叠"><i class="fa fa-chevron-down"></i></button>
+                <button type="button" class="btn btn-box-tool" id="btnRefresh" title="刷新部门"><i class="fa fa-refresh"></i></button>
+            </div>
+        </div>
+        <div class="ui-layout-content">
+            <div id="tree" class="ztree"></div>
+        </div>
+    </div>
+</div>-->
+
+<div class="ui-layout-center">
+    <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+
+                <div class="col-sm-12">
+                    <form id="sql-form">
+                        <div class="form-group">
+                            <label for="code">在这里编写hql</label>
+                            <textarea id="code" name="code" class="form-control CodeMirror" rows="5"
+                                      placeholder="please input hql ......"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-sm-12">
+                    <a class="btn btn-primary btn-rounded btn-sm" onclick="submitSql()"><i class="fa fa-search"></i>&nbsp;提交</a>
+
+                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                            class="fa fa-refresh"></i>&nbsp;清空</a>
+                </div>
+
+            </div>
+
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: layout-latest-js"/>
+<th:block th:include="include :: ztree-js"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "system/sql";
+
+    const mime = 'text/x-mysql';
+    const source = {"users": ["id", "name"], "dbs": ["id", "name"]};
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {//根据DOM元素的id构造出一个编辑器
+        mode: 'text/x-sql',
+        indentWithTabs: true,
+        smartIndent: true,
+        lineNumbers: false,
+        matchBrackets: true,
+        autofocus: true,
+        styleActiveLine: true,
+        hintOptions: {tables: source}
+    });
+    editor.setOption("mode", "text/x-mysql");
+    editor.setSize('100%', '150px');
+    editor.on("keyup", function (cm, event) {
+        if (!cm.state.completionActive
+            //所有的字母和'$','{','.'在键按下之后都将触发自动完成
+            && ((event.keyCode >= 65 && event.keyCode <= 90)
+                || event.keyCode === 52 || event.keyCode === 219
+                || event.keyCode === 190)) {
+            CodeMirror.commands.autocomplete(cm, null, {
+                completeSingle: false
+            });
+        }
+    });
+
+
+    function submitSql() {
+        editor.save();
+        var hql = editor.getValue();
+
+        $.ajax({
+            type: "post",
+            url: prefix + "/query",
+            data: {
+                "hql": hql
+            },
+            success: function (r) {
+                if (r.code === 500) {
+                    $.modal.msg(r.msg, "error");
+                } else {
+                    //console.log(r.rows)
+                    initTable(r.rows)
+                }
+            }
+        });
+    }
+
+    function initTable(rows) {
+        var options = {
+            // url: prefix + "/query",
+            modalName: "HBase表数据",
+            sidePagination: 'client',
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'rowKey',
+                    title: 'row key'
+                },
+                {
+                    field: 'columnName',
+                    title: '列名称'
+                },
+                {
+                    field: 'tsDate',
+                    title: '时间戳'
+                },
+                {
+                    field: 'value',
+                    title: '数据值'
+                }],
+            data: rows
+        };
+        $.table.destroy();
+        $.table.init(options);
+    }
+
+</script>
+</body>
+</html>

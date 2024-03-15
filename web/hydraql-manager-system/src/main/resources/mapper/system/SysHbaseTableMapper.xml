@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableMapper">
+    <resultMap type="SysHbaseTable" id="SysHbaseTableResult">
+        <id     property="tableId"       column="table_id"      />
+        <result property="clusterId"       column="cluster_id"      />
+        <result property="namespaceName"    column="namespace_name"   />
+        <result property="tableName"     column="table_name"    />
+        <result property="disableFlag"     column="disable_flag"    />
+        <result property="createBy"  column="create_by"  />
+        <result property="createTime"          column="create_time"          />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"         />
+        <result property="status"       column="status"       />
+        <collection  property="tags"   javaType="java.util.List"   resultMap="SysHbaseTagResultInner" />
+    </resultMap>
+
+    <resultMap id="SysHbaseTagResultInner" type="SysHbaseTag">
+        <result property="tagId" column="tag_id"/>
+        <result property="tagName" column="tag_name"/>
+    </resultMap>
+
+    <sql id="selectTableVo">
+        select t.table_id,t.cluster_id,t.namespace_name,t.table_name,t.disable_flag,
+        t.create_by,t.create_time,
+        case when t.update_by = '' THEN t.create_by else t.update_by end as update_by,
+        case when t.update_time is null THEN t.create_time else t.update_time end as update_time,
+        t.status,t.remark,ta.tag_id,ta.tag_name
+        from sys_hbase_table t
+        left join sys_hbase_table_tag tt on tt.table_id = t.table_id
+        left join sys_hbase_tag ta on ta.tag_id = tt.tag_id
+    </sql>
+
+    <select id="selectSysHbaseTableById" parameterType="Long" resultMap="SysHbaseTableResult">
+        <include refid="selectTableVo"/>
+        where t.table_id = #{tableId}
+    </select>
+
+    <select id="selectSysHbaseTableCountByNameInOneCluster" parameterType="SysHbaseTable" resultType="java.lang.Integer">
+        select count(table_id) from sys_hbase_table
+        <where>
+            <if test="clusterId != null and clusterId != ''">
+                AND cluster_id = #{clusterId}
+            </if>
+            <if test="namespaceName != null and namespaceName != ''">
+                AND namespace_name = #{namespaceName}
+            </if>
+            <if test="tableName != null and tableName != ''">
+                AND table_name = #{tableName}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSysHbaseTableListByUserId" parameterType="Long" resultMap="SysHbaseTableResult">
+        select t.table_id, t.cluster_id, t.namespace_name, t.table_name, t.disable_flag,
+        t.create_by, t.create_time, t.update_by,
+        t.update_time, t.status, t.remark from sys_hbase_table t
+        left join  (select table_id, user_id from sys_hbase_user_table where user_id = #{userId}) as ut
+        on t.table_id = ut.table_id
+    </select>
+
+    <select id="selectSysHbaseTableList" parameterType="SysHbaseTable" resultMap="SysHbaseTableResult">
+        <include refid="selectTableVo"/>
+        <where>
+            <if test="clusterId != null and clusterId != ''">
+                AND t.cluster_id = #{clusterId}
+            </if>
+            <if test="namespaceName != null and namespaceName != ''">
+                AND t.namespace_name = #{namespaceName}
+            </if>
+            <if test="tableName != null and tableName != ''">
+                AND t.table_name like concat('%', #{tableName}, '%')
+            </if>
+            <if test="disableFlag != null and disableFlag != ''">
+                AND t.disable_flag = #{disableFlag}
+            </if>
+            <if test="status != null and status != ''">
+                AND t.status = #{status}
+            </if>
+            <if test="tags != null and tags.size() > 0">
+                AND tt.tag_id in
+                <foreach collection="tags" item="tag" open="(" separator="," close=")">
+                    #{tag.tagId}
+                </foreach>
+            </if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <delete id="deleteSysHbaseTableById" parameterType="Long">
+        delete from sys_hbase_table where table_id = #{tableId}
+    </delete>
+
+    <update id="updateSysHbaseTable" parameterType="SysHbaseTable">
+        update sys_hbase_table
+        <set>
+            <if test="disableFlag != null and disableFlag != ''">disable_flag = #{disableFlag},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where table_id = #{tableId}
+    </update>
+
+    <insert id="insertSysHbaseTable" parameterType="SysHbaseTable" useGeneratedKeys="true" keyProperty="tableId">
+        insert into sys_hbase_table(
+        <if test="tableId != null and tableId != ''">table_id,</if>
+        <if test="clusterId != null and clusterId != ''">cluster_id,</if>
+        <if test="namespaceName != null and namespaceName != ''">namespace_name,</if>
+        <if test="tableName != null and tableName != ''">table_name,</if>
+        <if test="disableFlag != null and disableFlag != ''">disable_flag,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        create_time
+        )values(
+        <if test="tableId != null and tableId != ''">#{tableId},</if>
+        <if test="clusterId != null and clusterId != ''">#{clusterId},</if>
+        <if test="namespaceName != null and namespaceName != ''">#{namespaceName},</if>
+        <if test="tableName != null and tableName != ''">#{tableName},</if>
+        <if test="disableFlag != null and disableFlag != ''">#{disableFlag},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+    <insert id="batchSaveSysHbaseTableList">
+        insert into sys_hbase_table (cluster_id, namespace_name, table_name, disable_flag,
+        status, create_by, remark, create_time) values
+        <foreach item="item" index="index" collection="sysHbaseTableList" separator=",">
+            (#{item.clusterId}, #{item.namespaceName},#{item.tableName}, #{item.disableFlag},
+            #{item.status}, #{item.createBy} ,#{item.remark}, sysdate())
+        </foreach>
+        ON DUPLICATE KEY UPDATE cluster_id=VALUES(cluster_id), namespace_name=VALUES(namespace_name),
+        table_name=VALUES(table_name)
+    </insert>
+
+</mapper>
+

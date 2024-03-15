@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <title>集群切换</title>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html"/>
+    <![endif]-->
+    <link rel="shortcut icon" href="../static/favicon.ico" th:href="@{favicon.ico}"/>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <style type="text/css">
+		.list-unstyled{margin:10px;}
+		.full-opacity-hover{opacity:1;filter:alpha(opacity=1);border:1px solid #fff}
+		.full-opacity-hover:hover{border:1px solid #f00;}
+    </style>
+</head>
+<body class="gray-bg">
+<ul class="list-unstyled clearfix">
+	<li style="float:left; width: 33.33333%; padding: 5px;" th:each="cluster:${sysHbaseClusters}">
+        <a href="javascript:void(0)" th:onclick="confirmSwitchHBaseCluster([[${cluster.clusterId}]])"  style="display: block; box-shadow: 0 0 3px rgba(0,0,0,0.4)" class="clearfix full-opacity-hover">
+            <img alt="[[${cluster.clusterName}]]" style="width: 100%;height: 50px" th:src="@{/img/hbase.png}" />
+        </a>
+        <p>集群名称：[[${cluster.clusterName}]]</p>
+        <p>集群版本：[[${cluster.clusterVersion}]]</p>
+        <p>描述信息：[[${cluster.clusterDesc}]]</p>
+	</li>
+</ul>
+</body>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script src="../static/ajax/libs/layer/layer.min.js" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script src="../static/ajax/libs/blockUI/jquery.blockUI.js" th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+<script src="../static/ruoyi/js/ry-ui.js" th:src="@{/ruoyi/js/ry-ui.js?v=4.3.1}"></script>
+<!--<script th:src="@{/ruoyi/js/common.js?v=4.3.1}"></script>-->
+<script th:inline="javascript">
+    var ctx = [[@{/}]];
+	function confirmSwitchHBaseCluster(cluster) {
+        var prefix = ctx + "monitor/online";
+        console.log(cluster);
+        var url = prefix + "/changeHBaseCluster";
+        $.ajax({
+            type: "post",
+            url: url,
+            data:{
+                "cluster":cluster
+            },
+            success: function (r) {
+                console.log(r);
+                if (r.code === 0) {
+                    parent.location.reload()
+                    //location.href = ctx + 'index';
+                } else {
+                    $.modal.msg(r.msg);
+                }
+            }
+        });
+	}
+</script>
+</html>

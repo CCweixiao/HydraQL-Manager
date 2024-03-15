@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBase表Schema信息列表')"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            筛选表名：<select name="tableName">
+                            <option value="">所有</option>
+                            <option th:each="tablename:${allTableNames}" th:value="${tablename}"
+                                    th:text="${tablename}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchPre()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="resetPre()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.addNoSubmitButton()" shiro:hasPermission="hbase:schema:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <!--<a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="hbase:snapshot:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>-->
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="hbase:schema:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="hbase:table:export">
+                <i class="fa fa-download"></i> 导出
+            </a>-->
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-select-js"/>
+<script th:inline="javascript">
+    var detailFlag = [[${@permission.hasPermi('hbase:schema:detail')}]];
+    var editFlag = [[${@permission.hasPermi('hbase:schema:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('hbase:schema:remove')}]];
+
+    var prefix = ctx + "system/schema";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            detailUrl: prefix + "/detail/{id}",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            queryParams: queryParams,
+            modalName: "HBase Schema",
+            sidePagination: 'client',
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'tableId',
+                    title: 'HBase表ID',
+                    visible: false
+                },
+                {
+                    field: 'tableName',
+                    title: '表名称',
+                    sortable: true
+                },
+                {
+                    field: 'tableSchema',
+                    title: 'HBase表的Schema',
+                    sortable: true
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        //actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.tableId + '\')"><i class="fa fa-search"></i>查看详情</a> ');
+                        //actions.push('<a class="btn btn-success btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function queryParams(params) {
+        return $.table.queryParams(params);
+    }
+
+    function searchPre() {
+        $.table.search('formId', 'bootstrap-table');
+    }
+
+    function resetPre() {
+        $("#formId")[0].reset();
+        $.table.search('formId', 'bootstrap-table');
+    }
+</script>
+</body>
+</html>

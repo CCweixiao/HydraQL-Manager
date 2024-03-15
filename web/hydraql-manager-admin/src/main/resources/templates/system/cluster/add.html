@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增集群配置信息')" />
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-cluster-add" th:object="${sysHbaseClusterDto}">
+            <h4 class="form-header h4">基本信息</h4>
+            <div class="form-group">    
+                <label class="col-sm-4 control-label is-required">集群ID：</label>
+                <div class="col-sm-8">
+                    <input name="clusterId" class="form-control" type="text" placeholder="如：test-hbase" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">集群名称：</label>
+                <div class="col-sm-8">
+                    <input name="clusterName" class="form-control" type="text" placeholder="如：测试HBase集群" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">集群版本：</label>
+                <div class="col-sm-8">
+                    <select id ="clusterVersion" class="form-control" name="clusterVersion" th:with="type=${@dict.getType('sys_hbase_cluster_version')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">用途描述：</label>
+                <div class="col-sm-8">
+                    <input name="clusterDesc" class="form-control" type="text" placeholder="如：用于测试的集群 ......" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">filter.namespace.prefix：</label>
+                <div class="col-sm-8">
+                    <input name="filterNamespacePrefix" class="form-control" type="text" placeholder="如：test" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">filter.table.name.prefix：</label>
+                <div class="col-sm-8">
+                    <input name="filterTableNamePrefix" class="form-control" type="text" placeholder="如：KYLIN" />
+                </div>
+            </div>
+
+            <h4 class="form-header h4">连接信息</h4>
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">hbase.zookeeper.quorum：</label>
+                <div class="col-sm-8">
+                    <input name="zkQuorum" class="form-control" type="text" placeholder="zkHost1,zkHost2,zkHost3" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">hbase.zookeeper.property.clientPort：</label>
+                <div class="col-sm-8">
+                    <input name="zkclientPort" class="form-control" type="text" placeholder="2181" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">hbase.security.authentication：</label>
+                <div class="col-sm-8">
+                    <select class="form-control" name="authenticationType" th:with="type=${@dict.getType('sys_hbase_security_authentication')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">kerberos.principal：</label>
+                <div class="col-sm-8">
+                    <input name="kerberosPrincipal" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">keytab.file：</label>
+                <div class="col-sm-8">
+                    <input name="keytabFile" class="form-control" type="text" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">hbase.regionserver.kerberos.principal：</label>
+                <div class="col-sm-8">
+                    <input name="regionServerKerberosPrincipal" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">hbase.master.kerberos.principal：</label>
+                <div class="col-sm-8">
+                    <input name="masterKerberosPrincipal" class="form-control" type="text" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">java.security.krb5.conf：</label>
+                <div class="col-sm-8">
+                    <input name="krb5Conf" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">java.security.krb5.realm：</label>
+                <div class="col-sm-8">
+                    <input name="krb5Realm" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">java.security.krb5.kdc：</label>
+                <div class="col-sm-8">
+                    <input name="krb5Kdc" class="form-control" type="text" />
+                </div>
+            </div>
+
+
+            <h4 class="form-header h4">高级配置</h4>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-success btn-sm" onclick="addColumn()"><i class="fa fa-plus"> 增加</i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="sub.delColumn()"><i class="fa fa-minus">
+                        删除</i></button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="testConnectionCluster()"><i class="fa fa-refresh">连接测试</i>
+                    </button>
+                    <div class="col-sm-12 select-table table-striped">
+                        <table id="bootstrap-table"></table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: select2-js"/>
+
+    <script th:src="@{/js/jquery.tmpl.js}"></script>
+    <script th:inline="javascript">
+        $(function () {
+        var options = {
+            pagination: false,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            sidePagination: "client",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'propertyName',
+                    align: 'center',
+                    title: '参数名称',
+                    formatter: function (value, row, index) {
+                        return $.common.sprintf("<input class='form-control' type='text' placeholder='输入参数名称' name='properties[%s].propertyName' value='%s' required>", index, value);
+                    }
+                },
+                {
+                    field: 'propertyValue',
+                    align: 'center',
+                    title: '参数值',
+                    formatter: function (value, row, index) {
+                        return $.common.sprintf("<input class='form-control' type='text' placeholder='输入参数值' name='properties[%s].propertyValue' value='%s' required>", index, value);
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+     function addColumn() {
+        var count = $("#" + table.options.id).bootstrapTable('getData').length;
+        sub.editColumn();
+
+        $("#" + table.options.id).bootstrapTable('insertRow', {
+            index: count,
+            row: {
+                index: $.table.serialNumber(count),
+                propertyName: "",
+                propertyValue: ""
+            }
+        });
+    }
+
+        function testConnectionCluster() {
+            if ($.validate.form()) {
+                var url = prefix + "/testConnection";
+                var data = $('#form-cluster-add').serialize();
+
+                var config = {
+                    url: url,
+                    type: "post",
+                    dataType: "json",
+                    data: data,
+                    beforeSend: function () {
+                        $.modal.loading("正在连接集群中，请稍后...");
+                        $.modal.disable();
+                    },
+                    success: function (result) {
+                        console.log(result);
+                        if (result.code === 0) {
+                            $.modal.msgSuccess(result.msg)
+                        } else {
+                            $.modal.msgError(result.msg)
+                        }
+                        $.modal.enable();
+                        $.modal.closeLoading();
+                    }
+                };
+                $.ajax(config)
+            }
+        }
+        var prefix = ctx + "system/cluster"
+        $("#form-cluster-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-cluster-add').serialize());
+            }
+        }
+
+    </script>
+</body>
+</html>

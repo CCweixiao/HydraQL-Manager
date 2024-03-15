@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBaseShell')"/>
+    <link th:href="@{/js/plugins/terminal/jquery.terminal.min.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>连接集群：</label>
+                            <select id="clusterSelect" class="form-control">
+                                <option th:each="cluster:${clusterIdList}" th:value="${cluster}"
+                                        th:text="${cluster}"></option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 select-table table-striped" id="s_terminal" style="height:300px;overflow-y:auto">
+
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+
+<script th:src="@{/js/plugins/terminal/jquery.terminal.min.js}"></script>
+<script th:src="@{/js/plugins/terminal/autocomplete_menu.js}"></script>
+<script th:inline="javascript">
+    const allCommands = [[${allCommands}]]
+    const commands = allCommands;
+    console.log(commands);
+
+    // 判断浏览器是否支持websocket
+    if (typeof (WebSocket) !== "undefined") {
+        const sessionId = [[${shellSessionId}]]
+        console.log(sessionId)
+        const prefix = [[${wsBasePath}]] + "ws/" + sessionId;
+        console.log(prefix)
+        const ws = new WebSocket(prefix);
+        ws.onopen = function () {
+            console.log("建立 web socket 连接......")
+        };
+
+        function progress(milliseconds) {
+            // 计算总共有多少秒
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            // 计算有多少小时
+            const hours = Math.floor(totalSeconds / 3600);
+            // 剩余的秒数
+            const secondsLeft = totalSeconds % 3600;
+            // 计算分钟数
+            const minutes = Math.floor(secondsLeft / 60);
+            // 剩余的秒数
+            const seconds = secondsLeft % 60;
+            // 把时、分、秒都补全成两位数
+            if (hours > 0) {
+                return "cost: " + hours + " h," + minutes + " m," + seconds + " s";
+            }
+            if (minutes > 0) {
+                return "cost: " + minutes + " m," + seconds + " s";
+            }
+            return "cost: " + milliseconds * 1.0 / 1000 + " s";
+        }
+
+        var animation = false;
+        var cost = 0;
+        var timer;
+        var prompt;
+        var progressDisplay;
+        $('#s_terminal').terminal(function (command, term) {
+            if (command) {
+                prompt = term.get_prompt();
+                progressDisplay = progress(cost);
+                term.set_prompt(progressDisplay);
+                // 每次开始执行命令时，设置animation = true;
+                animation = true;
+                cost = 0;
+                (function loop() {
+                    progressDisplay = progress(cost);
+                    term.set_prompt(progressDisplay);
+                    if (animation) {
+                        cost += 100;
+                        timer = setTimeout(loop, 100);
+                    } else {
+                        term.echo(progress(cost) + ' [[b;green;]OK]').set_prompt(prompt);
+                    }
+                })();
+                const clusterId = $("#clusterSelect").val()
+                ws.send(JSON.stringify({
+                        "clusterId": clusterId,
+                        "command": command
+                    })
+                )
+            }
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                console.log(data)
+                if (data.success) {
+                    term.echo('[[;green;]' + data.result + ']');
+                    // 命令执行结束时，执行animation = false;
+                    animation = false;
+                } else {
+                    term.echo('[[;red;]' + data.result + ']');
+                    animation = false;
+                }
+            };
+            ws.onclose = function(event) {
+                term.echo('[[;red;]' + "回话已被关闭，请刷新当前界面" + ']');
+                console.log("Connection closed.");
+            };
+        }, {
+            greetings: "╦ ╦╔╗ ┌─┐┌─┐┌─┐  ╔═╗┬ ┬┌─┐┬  ┬  \n" +
+                "╠═╣╠╩╗├─┤└─┐├┤   ╚═╗├─┤├┤ │  │  \n" +
+                "╩ ╩╚═╝┴ ┴└─┘└─┘  ╚═╝┴ ┴└─┘┴─┘┴─┘",
+            height: 500,
+            width: '100%',
+            'font-size': '15px',
+            prompt: 'hbase> ',
+            autocompleteMenu: true,
+            completion: function() {
+                const term = this;
+                return new Promise(function(resolve) {
+                    const command = term.get_command();
+                    const name = command.match(/^([^\s]*)/)[0];
+                    let list = [];
+                    if (name) {
+                        const word = term.before_cursor(true);
+                        if (name === word) {
+                            list = Object.keys(commands);
+                        } else if (command.match(/\s/)) {
+                            if (commands[name]) {
+                                if (word.match(/^--/)) {
+                                    list = commands[name].options.map(function(option) {
+                                        return '--' + option;
+                                    });
+
+                                } else {
+                                    list = commands[name].args;
+                                }
+                            }
+                        }
+                    }
+                    resolve(list);
+                });
+            },
+            onBlur: function () {
+                return false;
+            },
+            keydown: function (e, term) {
+                if (animation) {
+                    if (e.which === 9) {
+                       console.log("TAB键")
+                    }
+                    if (e.which === 68 && e.ctrlKey) { // CTRL+D
+                        clearTimeout(timer);
+                        animation = false;
+                        term.echo(progressDisplay + ' [[b;red;]您kill了当前命令]').set_prompt(prompt);
+                    }
+                    return false;
+                }
+            }
+        });
+    } else {
+        $.modal.msgError("您的浏览器不支持Websocket通信协议，请使用Chrome或者Firefox浏览器！");
+    }
+
+</script>
+</body>
+</html>

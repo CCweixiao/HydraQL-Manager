@@ -1,0 +1,75 @@
+<assembly>
+    <id>release</id><!--名字  会附加在版本后面-->
+    <formats>
+        <format>tar.gz</format><!--打包格式-->
+    </formats>
+    <baseDirectory>hydraql-manager-console-${project.version}</baseDirectory>
+    <!--如果为false，不会额外产生根目录，否则，在tar.gz包中会产生以pom.xml中artifactId和version命名的根目录-->
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <!--是对依赖包的设置-->
+    <dependencySets>
+        <!--assembly中dependencySets的意思就是，将scope为runtime的依赖包，放到/lib目录下-->
+        <dependencySet>
+            <!--定义了是否解压依赖包，如果为true，会解压出依赖包中的class文件，反之，则不进行解压-->
+            <unpack>false</unpack>
+            <!--限定了对哪些依赖包进行操作；（依赖包scope的值是在pom.xml中定义的）-->
+            <scope>runtime</scope>
+            <!-- 依赖包在tar.gz包中相对于根目录的路径-->
+            <outputDirectory>lib</outputDirectory>
+            <!--依赖包中是否包含当前工程-->
+            <useProjectArtifact>true</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>
+    <!--指定哪些文件包含在打出的tar.gz包中-->
+    <!--assembly中两个fileSets的作用是，
+    将target/classes下的文件，打包到AlarmReport目录；将startup.sh打包到AlarmReport/bin目录-->
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/bin</directory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0744</fileMode>
+        </fileSet>
+        <!-- 把项目相关的说明文件，打包进zip文件的根目录 -->
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>LICENSE*</include>
+                <include>NOTICE*</include>
+            </includes>
+        </fileSet>
+
+        <!-- 把项目的配置文件，打包进zip文件的config目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>*.xml</include>
+                <include>*.properties</include>
+                <include>hydraql/**</include>
+            </includes>
+        </fileSet>
+
+        <!-- 把项目的配置文件，打包进zip文件的config目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+
+        <!-- 把项目自己编译出来的jar文件，打包进zip文件的根目录 -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hydraql</groupId>
+    <artifactId>hydraql-manager</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>core</module>
+        <module>plugins</module>
+        <module>web</module>
+        <module>shaded</module>
+        <module>console</module>
+    </modules>
+
+    <properties>
+        <compiler.version>1.8</compiler.version>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <build.checkstyle.path>${basedir}/build/checkstyle</build.checkstyle.path>
+        <build.findbugs.path>${basedir}/build/findbugs</build.findbugs.path>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
+        <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>
+        <commons.pool2.version>2.6.2</commons.pool2.version>
+        <guava.version>30.0-jre</guava.version>
+        <junit.version>4.13.2</junit.version>
+        <antlr4.version>4.13.1</antlr4.version>
+        <fastjson2.version>2.0.19</fastjson2.version>
+        <reflectasm.version>1.11.9</reflectasm.version>
+        <hutool.version>5.7.2</hutool.version>
+        <findbugs.maven.version>3.0.5</findbugs.maven.version>
+        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+        <checkstyle.version>8.11</checkstyle.version>
+        <spotbugs.version>3.1.11</spotbugs.version>
+        <audience-annotations.version>0.5.0</audience-annotations.version>
+        <jruby.verison>9.3.4.0</jruby.verison>
+        <jcodings.version>1.0.56</jcodings.version>
+        <joni.version>2.1.42</joni.version>
+        <jline.version>3.23.0</jline.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <log4j.version>2.17.1</log4j.version>
+        <hydraql.hbase.adapter.default.version>1.2</hydraql.hbase.adapter.default.version>
+        <hydraql.hbase.adapter.version>${hydraql.hbase.adapter.default.version}</hydraql.hbase.adapter.version>
+        <hydraql.hbase.version>1.2.0</hydraql.hbase.version>
+        <!--hydraql-manager依赖-->
+        <hydraql-manager.version>${project.version}</hydraql-manager.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <shiro.version>1.5.3</shiro.version>
+        <thymeleaf.extras.shiro.version>2.0.0</thymeleaf.extras.shiro.version>
+        <mybatis.boot.version>1.3.2</mybatis.boot.version>
+        <druid.version>1.1.14</druid.version>
+        <bitwalker.version>1.19</bitwalker.version>
+        <kaptcha.version>2.3.2</kaptcha.version>
+        <swagger.version>2.9.2</swagger.version>
+        <pagehelper.boot.version>1.2.5</pagehelper.boot.version>
+        <fastjson2.version>2.0.19</fastjson2.version>
+        <oshi.version>3.9.1</oshi.version>
+        <commons.io.version>2.5</commons.io.version>
+        <commons.fileupload.version>1.3.3</commons.fileupload.version>
+        <poi.version>3.17</poi.version>
+        <velocity.version>1.7</velocity.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <name>Nexus Release Repository</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>central-repos</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>snapshot</id>
+            <name>Maven Snapshot Repository</name>
+            <url>https://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.yetus</groupId>
+            <artifactId>audience-annotations</artifactId>
+            <version>${audience-annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- SpringBoot的依赖配置-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.1.1.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!--阿里数据库连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!--验证码 -->
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+            </dependency>
+
+            <!--Shiro核心框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- Shiro使用Srping框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-spring</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- Shiro使用EhCache缓存框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-ehcache</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- thymeleaf模板引擎和shiro框架的整合 -->
+            <dependency>
+                <groupId>com.github.theborakompanioni</groupId>
+                <artifactId>thymeleaf-extras-shiro</artifactId>
+                <version>${thymeleaf.extras.shiro.version}</version>
+            </dependency>
+
+            <!-- 解析客户端操作系统、浏览器等 -->
+            <dependency>
+                <groupId>eu.bitwalker</groupId>
+                <artifactId>UserAgentUtils</artifactId>
+                <version>${bitwalker.version}</version>
+            </dependency>
+
+            <!-- pagehelper 分页插件 -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.boot.version}</version>
+            </dependency>
+
+            <!-- 获取系统信息 -->
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${oshi.version}</version>
+            </dependency>
+
+            <!-- swagger2-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-models</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- swagger2-UI-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+
+            <!--io常用工具类 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+
+            <!--文件上传工具类 -->
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons.fileupload.version}</version>
+            </dependency>
+
+            <!-- excel工具 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!--velocity代码生成使用模板 -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+            </dependency>
+
+            <!-- 阿里JSON解析器 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+
+            <!-- 定时任务-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-quartz</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 代码生成-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-generator</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 核心模块-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-framework</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 系统模块-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-system</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 通用工具-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-common</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-dsl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-thrift</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-shell_${hydraql.hbase.adapter.version}</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>spring-boot-starter-hydraql_${hydraql.hbase.adapter.version}</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>hydraql-hbase-1.2</id>
+            <activation>
+                <property>
+                    <name>!hydraql.hbase.profile</name>
+                </property>
+            </activation>
+            <properties>
+                <hydraql.hbase.adapter.version>1.2</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>1.2.0</hydraql.hbase.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>hydraql-hbase-1.4</id>
+            <activation>
+                <property>
+                    <name>hydraql.hbase.profile</name>
+                    <value>1.4</value>
+                </property>
+            </activation>
+            <properties>
+                <hydraql.hbase.adapter.version>1.4</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>1.4.3</hydraql.hbase.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>hydraql-hbase-2.2</id>
+            <activation>
+                <property>
+                    <name>hydraql.hbase.profile</name>
+                    <value>2.2</value>
+                </property>
+            </activation>
+            <properties>
+                <hydraql.hbase.adapter.version>2.2</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>2.2.6</hydraql.hbase.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>hydraql-hbase-2.5</id>
+            <activation>
+                <property>
+                    <name>hydraql.hbase.profile</name>
+                    <value>2.5</value>
+                </property>
+            </activation>
+            <properties>
+                <hydraql.hbase.adapter.version>2.5</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>2.5.3</hydraql.hbase.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <!-- 对应setting.xml中的server id -->
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <compilerVersion>${java.version}</compilerVersion>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <optimize>true</optimize>
+                        <maxmem>1024m</maxmem>
+                        <fork>true</fork>
+                        <compilerArgs>
+                            <arg>-Xlint:all,-serial,-path</arg>
+                        </compilerArgs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>${findbugs.maven.version}</version>
+                    <!--NOTE: Findbugs 3.0.0 requires jdk7-->
+                    <configuration>
+                        <effort>Low</effort>
+                        <threshold>Medium</threshold>
+                        <excludeFilterFile>${build.findbugs.path}/findbugs-exclude.xml</excludeFilterFile>
+                        <findbugsXmlOutput>true</findbugsXmlOutput>
+                        <xmlOutput>true</xmlOutput>
+                        <findbugsXmlOutputDirectory>target/findbugs</findbugsXmlOutputDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>run-findbugs</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <!-- Approach followed here is roughly the same as mentioned here:
+                    https://maven.apache.org/plugins/maven-checkstyle-plugin/examples/multi-module-config.html
+                    -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.checkstyle.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <configLocation>${build.checkstyle.path}/checkstyle.xml</configLocation>
+                        <suppressionsLocation>${build.checkstyle.path}/suppressions.xml</suppressionsLocation>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <consoleOutput>true</consoleOutput>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

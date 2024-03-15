@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBaseManager首页')"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
+</head>
+<body class="gray-bg">
+<!--<div class="row  border-bottom white-bg dashboard-header">
+    <div class="col-sm-12">
+        <p>HBase集群汇总指标与请求量统计。</a>
+        </p>
+    </div>
+</div>-->
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>RegionServer总数</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项1</a>
+                            </li>
+                            <li><a href="#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="regionserver-num-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>namespace总数</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项1</a>
+                            </li>
+                            <li><a href="#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="namespace-num-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>表总数</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项1</a>
+                            </li>
+                            <li><a href="#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="table-num-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>快照总数</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项1</a>
+                            </li>
+                            <li><a href="#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="snapshot-num-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            选择模式：<select name="modeName">
+                            <option value="TABLE">TABLE</option>
+                            <option value="NAMESPACE">NAMESPACE</option>
+                            <option value="REGION_SERVER">REGION_SERVER</option>
+                            <option value="REGION">REGION</option>
+                        </select>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchPre()"><i
+                                    class="fa fa-search"></i>&nbsp;刷新</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="resetPre()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>HBase写入/读取每秒请求量监控</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项1</a>
+                            </li>
+                            <li><a href="#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div style="height:500px" class="echarts" id="write-read-requests-line-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: echarts-js"/>
+<!--<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>-->
+<script type="text/javascript">
+    function drawGaugeChart(domID, title, currentValue) {
+        var gaugeChart = echarts.init(document.getElementById(domID));
+
+        var totalNum = currentValue + 15;
+        var gaugeoption = {
+            tooltip: {
+                formatter: "{a} <br/>{c} {b}"
+            },
+
+            series: [
+                {
+                    name: title,
+                    type: 'gauge',
+                    min: 0,
+                    max: totalNum,
+                    splitNumber: "none",
+                    axisLine: {            // 坐标轴线
+                        lineStyle: {       // 属性lineStyle控制线条样式
+                            width: 10
+                        }
+                    },
+                    axisTick: {
+                        // 坐标轴小标记
+                        length: 15,        // 属性length控制线长
+                        lineStyle: {       // 属性lineStyle控制线条样式
+                            color: 'auto'
+                        }
+                    },
+                    splitLine: {           // 分隔线
+                        length: 20,         // 属性length控制线长
+                        lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                            color: 'auto'
+                        }
+                    },
+                    title: {
+                        textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                            fontWeight: 'bolder',
+                            fontSize: 20,
+                            fontStyle: 'italic'
+                        }
+                    },
+                    detail: {
+                        textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                            fontWeight: 'bolder'
+                        }
+                    },
+                    data: [{value: currentValue, name: ''}]
+                }
+            ]
+        };
+
+        gaugeChart.setOption(gaugeoption);
+        $(window).resize(gaugeChart.resize);
+    }
+
+    function drawLineChart(domID, modeName, xValues, yWriteValues, yReadValues) {
+        var lineChart = echarts.init(document.getElementById(domID));
+        var option = {
+           /* title: {
+                text: modeName + "-" + "WRITE_READ_REQUEST_COUNT_PER_SECOND"
+            },*/
+            legend: {
+                data:['每秒写入','每秒读取']
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            grid: {
+                x: 60,
+                y: 60,
+                x2: 60,
+                y2: 150
+            },
+            dataZoom: {
+                type: 'slider',
+                show: true,
+                realtime: true,
+                start: 0,
+                end: 15
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: true,
+                    axisTick: {onGap: false},
+                    splitLine: {show: false},
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 10,
+                        textStyle: {
+                            color: '#000',
+                            fontSize: 10
+                        }
+                    },
+                    data: xValues
+                },
+
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: "每秒写入",
+                    type: 'line',
+                    data: yWriteValues,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                },{
+                    name: "每秒读取",
+                    type: 'line',
+                    data: yReadValues,
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                },
+            ]
+        };
+        lineChart.setOption(option);
+        $(window).resize(lineChart.resize);
+    }
+
+    function refreshWriteAndReadRequests(modeName){
+        $.ajax({
+            type: "get",
+            url: ctx + "system/cluster/metric/requests?modeName="+modeName,
+            success: function (r) {
+                if (r.code === 0) {
+                    var metric = r['data'];
+
+                    var xValues = metric['xValues'];
+                    var yWriteRequestsValues = metric['yWriteRequestsValues'];
+                    var yReadRequestsValues = metric['yReadRequestsValues'];
+                    var modeName = metric['modeName'];
+
+                    drawLineChart("write-read-requests-line-chart", modeName, xValues, yWriteRequestsValues, yReadRequestsValues)
+                }else{
+                    var xValues = [0,0,0,0,0];
+                    var yWriteRequestsValues = [0,0,0,0,0];
+                    var yReadRequestsValues = [0,0,0,0,0];
+                    var modeName = '';
+
+                    drawLineChart("write-read-requests-line-chart", modeName, xValues, yWriteRequestsValues, yReadRequestsValues)
+                }
+            }
+        });
+    }
+
+    $(function () {
+        $.ajax({
+            type: "get",
+            url: ctx + "system/cluster/metric/summary",
+            success: function (r) {
+                if (r.code === 0) {
+                    var summary = r['data'];
+                    var liveServers = summary['liveServers'];
+                    var namespaceCount = summary['namespaceCount'];
+                    var tableCount = summary['tableCount'];
+                    var snapshotCount = summary['snapshotCount'];
+
+                    drawGaugeChart("regionserver-num-chart", "Live RegionServer", liveServers);
+                    drawGaugeChart("namespace-num-chart", "NameSpace", namespaceCount);
+                    drawGaugeChart("table-num-chart", "Table", tableCount);
+                    drawGaugeChart("snapshot-num-chart", "Snapshot", snapshotCount);
+
+                } else {
+                    drawGaugeChart("regionserver-num-chart", "Live RegionServer", 0);
+                    drawGaugeChart("namespace-num-chart", "NameSpace", 0);
+                    drawGaugeChart("table-num-chart", "Table", 0);
+                    drawGaugeChart("snapshot-num-chart", "Snapshot", 0);
+                }
+            }
+        });
+
+        refreshWriteAndReadRequests("");
+    });
+
+    function resetPre() {
+        $("#formId")[0].reset();
+    }
+
+    function searchPre() {
+        var data = $("#formId").serializeArray()[0];
+        var modeName = data['value'];
+
+        refreshWriteAndReadRequests(modeName);
+    }
+
+</script>
+</body>
+</html>

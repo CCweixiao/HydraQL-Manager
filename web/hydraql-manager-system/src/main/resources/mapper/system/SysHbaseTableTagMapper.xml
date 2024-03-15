@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableTagMapper">
+
+    <resultMap type="SysHbaseTableTag" id="SysHbaseTableTagResult">
+        <result property="tableId" column="table_id"/>
+        <result property="tagId" column="tag_id"/>
+    </resultMap>
+
+    <insert id="insertSysHbaseTableTag" parameterType="SysHbaseTableTag">
+        insert into sys_hbase_table_tag
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">table_id,</if>
+            <if test="tagId != null">tag_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tableId != null">#{tableId},</if>
+            <if test="tagId != null">#{tagId},</if>
+        </trim>
+    </insert>
+
+
+    <delete id="deleteSysHbaseTableTag" parameterType="SysHbaseTableTag">
+        delete from sys_hbase_table_tag
+        <where>
+            <if test="tableId != null">and table_id = #{tableId}</if>
+            <if test="tagId != null">and tag_id = #{tagId} </if>
+        </where>
+    </delete>
+
+    <delete id="deleteSysHbaseTableTagByTagId" parameterType="Long">
+        delete from sys_hbase_table_tag where tag_id = #{tagId}
+    </delete>
+
+    <delete id="deleteSysHbaseTableTagByTableId" parameterType="Long">
+        delete from sys_hbase_table_tag where table_id = #{tableId}
+    </delete>
+
+    <insert id="batchAddSysHbaseTableTag">
+        insert into sys_hbase_table_tag (table_id, tag_id) values
+        <foreach item="item" index="index" collection="sysHbaseTableTagList" separator=",">
+            (#{item.tableId}, #{item.tagId})
+        </foreach>
+    </insert>
+</mapper>

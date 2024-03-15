@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('HBase表数据列表')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list" id="query-element">
+                    <ul>
+                        <li>
+                            筛选表名：<select id="tableName" name="tableName" class="type form-control m-b"></select>
+                        </li>
+
+                        <li>
+                            筛选列簇：<select id="familyName" name="familyName" class="router form-control m-b">
+                        </select>
+                        </li>
+                        <!--<li>
+                            筛选列簇： <select name="familyName" class="form-control m-b">
+                                <option th:each="familyName:${familyNameList}" th:value="${familyName}"
+                                        th:text="${familyName}"></option>
+                            </select>
+                        </li>-->
+                        <li>
+                            <label>row key：</label>
+                            <input type="text" name="rowKey"/>
+                        </li>
+                        <!-- <li>
+                             <label>时间戳：</label>
+                             <input type="text" name="timestamp"/>
+                         </li>-->
+                        <li>
+                            <label>start key：</label>
+                            <input type="text" name="startKey"/>
+                        </li>
+                        <li>
+                            <label>limit：</label>
+                            <input type="text" name="limit" value="10"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="showAddPanel()" shiro:hasPermission="hbase:data:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <!--<a class="btn btn-primary single" onclick="$.operate.edit()"
+               shiro:hasPermission="hbase:data:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>-->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="hbase:data:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+
+<script th:inline="javascript">
+    var data = [[${tableFamilyData}]];
+    $('#query-element').cxSelect({
+        selects: ['type', 'router'],
+        jsonValue: 'v',
+        required: true,
+        data: data
+    });
+    var currentTableId = [[${tableId}]]
+    var detailFlag = [[${@permission.hasPermi('hbase:data:detail')}]];
+    var editFlag = [[${@permission.hasPermi('hbase:data:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('hbase:data:remove')}]];
+    var prefix = ctx + "system/data";
+    var tablePrefix = ctx + "system/table";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            detailUrl: prefix + "/detail/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "HBase表数据",
+            sidePagination: 'client',
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'tableName',
+                    title: 'table name',
+                    visible: false
+                },
+                {
+                    field: 'rowKey',
+                    title: 'row key'
+                },
+                {
+                    field: 'familyName',
+                    title: '列名称'
+                },
+                {
+                    field: 'timestamp',
+                    title: '时间戳'
+                },
+                {
+                    field: 'value',
+                    title: '数据值',
+                    formatter: function (value, row, index) {
+                        if (value.length > 80) {
+                            return value.substr(0, 80) + "..."
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        var queryParams = "?tableName=" + encodeURIComponent(row.tableName)
+                            + "&familyName=" + encodeURIComponent(row.familyName) + "&rowKey=" + encodeURIComponent(row.rowKey)
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="showDetailPanel(\'' + queryParams + '\')"><i class="fa fa-search"></i>查看详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="showEditPanel(\'' + queryParams + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="removeData(\'' + queryParams + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function showAddPanel() {
+        var url = tablePrefix + "/data/" + currentTableId + "/add"
+        $.operate.editWithUrl(url)
+    }
+
+    function showDetailPanel(queryParams) {
+        var url = prefix + "/detail" + queryParams
+        $.operate.detailWithUrl(url)
+    }
+
+    function showEditPanel(queryParams) {
+        var url = prefix + "/edit" + queryParams
+        $.operate.editWithUrl(url)
+    }
+
+    function removeData(queryParams) {
+        var url = prefix + "/remove" + queryParams
+        $.operate.removeWithUrl(url)
+    }
+
+</script>
+</body>
+</html>

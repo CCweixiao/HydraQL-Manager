@@ -1,0 +1,7 @@
+com.leo.hbase.manager.generator.config
+com.leo.hbase.manager.generator.controller
+com.leo.hbase.manager.generator.domain
+com.leo.hbase.manager.generator.mapper
+com.leo.hbase.manager.generator.service
+com.leo.hbase.manager.generator.service.impl
+com.leo.hbase.manager.generator.util

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leo.hbase.manager.system.mapper.SysHbaseTableSchemaMapper">
+
+    <resultMap type="SysHbaseTableSchema" id="SysHbaseTableSchemaResult">
+        <result property="schemaId" column="schema_id"/>
+        <result property="clusterId" column="cluster_id"/>
+        <result property="tableName" column="table_name"/>
+        <result property="tableSchema" column="table_schema"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectSysHbaseTableSchemaVo">
+        select schema_id, cluster_id, table_name, table_schema, create_by, create_time, update_by, update_time
+        from sys_hbase_table_schema
+    </sql>
+
+    <select id="selectSysHbaseTableSchemaList" parameterType="String" resultMap="SysHbaseTableSchemaResult">
+        <include refid="selectSysHbaseTableSchemaVo"/>
+        <where>
+            <if test="clusterId != null and clusterId != ''">and cluster_id = #{clusterId}</if>
+            <if test="tableName != null and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectSysHbaseTableSchemaByTableName" parameterType="String" resultMap="SysHbaseTableSchemaResult">
+        <include refid="selectSysHbaseTableSchemaVo"/>
+        <where>
+            <if test="clusterId != null and clusterId != ''">and cluster_id = #{clusterId}</if>
+            <if test="tableName != null and tableName != ''">and (table_name = #{tableName} or table_name = CONCAT('default:', #{tableName}))</if>
+        </where>
+    </select>
+
+
+    <select id="selectSysHbaseTableSchemaById" parameterType="Integer" resultMap="SysHbaseTableSchemaResult">
+        <include refid="selectSysHbaseTableSchemaVo"/>
+        WHERE schema_id = #{schemaId}
+    </select>
+
+
+    <insert id="insertSysHbaseTableSchema" parameterType="SysHbaseTableSchema" useGeneratedKeys="true" keyProperty="schemaId">
+        insert into sys_hbase_table_schema
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">cluster_id,</if>
+            <if test="tableName != null and tableName != ''">table_name,</if>
+            <if test="tableSchema != null and tableSchema != ''">table_schema,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">#{clusterId},</if>
+            <if test="tableName != null and tableName != ''">#{tableName},</if>
+            <if test="tableSchema != null and tableSchema != ''">#{tableSchema},</if>
+            <if test="createBy != null">#{createBy},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateSysHbaseTableSchema" parameterType="SysHbaseTableSchema">
+        update sys_hbase_table_schema
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clusterId != null and clusterId != ''">cluster_id = #{clusterId},</if>
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="tableSchema != null and tableSchema != ''">table_schema = #{tableSchema},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where schema_id = #{schemaId}
+    </update>
+
+    <delete id="deleteSysHbaseTableSchemaById" parameterType="Integer">
+        delete
+        from sys_hbase_table_schema
+        where schema_id = #{schemaId}
+    </delete>
+
+</mapper>
