@@ -12,8 +12,8 @@
 
 ## 2. 极速体验站点
 
-目前由于蛋壳停止了网络供应，体验站点暂时无法使用，如想快速体验，可以参考下文部署步骤，搭建属于你自己的系统。
-[http://www.jielongping.com:9527/index](http://www.jielongping.com:9527/index)
+[体验站点: admin/admin123](http://101.43.78.35:9527/index)
+
 
 ## 3. HBaseManager功能列表
 

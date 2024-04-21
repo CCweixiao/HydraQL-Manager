@@ -66,7 +66,7 @@ public class SysHbaseWebSocketController {
     @OnMessage
     public void onMessage(String message, Session session) {
         LOG.info("收到来自shell回话：" + sessionId + "的信息:" + message);
-        Result result = null;
+        Result result;
         if (StringUtils.isBlank(message)) {
             result = Result.failed("请输入需要执行的命令～");
         } else {

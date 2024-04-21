@@ -3,16 +3,18 @@ package com.hydraql.manager.core.conf;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hydraql.manager.core.util.StringUtil;
+
 /**
  * @author leojie 2024/2/23 13:38
  */
-public class HydraqlProperties {
+public class HydraQLProperties {
     private final ConcurrentHashMap<PropertyKey, Optional<Object>> mUserProps = new ConcurrentHashMap<>();
 
-    public HydraqlProperties() {
+    public HydraQLProperties() {
     }
 
-    public HydraqlProperties(HydraqlProperties hydraqlProperties) {
+    public HydraQLProperties(HydraQLProperties hydraqlProperties) {
         mUserProps.putAll(hydraqlProperties.mUserProps);
     }
 
@@ -39,7 +41,11 @@ public class HydraqlProperties {
                 return true;
             }
         }
-        return PropertyKey.fromString(key.toString()).getDefaultValue() != null;
+        Object defaultValue = PropertyKey.fromString(key.toString()).getDefaultValue();
+        if (defaultValue == null) {
+            return false;
+        }
+        return !StringUtil.isBlank(defaultValue.toString());
     }
 
     public Set<PropertyKey> keySet() {

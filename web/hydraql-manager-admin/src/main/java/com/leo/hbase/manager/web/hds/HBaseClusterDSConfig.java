@@ -1,10 +1,18 @@
 package com.leo.hbase.manager.web.hds;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import com.hydraql.manager.core.conf.HydraQLHBaseConfiguration;
 import com.hydraql.manager.core.conf.PropertyKey;
-import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.hydraql.manager.core.template.HydraQLTemplate;
+import com.leo.hbase.manager.common.config.Global;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.SocketUtil;
 import com.leo.hbase.manager.common.utils.StringUtils;
@@ -12,13 +20,6 @@ import com.leo.hbase.manager.system.domain.SysHbaseCluster;
 import com.leo.hbase.manager.system.dto.PropertyDto;
 import com.leo.hbase.manager.system.dto.SysHbaseClusterDto;
 import com.leo.hbase.manager.system.service.ISysHbaseClusterService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * HBase动态数据源管理器
@@ -29,18 +30,21 @@ import java.util.Map;
 public class HBaseClusterDSConfig {
     private static final Logger LOG = LoggerFactory.getLogger(HBaseClusterDSConfig.class);
 
-    @Autowired
-    private ISysHbaseClusterService hbaseClusterService;
+    private final ISysHbaseClusterService hbaseClusterService;
 
-    public HydraqlTemplate getHydraqlTemplate(String clusterCode) {
-        LOG.info("当前获取集群:{}的HydraqlTemplate对象！", clusterCode);
-        Map<String, String> properties = getHBaseProperties(clusterCode);
-        HydraqlHBaseConfiguration conf = new HydraqlHBaseConfiguration();
-        properties.forEach((k, v) -> conf.set(PropertyKey.fromString(k), v));
-        return HydraqlTemplate.Factory.create(conf);
+    public HBaseClusterDSConfig(ISysHbaseClusterService hbaseClusterService) {
+        this.hbaseClusterService = hbaseClusterService;
     }
 
-    public HydraqlTemplate getHydraqlTemplate(SysHbaseClusterDto sysHbaseClusterDto) {
+    public HydraQLTemplate getHydraqlTemplate(String clusterCode) {
+        LOG.info("当前获取集群:{}的HydraQLTemplate对象！", clusterCode);
+        Map<String, String> properties = getHBaseProperties(clusterCode);
+        HydraQLHBaseConfiguration conf = new HydraQLHBaseConfiguration();
+        properties.forEach((k, v) -> conf.set(PropertyKey.fromString(k), v));
+        return HydraQLTemplate.Factory.create(conf);
+    }
+
+    public HydraQLTemplate getHydraqlTemplate(SysHbaseClusterDto sysHbaseClusterDto) {
         return getHydraqlTemplate(sysHbaseClusterDto.getClusterId());
     }
 
@@ -64,7 +68,14 @@ public class HBaseClusterDSConfig {
                 PropertyDto propObj = propArr.getObject(i, PropertyDto.class);
                 properties.put(propObj.getPropertyName(), propObj.getPropertyValue());
             }
+
             properties.put(PropertyKey.HYDRAQL_HBASE_VERSION.getName(), sysHbaseCluster.getClusterVersion());
+            String plugins = properties.get(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR.getName());
+            if (StringUtils.isBlank(plugins)) {
+                properties.put(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR.getName(), Global.getPlugins());
+                LOG.info("Set the default plugin directory: {}", Global.getPlugins());
+            }
+
             String zkHost = properties.get(PropertyKey.HYDRAQL_HBASE_ZOOKEEPER_QUORUM.getName());
             if (StringUtils.isBlank(zkHost)) {
                 zkHost = "localhost";

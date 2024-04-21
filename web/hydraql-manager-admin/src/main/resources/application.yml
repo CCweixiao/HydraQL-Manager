@@ -8,8 +8,8 @@ app:
   copyrightYear: 2023
   # 实例演示开关
   demoEnabled: false
-  # 文件路径 示例（ Windows配置D:/hbase-manager/uploadPath，Linux配置 /home/hbase-manager/uploadPath）
-  profile: /Users/yyf/software/hbase-manager/upload_path
+  # application的部署目录（Windows配置D:/tmp/hydraql-manager）
+  home: /tmp/hydraql-manager
   # 获取ip地址开关
   addressEnabled: false
 
@@ -24,15 +24,15 @@ server:
     # tomcat的URI编码
     uri-encoding: UTF-8
     # tomcat最大线程数，默认为200
-    max-threads: 800
+    max-threads: 100
     # Tomcat启动初始化的线程数，默认值25
-    min-spare-threads: 30
+    min-spare-threads: 10
  
 # 日志配置
 logging:
   level:
     com.leo.hbase.manager: debug
-    org.springframework: warn
+    org.springframework: info
 
 # 用户配置
 user:

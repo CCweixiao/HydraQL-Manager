@@ -11,15 +11,15 @@ import java.util.stream.Collectors;
 /**
  * @author leojie 2024/1/30 17:11
  */
-public class HydraqlHBaseConfiguration implements HydraqlConfiguration {
-    private static final Logger LOG = LoggerFactory.getLogger(HydraqlHBaseConfiguration.class);
-    protected final HydraqlProperties properties;
+public class HydraQLHBaseConfiguration implements HydraQLConfiguration {
+    private static final Logger LOG = LoggerFactory.getLogger(HydraQLHBaseConfiguration.class);
+    protected final HydraQLProperties properties;
 
-    public HydraqlHBaseConfiguration() {
-        this.properties = new HydraqlProperties();
+    public HydraQLHBaseConfiguration() {
+        this.properties = new HydraQLProperties();
     }
 
-    public HydraqlProperties getProperties() {
+    public HydraQLProperties getProperties() {
         return properties;
     }
 
@@ -97,7 +97,7 @@ public class HydraqlHBaseConfiguration implements HydraqlConfiguration {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         // Cannot use Collectors.toMap because we support null keys.
-        keySet().forEach(key -> map.put(key.getName(), getOrDefault(key, null)));
+        keySet().forEach(key -> map.put(key.getName(), getOrDefault(key, "")));
         return map;
     }
 

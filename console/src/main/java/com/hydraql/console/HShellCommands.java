@@ -16,7 +16,7 @@ import org.jline.utils.InfoCmp;
 
 import com.hydraql.console.util.HShellCommandUtils;
 import com.hydraql.manager.core.hbase.model.Result;
-import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.hydraql.manager.core.template.HydraQLTemplate;
 
 /**
  * @author leojie 2023/7/29 21:15
@@ -104,7 +104,7 @@ public class HShellCommands extends BaseCommands {
     }
 
     private void execCommand(String command, long start) {
-        HydraqlTemplate hydraqlTemplate = getHydraqlTemplate();
+        HydraQLTemplate hydraqlTemplate = getHydraqlTemplate();
         Result execute = hydraqlTemplate.executeShellCommand(command);
         if (execute.isSuccess()) {
             println(execute.getResult());

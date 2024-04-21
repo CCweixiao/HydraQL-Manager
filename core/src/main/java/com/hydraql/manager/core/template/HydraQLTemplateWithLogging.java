@@ -15,12 +15,12 @@ import java.util.List;
 /**
  * @author leojie 2024/1/26 10:41
  */
-public class HydraqlTemplateWithLogging implements HydraqlTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(HydraqlTemplateWithLogging.class);
+public class HydraQLTemplateWithLogging implements HydraQLTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(HydraQLTemplateWithLogging.class);
 
-    private final HydraqlTemplate template;
+    private final HydraQLTemplate template;
 
-    HydraqlTemplateWithLogging(HydraqlTemplate template) {
+    HydraQLTemplateWithLogging(HydraQLTemplate template) {
         this.template = template;
     }
 

@@ -1,53 +1,53 @@
 package com.hydraql.manager.core.template;
 
-import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hydraql.manager.core.conf.HydraQLHBaseConfiguration;
 import com.hydraql.manager.core.hbase.SplitGoEnum;
-import com.hydraql.manager.core.hbase.model.HBaseDataSet;
+import com.hydraql.manager.core.hbase.model.HBaseRowData;
 import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.hbase.model.SnapshotDesc;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
-import com.hydraql.manager.core.hbase.model.HBaseRowData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author leojie 2024/1/25 16:10
  */
-public interface HydraqlTemplate {
+public interface HydraQLTemplate {
 
     class Factory {
         private static final Logger LOG = LoggerFactory.getLogger(Factory.class);
 
         private Factory() {}
 
-        public static HydraqlTemplate create(HydraqlHBaseConfiguration conf) {
-            List<HydraqlTemplateFactory> factories = HydraqlTemplateFactoryRegistry.findAll(conf);
+        public static HydraQLTemplate create(HydraQLHBaseConfiguration conf) {
+            List<HydraQLTemplateFactory> factories = HydraQLTemplateFactoryRegistry.findAll(conf);
             if (factories.isEmpty()) {
-                throw new IllegalArgumentException("No Hydraql Template Factory found.");
+                throw new IllegalArgumentException("No HydraQL Template Factory found.");
             }
             List<Throwable> errors = new ArrayList<>();
-            for (HydraqlTemplateFactory factory : factories) {
+            for (HydraQLTemplateFactory factory : factories) {
                 ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
                 try {
                     Thread.currentThread().setContextClassLoader(factory.getClass().getClassLoader());
-                    HydraqlTemplate hydraqlTemplate = new HydraqlTemplateWithLogging(factory.create(conf));
-                    LOG.info("HydraqlTemplate created with factory {}", factory.getClass().getSimpleName());
+                    HydraQLTemplate hydraqlTemplate = new HydraQLTemplateWithLogging(factory.create(conf));
+                    LOG.info("HydraQLTemplate created with factory {}", factory.getClass().getSimpleName());
                     return hydraqlTemplate;
                 } catch (Throwable e) {
                     errors.add(e);
-                    LOG.warn(String.format("Failed to create HydraqlTemplate by factory %s: %s",
+                    LOG.warn(String.format("Failed to create HydraQLTemplate by factory %s: %s",
                             factory.getClass().getSimpleName(), e));
                 } finally {
                     Thread.currentThread().setContextClassLoader(previousClassLoader);
                 }
             }
             IllegalArgumentException e = new IllegalArgumentException(
-                    "Unable to create an UnderFileSystem instance for path");
+                    "Unable to create an HydraQLTemplate instance for path");
             for (Throwable t : errors) {
                 e.addSuppressed(t);
             }

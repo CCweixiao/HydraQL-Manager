@@ -1,7 +1,11 @@
 package com.leo.hbase.manager.common.config;
 
+import java.io.File;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import com.leo.hbase.manager.common.utils.StringUtils;
 
 /**
  * 全局配置类
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app")
 public class Global
 {
+    private static final String DEFAULT_HOME = "/tmp/hydraql-manager/";
     /** 项目名称 */
     private static String name;
 
@@ -24,8 +29,8 @@ public class Global
     /** 实例演示开关 */
     private static boolean demoEnabled;
 
-    /** 上传路径 */
-    private static String profile;
+    /** application的部署目录 */
+    private static String home;
 
     /** 获取地址开关 */
     private static boolean addressEnabled;
@@ -72,12 +77,25 @@ public class Global
 
     public static String getProfile()
     {
-        return profile;
+        return getHome().concat("upload_path");
     }
 
-    public void setProfile(String profile)
-    {
-        Global.profile = profile;
+    public static String getPlugins() {
+        return getHome().concat("plugins");
+    }
+
+    public static String getHome() {
+        if (StringUtils.isBlank(home)) {
+            home = DEFAULT_HOME;
+        }
+        if (!home.endsWith(File.separator)) {
+            home += File.separator;
+        }
+        return home;
+    }
+
+    public void setHome(String home) {
+        Global.home = home;
     }
 
     public static boolean isAddressEnabled()

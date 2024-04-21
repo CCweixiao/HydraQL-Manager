@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * @author leojie 2024/2/23 14:26
  */
-public interface HydraqlConfiguration {
+public interface HydraQLConfiguration {
     Object get(PropertyKey key);
 
     boolean isSet(PropertyKey key);

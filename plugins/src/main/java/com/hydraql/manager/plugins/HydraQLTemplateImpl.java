@@ -1,18 +1,17 @@
 package com.hydraql.manager.plugins;
 
+import com.hydraql.adapter.schema.BaseColumnFamilyDesc;
+import com.hydraql.adapter.schema.BaseHTableDesc;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.GetRowParam;
-import com.hydraql.connection.HBaseConnectionManager;
-import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import com.hydraql.manager.core.conf.HydraQLHBaseConfiguration;
 import com.hydraql.manager.core.hbase.SplitGoEnum;
 import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.hbase.model.SnapshotDesc;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
-import com.hydraql.manager.core.template.HydraqlTemplate;
-import com.hydraql.schema.BaseColumnFamilyDesc;
-import com.hydraql.schema.BaseHTableDesc;
+import com.hydraql.manager.core.template.HydraQLTemplate;
 import com.hydraql.shell.HBaseShellCommands;
 import com.hydraql.shell.HBaseShellSession;
 import com.hydraql.shell.HBaseShellSessionManager;
@@ -20,37 +19,36 @@ import com.hydraql.template.HBaseAdminTemplate;
 import com.hydraql.template.HBaseSqlTemplate;
 import com.hydraql.template.HBaseTableTemplate;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Connection;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * @author leojie 2024/1/25 16:20
  */
-public class HydraqlTemplateImpl implements HydraqlTemplate {
+public class HydraQLTemplateImpl implements HydraQLTemplate {
 
     private final HBaseAdminTemplate adminTemplate;
     private final HBaseTableTemplate tableTemplate;
     private final HBaseSqlTemplate hqlTemplate;
 
-    private final HydraqlHBaseConfiguration conf;
+    private final HydraQLHBaseConfiguration conf;
 
-    public static HydraqlTemplateImpl createInstance(HydraqlHBaseConfiguration conf) {
-        return new HydraqlTemplateImpl(conf);
+    public static HydraQLTemplateImpl createInstance(HydraQLHBaseConfiguration conf) {
+        return new HydraQLTemplateImpl(conf);
     }
 
-    public HydraqlTemplateImpl(HydraqlHBaseConfiguration conf) {
+    public HydraQLTemplateImpl(HydraQLHBaseConfiguration conf) {
         this.conf = conf;
         Configuration hbaseConf = new Configuration();
-        conf.toMap().forEach((k, v) -> hbaseConf.set(k, v.toString()));
-        Connection connection = HBaseConnectionManager.getInstance().getConnection(hbaseConf);
-        adminTemplate = HBaseAdminTemplate.of(connection);
-        tableTemplate = HBaseTableTemplate.of(connection);
-        hqlTemplate = HBaseSqlTemplate.of(connection);
+        conf.toMap().forEach((k, v) -> hbaseConf.set(k, v == null ? "" : v.toString()));
+        adminTemplate = HBaseAdminTemplate.of(hbaseConf);
+        tableTemplate = HBaseTableTemplate.of(hbaseConf);
+        hqlTemplate = HBaseSqlTemplate.of(hbaseConf);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
 
     @Override
     public List<HTableDesc> listTableDesc(boolean includeSysTables) {
-        List<com.hydraql.schema.HTableDesc> tableDescList = adminTemplate.listTableDesc(includeSysTables);
+        List<com.hydraql.adapter.schema.HTableDesc> tableDescList = adminTemplate.listTableDesc(includeSysTables);
         if (tableDescList.isEmpty()) {
             return new ArrayList<>(0);
         }
@@ -163,8 +161,8 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
 
     @Override
     public boolean addFamily(String tableName, ColumnFamilyDesc familyDesc) {
-        com.hydraql.schema.BaseColumnFamilyDesc cf = convertTo(familyDesc);
-        return adminTemplate.addFamilyAsync(tableName, (com.hydraql.schema.ColumnFamilyDesc) cf);
+        com.hydraql.adapter.schema.BaseColumnFamilyDesc cf = convertTo(familyDesc);
+        return adminTemplate.addFamilyAsync(tableName, (com.hydraql.adapter.schema.ColumnFamilyDesc) cf);
     }
 
     @Override
@@ -174,8 +172,8 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
 
     @Override
     public boolean modifyFamily(String tableName, ColumnFamilyDesc familyDesc) {
-        com.hydraql.schema.BaseColumnFamilyDesc cf = convertTo(familyDesc);
-        return adminTemplate.modifyFamilyAsync(tableName, (com.hydraql.schema.ColumnFamilyDesc) cf);
+        com.hydraql.adapter.schema.BaseColumnFamilyDesc cf = convertTo(familyDesc);
+        return adminTemplate.modifyFamilyAsync(tableName, (com.hydraql.adapter.schema.ColumnFamilyDesc) cf);
     }
 
     @Override
@@ -196,7 +194,9 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
 
     @Override
     public boolean modifyTableProps(HTableDesc tableDesc) {
-        return adminTemplate.modifyTablePropsAsync(tableDesc.getName(), tableDesc.getConfiguration());
+        // todo 完善相关API
+        // return adminTemplate.modifyTablePropsAsync(tableDesc.getName(), tableDesc.getConfiguration());
+        return true;
     }
 
     @Override
@@ -233,7 +233,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
     @Override
     public boolean shellSessionIsConnected() {
         HBaseShellSession shellSession = HBaseShellSessionManager.getHBaseShellSession(this.getConf().toProp());
-        return shellSession.isConnected();
+        return shellSession.isSessionConnected();
     }
 
     @Override
@@ -308,22 +308,24 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
         return namespaceDesc;
     }
 
-    private com.hydraql.schema.HTableDesc convertTo(HTableDesc hd) {
-        List<com.hydraql.schema.BaseColumnFamilyDesc> cfList =
+    private com.hydraql.adapter.schema.HTableDesc convertTo(HTableDesc hd) {
+        List<com.hydraql.adapter.schema.BaseColumnFamilyDesc> cfList =
                 new ArrayList<>(hd.getColumnFamilyDescList().size());
         for (ColumnFamilyDesc cf : hd.getColumnFamilyDescList()) {
             cfList.add(convertTo(cf));
         }
 
-        BaseHTableDesc.Builder<com.hydraql.schema.HTableDesc> builder =
-                com.hydraql.schema.HTableDesc.newBuilder()
-                        .name(hd.getName())
+        BaseHTableDesc.Builder<com.hydraql.adapter.schema.HTableDesc> builder =
+                com.hydraql.adapter.schema.HTableDesc.newBuilder(hd.getName())
                         .maxFileSize(hd.getMaxFileSize())
                         .readOnly(hd.isReadOnly())
                         .memStoreFlushSize(hd.getMemStoreFlushSize())
                         .compactionEnabled(hd.isCompactionEnabled())
-                        .regionSplitPolicyClassName(hd.getRegionSplitPolicyClassName())
-                        .columnFamilyDescList(cfList);
+                        .regionSplitPolicyClassName(hd.getRegionSplitPolicyClassName());
+        for (BaseColumnFamilyDesc familyDesc : cfList) {
+            builder.addFamilyDesc(familyDesc);
+        }
+
         if (!hd.getConfiguration().isEmpty()) {
             hd.getConfiguration().forEach(builder::setConfiguration);
         }
@@ -333,9 +335,9 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
         return builder.build();
     }
 
-    private com.hydraql.schema.BaseColumnFamilyDesc convertTo(ColumnFamilyDesc cf) {
-        return com.hydraql.schema.ColumnFamilyDesc.newBuilder()
-                .name(cf.getName())
+    private com.hydraql.adapter.schema.BaseColumnFamilyDesc convertTo(ColumnFamilyDesc cf) {
+        BaseColumnFamilyDesc.Builder<com.hydraql.adapter.schema.ColumnFamilyDesc> builder =
+                com.hydraql.adapter.schema.ColumnFamilyDesc.newBuilder(cf.getName())
                 .replicationScope(cf.getReplicationScope())
                 .maxVersions(cf.getMaxVersions())
                 .minVersions(cf.getMinVersions())
@@ -353,10 +355,10 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
                 .cacheIndexesOnWrite(cf.isCacheIndexesOnWrite())
                 .cacheBloomsOnWrite(cf.isCacheBloomsOnWrite())
                 .evictBlocksOnClose(cf.isEvictBlocksOnClose())
-                .prefetchBlocksOnOpen(cf.isPrefetchBlocksOnOpen())
-                .setConfiguration(cf.getConfiguration())
-                .setValue(cf.getValues())
-                .build();
+                .prefetchBlocksOnOpen(cf.isPrefetchBlocksOnOpen());
+        cf.getConfiguration().forEach(builder::setConfiguration);
+        cf.getValues().forEach(builder::setValue);
+        return builder.build();
     }
 
     private SnapshotDesc convertFrom(com.hydraql.common.model.SnapshotDesc sd) {
@@ -374,7 +376,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
         return namespaceDesc;
     }
 
-    private HTableDesc convertFrom(com.hydraql.schema.HTableDesc hd) {
+    private HTableDesc convertFrom(com.hydraql.adapter.schema.HTableDesc hd) {
         return HTableDesc.of(hd.getTableNameWithNamespace())
                 .maxFileSize(hd.getMaxFileSize())
                 .readOnly(hd.isReadOnly())
@@ -387,7 +389,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
                 .build();
     }
 
-    private List<ColumnFamilyDesc> convertFrom(List<com.hydraql.schema.BaseColumnFamilyDesc> cfList) {
+    private List<ColumnFamilyDesc> convertFrom(List<com.hydraql.adapter.schema.BaseColumnFamilyDesc> cfList) {
         List<ColumnFamilyDesc> columnFamilyDescList = new ArrayList<>(cfList.size());
         for (BaseColumnFamilyDesc cf : cfList) {
             columnFamilyDescList.add(convertFrom(cf));
@@ -395,7 +397,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
         return columnFamilyDescList;
     }
 
-    private ColumnFamilyDesc convertFrom(com.hydraql.schema.BaseColumnFamilyDesc cf) {
+    private ColumnFamilyDesc convertFrom(com.hydraql.adapter.schema.BaseColumnFamilyDesc cf) {
         return ColumnFamilyDesc.of(cf.getNameAsString())
                 .replicationScope(cf.getReplicationScope())
                 .maxVersions(cf.getMaxVersions())
@@ -420,7 +422,7 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
                 .build();
     }
 
-    public HydraqlHBaseConfiguration getConf() {
+    public HydraQLHBaseConfiguration getConf() {
         return conf;
     }
 }

@@ -20,7 +20,7 @@ import org.jline.console.Printer;
 import org.jline.reader.impl.completer.SystemCompleter;
 
 import com.hydraql.console.util.StringUtil;
-import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.hydraql.manager.core.template.HydraQLTemplate;
 
 /**
  * @author leojie 2023/7/29 21:15
@@ -175,7 +175,7 @@ public class HClusterCommands extends BaseCommands {
         }
 
         CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
-            HydraqlTemplate hydraqlTemplate = getHydraqlTemplate(p);
+            HydraQLTemplate hydraqlTemplate = getHydraqlTemplate(p);
             List<String> namespaces = hydraqlTemplate.listNamespaceNames();
             return namespaces != null && !namespaces.isEmpty();
         });

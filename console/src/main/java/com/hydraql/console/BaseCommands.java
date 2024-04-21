@@ -9,9 +9,9 @@ import org.jline.console.impl.JlineCommandRegistry;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
-import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import com.hydraql.manager.core.conf.HydraQLHBaseConfiguration;
 import com.hydraql.manager.core.conf.PropertyKey;
-import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.hydraql.manager.core.template.HydraQLTemplate;
 
 /**
  * @author leojie 2023/7/30 19:10
@@ -64,16 +64,16 @@ public abstract class BaseCommands extends JlineCommandRegistry {
         return sb.toString();
     }
 
-    protected HydraqlTemplate getHydraqlTemplate(Map<String, String> properties) {
-        HydraqlHBaseConfiguration conf = new HydraqlHBaseConfiguration();
+    protected HydraQLTemplate getHydraqlTemplate(Map<String, String> properties) {
+        HydraQLHBaseConfiguration conf = new HydraQLHBaseConfiguration();
         if (!properties.containsKey(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR.getName())) {
             conf.set(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR, HqlConsoleEnv.getHqlConsolePluginsHome());
         }
         properties.forEach((k, v) -> conf.set(PropertyKey.fromString(k), v));
-        return HydraqlTemplate.Factory.create(conf);
+        return HydraQLTemplate.Factory.create(conf);
     }
 
-    protected HydraqlTemplate getHydraqlTemplate() {
+    protected HydraQLTemplate getHydraqlTemplate() {
         Map<String, String> properties = HClusterContext.getInstance().getCurrentClusterProperties();
         return getHydraqlTemplate(properties);
     }

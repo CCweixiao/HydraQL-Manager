@@ -174,7 +174,7 @@ public class PropertyKey implements Comparable<PropertyKey> {
 
     public static final PropertyKey HYDRAQL_MANAGER_PLUGINS_DIR =
             stringBuilder(Name.PLUGINS_DIR)
-                    .setDefaultValue("/opt/hydraql/plugins")
+                    .setDefaultValue("")
                     .setDescription("hydraql manager plugins dir.")
                     .build();
 

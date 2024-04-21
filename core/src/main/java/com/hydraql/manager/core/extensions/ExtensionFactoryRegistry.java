@@ -1,8 +1,8 @@
 package com.hydraql.manager.core.extensions;
 
-import com.hydraql.manager.core.conf.HydraqlConfiguration;
+import com.hydraql.manager.core.conf.HydraQLConfiguration;
 import com.hydraql.manager.core.conf.PropertyKey;
-import com.hydraql.manager.core.template.HydraqlTemplateFactory;
+import com.hydraql.manager.core.template.HydraQLTemplateFactory;
 import com.hydraql.manager.core.util.ExtensionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author leojie 2024/1/25 15:17
  */
 public class ExtensionFactoryRegistry<T extends ExtensionFactory<?, S>,
-        S extends HydraqlConfiguration> {
+        S extends HydraQLConfiguration> {
     private static final Logger LOG = LoggerFactory.getLogger(ExtensionFactoryRegistry.class);
     public static final String UNKNOWN_VERSION = "unknown";
 
@@ -61,8 +61,8 @@ public class ExtensionFactoryRegistry<T extends ExtensionFactory<?, S>,
         List<T> factories = new ArrayList<>(mFactories);
         String pluginsDir = conf.getString(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR);
         scanExtensions(factories, pluginsDir);
-        LOG.info("Loaded plugin jars from {}.\n"
-                + "The total number of loaded factory core jars is {}", pluginsDir, factories.size());
+        LOG.info("Loaded plugin jars from {}, And "
+                + "the total number of loaded factory core jars is {}", pluginsDir, factories.size());
         if (conf.isSet(PropertyKey.HYDRAQL_HBASE_VERSION)) {
             LOG.info("hydraql.hbase.version is set by user, target version is {}",
                     conf.getString(PropertyKey.HYDRAQL_HBASE_VERSION));
@@ -73,8 +73,8 @@ public class ExtensionFactoryRegistry<T extends ExtensionFactory<?, S>,
         for (T factory : factories) {
             // if `getVersion` returns null set the version to "unknown"
             String version = UNKNOWN_VERSION;
-            if (factory instanceof HydraqlTemplateFactory) {
-                version = Optional.ofNullable(((HydraqlTemplateFactory) factory)
+            if (factory instanceof HydraQLTemplateFactory) {
+                version = Optional.ofNullable(((HydraQLTemplateFactory) factory)
                         .getVersion()).orElse(UNKNOWN_VERSION);
             }
             if (factory.supportsVersion(conf)) {

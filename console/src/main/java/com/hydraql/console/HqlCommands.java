@@ -11,7 +11,7 @@ import org.jline.console.CommandMethods;
 import org.jline.console.Printer;
 import org.jline.reader.impl.completer.SystemCompleter;
 
-import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.hydraql.manager.core.template.HydraQLTemplate;
 
 /**
  * @author leojie 2023/7/29 21:15
@@ -79,7 +79,7 @@ public class HqlCommands extends BaseCommands {
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         hql = hql.replace("showVirtualTables ", "");
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         List<String> virtualTables = sqlTemplate.showVirtualTables(hql);
         for (String virtualTable : virtualTables) {
             println(virtualTable);
@@ -91,7 +91,7 @@ public class HqlCommands extends BaseCommands {
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         hql = hql.replace("showCreateVirtualTable ", "");
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         String virtualTable = sqlTemplate.showCreateVirtualTable(hql);
         println(virtualTable);
         println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
@@ -101,7 +101,7 @@ public class HqlCommands extends BaseCommands {
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         hql = hql.replace("createVirtualTable ", "");
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         sqlTemplate.createVirtualTable(hql);
         println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
     }
@@ -110,7 +110,7 @@ public class HqlCommands extends BaseCommands {
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         hql = hql.replace("dropVirtualTable ", "");
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         sqlTemplate.dropVirtualTable(hql);
         println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
     }
@@ -118,7 +118,7 @@ public class HqlCommands extends BaseCommands {
     private void select(CommandInput input) {
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         // HBaseDataSet dataSet = sqlTemplate.select(hql);
         // String table = dataSet.showTable(false);
         println(hql);
@@ -126,7 +126,7 @@ public class HqlCommands extends BaseCommands {
     }
 
     private void upsert(CommandInput input) {
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         sqlTemplate.upsert(hql);
@@ -134,7 +134,7 @@ public class HqlCommands extends BaseCommands {
     }
 
     private void delete(CommandInput input) {
-        HydraqlTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
+        HydraQLTemplate sqlTemplate = getHydraqlTemplate(HClusterContext.getInstance().getCurrentClusterProperties());
         long start = System.currentTimeMillis();
         String hql = parseSql(input);
         sqlTemplate.delete(hql);
